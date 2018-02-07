@@ -5,7 +5,7 @@ world_camera_id = None
 
 system = platform.system()
 if  system == 'Linux':
-    world_camera_id = 2
+    world_camera_id = 1
 elif system == 'darwin':
     world_camera_id = 0
 elif system == 'win32' or system == 'win64':
