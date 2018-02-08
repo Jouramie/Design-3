@@ -178,3 +178,4 @@ venv.bak/
 
 # End of https://www.gitignore.io/api/opencv,python,pycharm
 
+*.directory
