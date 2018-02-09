@@ -1,3 +1,14 @@
-success:
+image: python:3.6-alpine
+
+stages:
+  - unittest
+  - itest
+
+
+pytest_unit_tests:
+  stage: unittest
   script:
-    - echo "plz succeed"
+  - pip install pytest
+  - pytest tests
+
+
