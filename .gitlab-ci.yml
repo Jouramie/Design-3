@@ -1,0 +1,3 @@
+success:
+  script:
+    - return 0
