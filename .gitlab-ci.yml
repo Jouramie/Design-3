@@ -1,0 +1,11 @@
+stages:
+  - unittest
+  - itest
+
+
+pytest_unit_tests:
+  stage: unittest
+  script:
+  - pytest tests
+
+
