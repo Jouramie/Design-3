@@ -175,6 +175,13 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# figures (automatic save with opencv)
+fig/
+
+# pycharm shit
+.idea/
+
 
 # End of https://www.gitignore.io/api/opencv,python,pycharm
 
+*.directory
