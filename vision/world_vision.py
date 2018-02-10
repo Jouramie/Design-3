@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-
-cap = cv2.VideoCapture(1)
+image_file = '../fig/2018-02-10/16h42.png';
+cap = cv2.VideoCapture(0)
 
 
 def create_environment():
@@ -16,7 +16,6 @@ def create_environment():
         upper_blue = np.array([130, 255, 255])
         mask = cv2.inRange(hsv, lower_blue, upper_blue)
         res = cv2.bitwise_and(frame, frame, mask=mask)
-
 
         cv2.imshow('frame', frame)
         cv2.imshow('mask', mask)
@@ -38,7 +37,29 @@ def edge_detection():
     plt.show()
 
 
-edge_detection()
+def apply_mask_to_image(filename):
+    im = cv2.imread(filename)
+    shapes = []
+
+    hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
+
+    lower_blue = np.array([90, 0, 0])
+    upper_blue = np.array([130, 255, 255])
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE);
+
+    for shape in contours:
+        if 200 > len(shape) > 40 and shape[0][0][0] > 600:
+            shapes.append(shape)
+
+    cv2.drawContours(im, shapes, -1, (0, 255, 0), 3)
+
+    cv2.imshow('frame', im)
+    k = cv2.waitKey(0)
+
+
+apply_mask_to_image(image_file)
 
 
 
