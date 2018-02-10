@@ -1,15 +1,14 @@
-
 class Cube(object):
 
     def __init__(self, colour, position):
-        self.Colour = colour
-        self.Point = position
+        self.colour = colour
+        self.point = position
 
     def getColour(self):
-        return self.Colour.value
+        return self.colour.value
 
     def getXPosition(self):
-        return self.Point.getX()
+        return self.point.getX()
 
     def getYPosition(self):
-        return self.Point.getY()
+        return self.point.getY()
