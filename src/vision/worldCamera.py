@@ -4,7 +4,8 @@ import platform
 import time
 
 import cv2
-from .. import config
+
+from src import config
 from ..vision.camera import Camera
 
 
@@ -48,9 +49,7 @@ class WorldCamera(Camera):
             logging.info('No frame was returned while taking a picture')
             return 0
 
+
 if __name__ == '__main__':
     world_camera = WorldCamera()
     world_camera.take_picture()
-
-
-
