@@ -22,7 +22,7 @@ for i in range(10):
 cv2.namedWindow('capture')
 cv2.imshow('capture', img)
 
-directory = "../fig/" + time.strftime("%Y-%m-%d")
+directory = "../../fig/" + time.strftime("%Y-%m-%d")
 if not os.path.exists(directory):
     os.makedirs(directory)
 
