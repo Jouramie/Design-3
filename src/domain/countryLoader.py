@@ -10,7 +10,8 @@ class CountryLoader(object):
         except FileNotFoundError:
             print(' File does NOT exist')
 
-    # TODO LOAD CUBE FLAG
+    # TODO WIP
+    # Load flag in cube with position from .fig
     #def stylizedFlagLoader(self):
         # Pour chaque nom dans self code on cré le flag,
         # Contient des exceptions (ie Congo, République démocratique -> CongoDM)
