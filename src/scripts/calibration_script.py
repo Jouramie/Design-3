@@ -1,38 +1,36 @@
 import numpy as np
 import cv2
 import glob
+import matplotlib.pyplot as plt
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((6*7,3), np.float32)
-objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
+nx = 7  # TODO: enter the number of inside corners in x
+ny = 7  # TODO: enter the number of inside corners in y
 
-# Arrays to store object points and image points from all the images.
-objpoints = [] # 3d point in real world space
-imgpoints = [] # 2d points in image plane.
+# Make a list of calibration images
+images = glob.glob('../../fig/2018-02-12/*.jpg')
 
-images = glob.glob('../../fig/2018-02-05/*.jpg')
-print(images)
 
-for fname in images:
-    img = cv2.imread(fname)
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+for i in images:
+    print('-> processing image {}'.format(i))
+    img = cv2.imread(i)
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Find the chess board corners
-    ret, corners = cv2.findChessboardCorners(gray, (7,6),None)
+    # Find the chessboard corners
+    ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
 
-    # If found, add object points, image points (after refining them)
+    # If found, draw corners
     if ret == True:
-        objpoints.append(objp)
-
-        corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-        imgpoints.append(corners2)
-
         # Draw and display the corners
-        img = cv2.drawChessboardCorners(img, (7,6), corners2,ret)
-        cv2.imshow('img',img)
-        cv2.waitKey(500)
+        cv2.drawChessboardCorners(img, (nx, ny), corners, ret)
+        cv2.imshow('yoyo', img)
+        plt.imshow(img)
+        plt.show()
 
+
+cv2.waitKey()
 cv2.destroyAllWindows()
+
