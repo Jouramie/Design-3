@@ -4,8 +4,8 @@ import platform
 import time
 
 import cv2
-from src import config
-from src.vision.camera import Camera
+from .. import config
+from ..vision.camera import Camera
 
 
 class WorldCamera(Camera):
@@ -50,7 +50,7 @@ class WorldCamera(Camera):
 
 if __name__ == '__main__':
     world_camera = WorldCamera()
-    img = world_camera.take_picture()
+    world_camera.take_picture()
 
 
 
