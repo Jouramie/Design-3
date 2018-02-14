@@ -1,4 +1,4 @@
-from .graph import Graph
+from graph import Graph
 
 class PathCalculator(object):
     __defaultWeight = 1
@@ -12,7 +12,7 @@ class PathCalculator(object):
                 self.__tableGraph.addVertex((x, y))
 
     # TODO WIP
-    # def setVerticesNeighbors(self, node):
+    # def __initiate_vertices_neighbors(self, node):
         # directions = [[0, -1], [0, 1], [1, 0], [-1, 0]]
         # result = []
         # for direction in directions:
@@ -22,4 +22,3 @@ class PathCalculator(object):
         #        result.append(neighbor)
         # print(node)
         # print(result)
-
