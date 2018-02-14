@@ -1,20 +1,26 @@
 class CountryLoader(object):
+    country = []
 
-    def countryCodeLoader(self):
+    def __init__(self):
+        self.__country_code_loader()
+        self.__stylized_flag_loader()
+
+    def __country_code_loader(self):
         try:
             with open("country\A-Liste_UTF-16.txt", "r", encoding='utf-16') as fileOpen:
                 self.country = [l.split() for l in fileOpen.readlines()]
             for x in range(0,196):
-                self.country[x][1:len(self.country[x])] = [''.join(self.country[x][1:len(self.country[x])])]
+                self.country[x][1:len(self.country[x])] = [' '.join(self.country[x][1:len(self.country[x])])]
             fileOpen.close()
         except FileNotFoundError:
             print(' File does NOT exist')
 
     # TODO WIP
-    # Load flag in cube with position from .fig
-    #def stylizedFlagLoader(self):
-        # Pour chaque nom dans self code on cré le flag,
-        # Contient des exceptions (ie Congo, République démocratique -> CongoDM)
+    def __stylized_flag_loader(self):
+        for x in self.country:
+            print(x[1])
+        # Discuter a savoir comment géré les nombreuses exceptions (ie Congo, République démocratique -> CongoDM)
+        # également si on load avec cv2 les gif et les images vs lodaer les fig et déchiffrer
 
-    def getCountryList(self):
+    def get_country_list(self):
         return self.country
