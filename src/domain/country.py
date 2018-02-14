@@ -1,15 +1,15 @@
 class Country(object):
 
     def __init__(self, name, code, stylizedFlag):
-        self.name = name
-        self.code = code
-        self.stylizedFlag = stylizedFlag
+        self.__name = name
+        self.__code = code
+        self.__stylizedFlag = stylizedFlag
 
-    def getCountryName(self):
-        return self.name
+    def get_country_name(self):
+        return self.__name
 
-    def getCountryCode(self):
-        return self.code
+    def get_country_code(self):
+        return self.__code
 
-    def getStylizedFlag(self):
-        return self.stylizedFlag
+    def get_stylized_flag(self):
+        return self.__stylizedflag

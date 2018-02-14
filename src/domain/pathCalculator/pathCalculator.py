@@ -1,15 +1,15 @@
 from .graph import Graph
 
 class PathCalculator(object):
-    defaultWeight = 1
-    tableWidth = 10
-    tableHeight = 5
-    tableGraph = Graph()
+    __defaultWeight = 1
+    __tableWidth = 10
+    __tableHeight = 5
+    __tableGraph = Graph()
 
     def __init__(self):
-        for y in range(self.tableHeight):
-            for x in range(self.tableWidth):
-                self.tableGraph.addVertex((x, y))
+        for y in range(self.__tableHeight):
+            for x in range(self.__tableWidth):
+                self.__tableGraph.addVertex((x, y))
 
     # TODO WIP
     #def setVerticesNeighbors(self, node):

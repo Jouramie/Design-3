@@ -2,11 +2,11 @@
 class Point(object):
 
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.__x = x
+        self.__y = y
 
-    def getX(self):
-        return self.x
+    def get_x(self):
+        return self.__x
 
-    def getY(self):
-        return self.y
+    def get_y(self):
+        return self.__y
