@@ -9,16 +9,23 @@ class PathCalculator(object):
     def __init__(self):
         for y in range(self.__tableHeight):
             for x in range(self.__tableWidth):
-                self.__tableGraph.addVertex((x, y))
+                self.__tableGraph.add_vertex((x, y))
+
+       # for y in range(self.__tableHeight):
+        #    for x in range(self.__tableWidth):
+         #       self.__initiate_vertices_neighbors([x, y])
 
     # TODO WIP
     # def __initiate_vertices_neighbors(self, node):
-        # directions = [[0, -1], [0, 1], [1, 0], [-1, 0]]
-        # result = []
-        # for direction in directions:
-        #   neighbor = [node[0] + direction[0], node[1] + direction[1]]
-        #    if 0 <= neighbor[0] < self.tableWidth and 0 <= neighbor[1] < self.tableHeight:
-        #        self.tableGraph.addEdge(node, neighbor, self.defaultWeight)
-        #        result.append(neighbor)
-        # print(node)
-        # print(result)
+     #   directions = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+     #   result = []
+     #   for direction in directions:
+     #       neighbor = [node[0] + direction[0], node[1] + direction[1]]
+     #       if 0 <= neighbor[0] < self.__tableWidth and 0 <= neighbor[1] < self.__tableHeight:
+     #          self.__tableGraph.add_edge(node, neighbor, self.__defaultWeight)
+     #          result.append(neighbor)
+     #   print(node)
+     #   print(result)
+
+    def get_graph(self):
+        return self.__tableGraph
