@@ -14,7 +14,7 @@ class CountryLoader(object):
             print(' File does NOT exist')
 
     # TODO WIP
-    def __stylized_flag_loader(self):
+    # def __stylized_flag_loader(self):
         # Discuter a savoir comment géré les nombreuses exceptions (ie Congo, République démocratique -> CongoDM)
         # également si on load avec cv2 les gif et les images vs lodaer les fig et déchiffrer
 
