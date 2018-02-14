@@ -15,13 +15,8 @@ class Graph:
         return new_vertex
 
     def add_edge(self, origin, destination, weight=0):
-        if origin not in self.__verticesDictionary:
-            self.add_vertex(origin)
-        if destination not in self.__verticesDictionary:
-            self.add_vertex(destination)
-
-        self.__verticesDictionary[origin].addNeighbor(self.__verticesDictionary[destination], weight)
-        self.__verticesDictionary[destination].addNeighbor(self.__verticesDictionary[origin], weight)
+        self.__verticesDictionary[origin].add_neighbor(self.__verticesDictionary[destination], weight)
+        self.__verticesDictionary[destination].add_neighbor(self.__verticesDictionary[origin], weight)
 
     def get_vertex(self, node):
         if node in self.__verticesDictionary:

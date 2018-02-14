@@ -1,5 +1,4 @@
 class StylizedFlag(object):
-
     def __init__(self):
         self.cubeList = ()
 
