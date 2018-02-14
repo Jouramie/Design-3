@@ -1,19 +1,19 @@
 class Vertex:
     def __init__(self, node):
-        self.id = node
-        self.adjacent = {}
+        self.__id = node
+        self.__adjacent = {}
 
     def add_neighbor(self, neighbor, weight=0):
-        self.adjacent[neighbor] = weight
+        self.__adjacent[neighbor] = weight
 
     def set_new_weight(self, neighbor, weight):
-        self.adjacent[neighbor] = weight
+        self.__adjacent[neighbor] = weight
 
     def get_connections(self):
-        return self.adjacent.keys()
+        return self.__adjacent.keys()
 
     def get_neighbor_weight(self, neighbor):
-        return self.adjacent[neighbor]
+        return self.__adjacent[neighbor]
 
     def get_id(self):
-        return self.id
+        return self.__id

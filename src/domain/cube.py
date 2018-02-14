@@ -1,5 +1,4 @@
 class Cube(object):
-
     def __init__(self, colour, position):
         self.__colour = colour
         self.__point = position

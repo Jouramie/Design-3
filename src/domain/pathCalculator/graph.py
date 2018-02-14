@@ -2,30 +2,30 @@ from .vertex import Vertex
 
 class Graph:
     def __init__(self):
-        self.verticesDictionary = {}
-        self.numberVertices = 0
+        self.__verticesDictionary = {}
+        self.__numberVertices = 0
 
     def __iter__(self):
-        return iter(self.verticesDictionary.values())
+        return iter(self.__verticesDictionary.values())
 
     def add_vertex(self, node):
-        self.numberVertices = self.numberVertices + 1
-        newVertex = Vertex(node)
-        self.verticesDictionary[node] = newVertex
-        return newVertex
+        self.__numberVertices = self.__numberVertices + 1
+        new_vertex = Vertex(node)
+        self.__verticesDictionary[node] = new_vertex
+        return new_vertex
 
     def add_edge(self, origin, destination, weight=0):
-        if origin not in self.verticesDictionary:
+        if origin not in self.__verticesDictionary:
             self.addVertex(origin)
-        if destination not in self.verticesDictionary:
+        if destination not in self.__verticesDictionary:
             self.addVertex(destination)
 
-        self.verticesDictionary[origin].addNeighbor(self.verticesDictionary[destination], weight)
-        self.verticesDictionary[destination].addNeighbor(self.verticesDictionary[origin], weight)
+        self.__verticesDictionary[origin].addNeighbor(self.__verticesDictionary[destination], weight)
+        self.__verticesDictionary[destination].addNeighbor(self.__verticesDictionary[origin], weight)
 
-    def get_vertex(self, id):
-        if id in self.verticesDictionary:
-            return self.verticesDictionary[id]
+    def get_vertex(self, node):
+        if node in self.__verticesDictionary:
+            return self.__verticesDictionary[node]
         else:
             return None
 

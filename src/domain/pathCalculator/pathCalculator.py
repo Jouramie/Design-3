@@ -12,7 +12,7 @@ class PathCalculator(object):
                 self.__tableGraph.addVertex((x, y))
 
     # TODO WIP
-    #def setVerticesNeighbors(self, node):
+    # def setVerticesNeighbors(self, node):
         # directions = [[0, -1], [0, 1], [1, 0], [-1, 0]]
         # result = []
         # for direction in directions:
