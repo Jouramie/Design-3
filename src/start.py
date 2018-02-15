@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import argparse
+import subprocess
 
 import robot_software.robot_controller as robot_ctl
 import d3_network.network
@@ -28,7 +29,9 @@ def start_robot():
 
 
 def start_station():
-    pass
+    subprocess.call("./scripts/boot_robot.bash", shell=True)
+
+    d3_network.network.host_network()
 
 
 if __name__ == "__main__":
