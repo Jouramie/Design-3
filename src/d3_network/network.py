@@ -1,13 +1,13 @@
 import socket
 
-host_location = socket.gethostname()
-port = 15555
+port = 7420
 encoding = 'ascii'
+host_ip = ''
 
 
 def host_network():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((host_location, port))
+    server.bind(('', port))
 
     while True:
         server.listen(5)
@@ -21,7 +21,7 @@ def host_network():
 
 def pair_with_host():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host_location, port))
+    client.connect((host_ip, port))
     msg = client.recv(1024)
 
     client.close()
