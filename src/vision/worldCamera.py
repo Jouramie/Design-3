@@ -1,6 +1,5 @@
 import logging
 import os
-import platform
 import time
 
 import cv2
@@ -45,21 +44,4 @@ class WorldCamera(Camera):
             os.makedirs(WORLD_CAM_LOG_DIR)
 
         logging.basicConfig(level=log_level, filename=WORLD_CAM_LOG_FILE, format='%(asctime)s %(message)s')
-
-
-if __name__ == '__main__':
-
-    camera_id = None
-    system = platform.system()
-    if system == 'Linux':
-        camera_id = 0
-    elif system == 'darwin':
-        camera_id = 0
-    elif system == 'Windows':
-        camera_id = 1
-
-
-
-    world_camera = WorldCamera(camera_id, '../../calibration/4.yml')
-    world_camera.take_picture()
 
