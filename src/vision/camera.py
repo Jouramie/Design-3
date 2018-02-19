@@ -3,11 +3,12 @@ import os
 import time
 
 import cv2
+
 from config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE
-from vision.cameraError import CameraInitializationError, CameraError
+from src.vision.cameraError import CameraInitializationError, CameraError
 
 
-class Camera():
+class Camera:
     def __init__(self, capture_object, log_level=logging.INFO):
         self.capture_object = capture_object
         self._initialize_log(log_level)

@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, Mock
 
 from src.vision.camera import Camera
-from vision.cameraError import CameraError
+from src.vision.cameraError import CameraError
 
 
 class TestCamera(TestCase):
