@@ -20,9 +20,3 @@ if __name__ == '__main__':
 
     camera_id = 1
     main(args.number, camera_id)
-
-
-
-
-
-
