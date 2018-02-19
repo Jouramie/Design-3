@@ -184,9 +184,6 @@ fig/
 # log
 log/
 
-# calibration
-calibration/
-
 
 # End of https://www.gitignore.io/api/opencv,python,pycharm
 
