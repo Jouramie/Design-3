@@ -11,6 +11,7 @@ class WorldCamera(Camera):
     def __init__(self, camera_id, camera_settings, log_level=logging.INFO):
         self.id = camera_id
         self._initialize_log(log_level)
+        self.camera_settings = camera_settings
         self.capture_object = None
         self._initialize()
 
