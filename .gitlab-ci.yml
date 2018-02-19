@@ -9,6 +9,7 @@ pytest_unit_tests:
   stage: unittest
   script:
   - pip install pytest
+  - pip install python-nmap
   - pytest tests
 
 
