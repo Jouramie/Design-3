@@ -1,4 +1,4 @@
-image: python:3.6-alpine
+image: python:3.6-slim-jessie
 
 stages:
   - unittest
@@ -9,7 +9,7 @@ pytest_unit_tests:
   stage: unittest
   script:
   - pip install pytest
-  - pip install opencv-python==3.2.0.6
+  - pip install opencv-python
   - pytest tests
 
 
