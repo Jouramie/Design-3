@@ -4,7 +4,7 @@ import time
 
 import cv2
 
-from config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE
+from src.config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE
 from src.vision.cameraError import CameraInitializationError, CameraError
 
 
