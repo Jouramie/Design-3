@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import argparse
 
-import robot_software.robot_controller
+import robot_software.robot_controller as robot_ctl
 import d3_network.network
 
 
@@ -21,7 +24,7 @@ def main():
 def start_robot():
     network = d3_network.network
 
-    robot_software.robot_controller.RobotController(network).start()
+    robot_ctl.RobotController(network).start()
 
 
 def start_station():
