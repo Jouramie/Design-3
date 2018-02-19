@@ -1,9 +1,8 @@
-from src.robot_software import robot_controller
-
-import pytest
-from unittest.mock import Mock
 from unittest.mock import MagicMock
+from unittest.mock import Mock
 from unittest.mock import call
+
+from src.robot_software import robot_controller
 
 
 def test_when_start_controller_then_get_host_ip():

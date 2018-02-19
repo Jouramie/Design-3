@@ -3,9 +3,10 @@ import socket
 
 class NetworkController:
 
-    def __init__(self, port, encoding='ascii'):
+    def __init__(self, port, logger,  encoding='ascii'):
         self.port = port
         self.encoding = encoding
+        self.logger = logger
 
     def host_network(self):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,7 +15,7 @@ class NetworkController:
         while True:
             server.listen(5)
             client, address = server.accept()
-            print("{} connected".format(address))
+            self.logger.info("{} connected".format(address))
 
             msg = "ThAnKs YoU fOr CoNnEcTiNg !!!!1\n"
             client.send(msg.encode(self.encoding))
@@ -26,4 +27,4 @@ class NetworkController:
         msg = client.recv(1024)
 
         client.close()
-        print(msg.decode(self.encoding))
+        self.logger.info(msg.decode(self.encoding))
