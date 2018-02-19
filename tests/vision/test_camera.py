@@ -16,7 +16,7 @@ class TestCamera(TestCase):
 
         capture_object.read.assert_called_once()
 
-    def test_when_unsuccessfully_taking_a_picture_then_expcetion_throwed(self):
+    def test_when_unsuccessfully_taking_a_picture_then_exception_raised(self):
         capture_object = MagicMock()
         capture_object.attach_mock(Mock(return_value=[False, True]), 'read')
 
