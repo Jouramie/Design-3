@@ -1,11 +1,11 @@
 import cv2
 import argparse
 
-from src.vision.worldCamera import WorldCamera
+from vision.camera import create_camera
 
 
 def main(number, camera_id):
-    worldcam = WorldCamera(camera_id, None)
+    worldcam = create_camera(camera_id)
     for i in range(number):
         input("Press any key\n")
         worldcam.take_picture()

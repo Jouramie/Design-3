@@ -10,6 +10,8 @@ table="5"
 # later will load we
 uvcdynctrl -d $device -L /home/genou/dev/station/calibration/camera_state$table
 
+uvcdynctrl -d $device -s 'Brightness' 0
+
 python3 /home/genou/dev/station/src/scripts/calibration_script.py 15
 
 
