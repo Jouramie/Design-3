@@ -11,10 +11,8 @@ from src.vision.camera import Camera
 class WorldCamera(Camera):
     def __init__(self, camera_id, camera_settings, log_level=logging.INFO):
         self.id = camera_id
-        self.camera_matrix = None
-        self.distortion_coefs = None
-        self.capture_object = None
         self._initialize_log(log_level)
+        self.capture_object = None
         self._initialize()
 
     def _initialize(self):
