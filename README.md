@@ -4,7 +4,7 @@ The robot host is own wifi network called `equipe6`. Make sure you're connected 
 
 The system use socket connection with the port 7420. First of all, make sure the port is open on the base station.
 
-For those who use `ufw` for their firewall, you can had a rule to allow only the mini-pc to connect on the port 7420. Use the following command, assuming the ip address of the robot is `10.42.0.1`.
+For those who use `ufw` for their firewall, you can add a rule to allow only the mini-pc to connect on the port 7420. Use the following command, assuming the ip address of the robot is `10.42.0.1`.
 
 ```commandline
 ufw allow proto tcp to any port 7420 from 10.42.0.1
