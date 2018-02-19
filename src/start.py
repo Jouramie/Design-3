@@ -5,6 +5,7 @@ import argparse
 import subprocess
 
 import robot_software.robot_controller as robot_ctl
+import d3_network.network_scanner
 import d3_network.network
 
 
@@ -23,9 +24,11 @@ def main():
 
 
 def start_robot():
+    # TODO parse config file to create right dependencies
+    network_scanner = d3_network.network_scanner
     network = d3_network.network
 
-    robot_ctl.RobotController(network).start()
+    robot_ctl.RobotController(network_scanner, network).start()
 
 
 def start_station():
