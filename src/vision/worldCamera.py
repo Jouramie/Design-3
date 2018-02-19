@@ -17,12 +17,14 @@ class WorldCamera(Camera):
 
     def _initialize(self):
         self.capture_object = cv2.VideoCapture(self.id)
+        self.capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, 1600)
+        self.capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
         if self.capture_object.isOpened():
-            for i in range(10):
+            for i in range(15):
                 temp_is_frame_returned, temp_img = self.capture_object.read()
             logging.info('World cam initialized')
         else:
-            logging.info('Error, camera could not be set properly')
+            logging.error('Camera could not be set properly')
 
     def take_picture(self):
         is_frame_returned, img = self.capture_object.read()
@@ -35,7 +37,7 @@ class WorldCamera(Camera):
             cv2.imwrite(directory + time.strftime("/%Hh%Mm%Ss.jpg"), img)
             return img
         else:
-            logging.info('No frame was returned while taking a picture')
+            logging.error('No frame was returned while taking a picture')
             return 0
 
     def _initialize_log(self, log_level):

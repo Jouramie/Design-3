@@ -1,36 +1,28 @@
-import numpy as np
 import cv2
-import glob
-import matplotlib.pyplot as plt
+import argparse
 
-# termination criteria
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
-nx = 7  # TODO: enter the number of inside corners in x
-ny = 7  # TODO: enter the number of inside corners in y
-
-# Make a list of calibration images
-images = glob.glob('../../fig/2018-02-12/*.jpg')
+from src.vision.worldCamera import WorldCamera
 
 
-for i in images:
-    print('-> processing image {}'.format(i))
-    img = cv2.imread(i)
-    # Convert to grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Find the chessboard corners
-    ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
-
-    # If found, draw corners
-    if ret == True:
-        # Draw and display the corners
-        cv2.drawChessboardCorners(img, (nx, ny), corners, ret)
-        cv2.imshow('yoyo', img)
-        plt.imshow(img)
-        plt.show()
+def main(number, camera_id):
+    worldcam = WorldCamera(camera_id, None)
+    for i in range(number):
+        input("Press any key\n")
+        worldcam.take_picture()
+    worldcam.capture_object.release()
 
 
-cv2.waitKey()
-cv2.destroyAllWindows()
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("number", type=int, help="number of picture to be taken")
+    args = parser.parse_args()
+
+    camera_id = 1
+    main(args.number, camera_id)
+
+
+
+
+
 
