@@ -7,9 +7,9 @@ import subprocess
 
 import yaml
 
-import d3_network.network_controller as network_ctl
-import d3_network.network_scanner as network_scn
-import robot_software.robot_controller as robot_ctl
+import src.d3_network.network_controller as network_ctl
+import src.d3_network.network_scanner as network_scn
+import src.robot_software.robot_controller as robot_ctl
 
 
 def main():
