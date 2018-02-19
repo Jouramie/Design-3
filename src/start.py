@@ -6,8 +6,8 @@ import subprocess
 import yaml
 
 import robot_software.robot_controller as robot_ctl
-import d3_network.network_scanner
-import d3_network.network
+import d3_network.network_scanner as network_scn
+import d3_network.network_controller as network_ctl
 
 
 def main():
@@ -39,20 +39,22 @@ def main():
 def start_robot(config):
     # TODO parse config file to create right dependencies
     if config['network']['scan_for_ip']:
-        network_scanner = d3_network.networkscanner.NmapNetworkScanner()
+        scanner = network_scn.NmapNetworkScanner()
     else:
-        network_scanner = d3_network.networkscanner.StaticNetworkScanner(config['network']['host_ip'])
-    network = d3_network.network
+        scanner = network_scn.StaticNetworkScanner(config['network']['host_ip'])
+    network = network_ctl.NetworkController(config['network']['port'])
 
-    robot_ctl.RobotController(network_scanner, network).start()
+    robot_ctl.RobotController(scanner, network).start()
 
 
 def start_station(config):
-    subprocess.call("./scripts/boot_robot.bash", shell=True)
+    if not config['simulated_robot']:
+        subprocess.call("./scripts/boot_robot.bash", shell=True)
 
-    d3_network.network.host_network()
+    print("waiting for robot to connect")
+
+    network_ctl.NetworkController(config['network']['port']).host_network()
 
 
 if __name__ == "__main__":
-    # execute only if run as a script
     main()
