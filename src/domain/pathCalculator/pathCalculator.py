@@ -26,12 +26,12 @@ class PathCalculator(object):
 
     # startingPoint format: (x,y)
     def calculate_path(self, startingPoint, endPoint):
+        # TODO add a reset step value fonction
         processingNode = []
         self.__tableGraph.get_vertex(endPoint).set_step_value(0)
         processingNode.append(endPoint)
 
         # set_neighbor_step_value
-        print("Not empty")
         while processingNode:
             currentNode = processingNode.pop(0)
             for neighbor in self.__tableGraph.get_vertex(currentNode).get_connections():
@@ -39,7 +39,6 @@ class PathCalculator(object):
                     self.__tableGraph.get_vertex(neighbor.get_id()).set_step_value(
                         1 + self.__tableGraph.get_vertex(currentNode).get_step_value())
                     processingNode.append(neighbor.get_id())
-        print("    empty")
 
         # find_gluttonous_path
         print("Looking for path")
