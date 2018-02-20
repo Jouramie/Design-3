@@ -1,9 +1,10 @@
 class StylizedFlag(object):
+
     def __init__(self):
-        self.cubeList = ()
+        self.__cube_list = ()
 
-    def addCube(self, cube):
-        self.cubeList = self.cubeList + (cube,)
+    def add_cube(self, cube):
+        self.__cube_list = self.__cube_list + (cube,)
 
-    def getCubeList(self):
-        return self.cubeList
+    def get_cube_list(self):
+        return self.__cube_list
