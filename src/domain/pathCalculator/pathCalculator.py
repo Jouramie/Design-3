@@ -1,10 +1,13 @@
+#TODO move environment and graph creation logic out of here
 from graph import Graph
 
 class PathCalculator(object):
     MAX_STEP = 10000
+    OBSTACLE_VALUE = -2
+    END_POINT_VALUE = 0
     __path = []
-    __tableWidth = 20
-    __tableHeight = 20
+    __tableWidth = 5
+    __tableHeight = 5
     __defaultWeight = 1
     __tableGraph = Graph()
 
@@ -26,9 +29,15 @@ class PathCalculator(object):
 
     # startingPoint format: (x,y)
     def calculate_path(self, startingPoint, endPoint):
-        # TODO add a reset step value fonction
+        self.__set_neighbor_step_value(endPoint)
+        self.__find_gluttonous_path(startingPoint, endPoint)
+
+        self.print_graph_path()
+        self.print_graph_step()
+
+    def __set_neighbor_step_value(self, endPoint):
         processingNode = []
-        self.__tableGraph.get_vertex(endPoint).set_step_value(0)
+        self.__tableGraph.get_vertex(endPoint).set_step_value(self.END_POINT_VALUE)
         processingNode.append(endPoint)
 
         # set_neighbor_step_value
@@ -40,27 +49,22 @@ class PathCalculator(object):
                         1 + self.__tableGraph.get_vertex(currentNode).get_step_value())
                     processingNode.append(neighbor.get_id())
 
-        # find_gluttonous_path
-        print("Looking for path")
+    def __find_gluttonous_path(self, startingPoint, endPoint):
         step_count = 0
         currentNode = startingPoint
         self.__path.append(currentNode)
         while currentNode != endPoint and step_count < self.MAX_STEP:
             for neighbor in self.__tableGraph.get_vertex(currentNode).get_connections():
                 step_count += 1
-                if self.__tableGraph.get_vertex(neighbor.get_id()).get_step_value() < \
-                        self.__tableGraph.get_vertex(currentNode).get_step_value():
+                if self.__tableGraph.get_vertex(neighbor.get_id()).get_step_value() == \
+                        self.__tableGraph.get_vertex(currentNode).get_step_value() - 1:
                     self.__path.append(neighbor.get_id())
                     currentNode = neighbor.get_id()
 
-        if currentNode != endPoint:
-            print("            path NOT found")
-        else:
-            print("            path is found")
-            self.print_graph_path()
-            print("step_count", end=":")
-            print(step_count)
-        self.print_graph_step()
+    def add_obstacle(self, point):
+        self.__tableGraph.get_vertex(point).set_step_value(self.OBSTACLE_VALUE)
+        for neighbor in self.__tableGraph.get_vertex(point).get_connections():
+            self.__tableGraph.get_vertex(neighbor.get_id()).set_new_weight(self.__tableGraph.get_vertex(point), 2)
 
     def get_graph_path(self):
         return self.__path
@@ -80,9 +84,11 @@ class PathCalculator(object):
             for x in range(self.__tableWidth):
                 print(self.__tableGraph.get_vertex((x, y)).get_id(), end=" Edges::")
                 for connection in self.__tableGraph.get_vertex((x, y)).get_connections():
-                    print(connection.get_id(), end=' :')
+                    print(connection.get_id(), end=' W=')
+                    print(self.__tableGraph.get_vertex((x, y)).get_neighbor_weight(
+                        self.__tableGraph.get_vertex(connection.get_id())), end=' : ')
                 print()
 
     # TODO WIP
-    # Obstacle
+
     # Weigth value

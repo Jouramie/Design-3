@@ -1,10 +1,13 @@
 class Vertex:
+    DEFAULT_VALUE = -1
+    DEFAULT_WEIGHT = 0
+
     def __init__(self, node):
         self.__id = node
         self.__adjacent = {}
-        self.__stepValue = -1
+        self.__stepValue = self.DEFAULT_VALUE
 
-    def add_neighbor(self, neighbor, weight=0):
+    def add_neighbor(self, neighbor, weight=DEFAULT_WEIGHT):
         self.__adjacent[neighbor] = weight
 
     def set_new_weight(self, neighbor, weight):
