@@ -36,7 +36,7 @@ class PathCalculator(object):
             self.print_graph_path()
         else:
             print("Algo is not good enough")
-        self.print_graph_step()
+        self.print_graph_steps()
 
     def __set_neighbor_step_value(self, end_point):
         processing_node = []
@@ -83,14 +83,16 @@ class PathCalculator(object):
             self.__table_graph.get_vertex(connection.get_id()).set_new_weight(
                 self.__table_graph.get_vertex(point), self.INFINITY_WEIGHT)
             for connection_decay in self.__table_graph.get_vertex(connection.get_id()).get_connections():
-                self.__table_graph.get_vertex(connection_decay.get_id()).set_new_weight(self.__table_graph.get_vertex(
-                    connection.get_id()), self.POTENTIAL_WEIGHT)
-
+                if not self.__table_graph.get_vertex(
+                        connection_decay.get_id()).get_step_value() == self.OBSTACLE_VALUE and \
+                        not self.__table_graph.get_vertex(connection.get_id()).get_step_value() == self.OBSTACLE_VALUE:
+                    self.__table_graph.get_vertex(connection_decay.get_id()).set_new_weight(
+                        self.__table_graph.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
 
     def get_graph_path(self):
         return self.__path
 
-    def print_graph_step(self):
+    def print_graph_steps(self):
         for y in range(self.__table_height):
             for x in range(self.__table_width):
                 print(self.__table_graph.get_vertex((x, y)).get_step_value(), end=" ")
@@ -100,7 +102,7 @@ class PathCalculator(object):
         for node in self.__path:
             print(node)
 
-    def print_graph(self):
+    def print_graph_edges(self):
         for y in range(self.__table_height):
             for x in range(self.__table_width):
                 print(self.__table_graph.get_vertex((x, y)).get_id(), end=" Edges::")

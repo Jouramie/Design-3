@@ -1,6 +1,6 @@
 class Vertex:
     DEFAULT_VALUE = -1
-    DEFAULT_WEIGHT = 0
+    DEFAULT_WEIGHT = 1
 
     def __init__(self, node):
         self.__id = node
