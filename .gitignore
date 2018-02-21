@@ -181,6 +181,9 @@ fig/
 # pycharm shit
 .idea/
 
+# log
+log/
+
 
 # End of https://www.gitignore.io/api/opencv,python,pycharm
 
