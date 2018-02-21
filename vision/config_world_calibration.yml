@@ -1,0 +1,5 @@
+image_path : Pictures/2018-02-19/table4Robot/0.jpg
+camera_calibration : new_calibration4.yml
+id : 25
+size : 16.35
+output_file : world_calibration.npy
