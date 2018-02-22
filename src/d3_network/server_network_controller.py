@@ -2,7 +2,7 @@ import socket
 from src.d3_network.command import Command
 
 
-class NetworkController:
+class ServerNetworkController:
 
     def __init__(self, logger, port, encoder):
         self._logger = logger
@@ -25,12 +25,12 @@ class NetworkController:
 
     def send_start_command(self):
         msg = {'command': Command.START}
-        self._server.send(self._encoder.encode(msg))
+        self._client.send(self._encoder.encode(msg))
 
         self._logger.info("Start command sent!")
 
     def send_reset_command(self):
         msg = {'command': Command.RESET}
-        self._server.send(self._encoder.encode(msg))
+        self._client.send(self._encoder.encode(msg))
 
         self._logger.info("Start command sent!")

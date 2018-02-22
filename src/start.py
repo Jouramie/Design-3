@@ -56,7 +56,7 @@ def main():
 
 def start_robot(config, logger):
     scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
-    network = network_ctl.NetworkController(config['network']['port'], logger.getChild("network_controller"))
+    network = network_ctl.ServerNetworkController(config['network']['port'], logger.getChild("network_controller"))
 
     robot_ctl.RobotController(scanner, network).start()
 
@@ -67,7 +67,7 @@ def start_station(config, logger):
 
     logger.info("Waiting for robot to connect.")
 
-    network_ctl.NetworkController(config['network']['port'], logger.getChild("network_controller")).host_network()
+    network_ctl.ServerNetworkController(config['network']['port'], logger.getChild("network_controller")).host_network()
 
 
 if __name__ == "__main__":
