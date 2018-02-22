@@ -14,8 +14,7 @@ class ServerNetworkController:
     def host_network(self):
         self._server.bind(('', self._port))
 
-        client = False
-        while not client:
+        while self._client is None:
             self._server.listen(5)
             self._client, address = self._server.accept()
             self._logger.info("{} connected".format(address))

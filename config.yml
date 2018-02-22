@@ -7,6 +7,6 @@ robot:
     port: 7420
 
 station:
-  simulated_robot: true
+  simulated_robot: false
   network:
     port: 7420
