@@ -2,7 +2,7 @@ import socket
 from src.d3_network.command import Command
 
 
-class NetworkController:
+class ClientNetworkController:
 
     def __init__(self, logger, port, encoder):
         self._logger = logger

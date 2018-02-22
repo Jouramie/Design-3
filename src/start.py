@@ -55,10 +55,7 @@ def main():
 
 
 def start_robot(config, logger):
-    if config['network']['scan_for_ip']:
-        scanner = network_scn.NmapNetworkScanner()
-    else:
-        scanner = network_scn.StaticNetworkScanner(config['network']['host_ip'])
+    scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
     network = network_ctl.NetworkController(config['network']['port'], logger.getChild("network_controller"))
 
     robot_ctl.RobotController(scanner, network).start()

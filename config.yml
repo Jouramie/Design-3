@@ -3,7 +3,6 @@
 
 robot:
   network:
-    scan_for_ip: false
     host_ip: 10.42.0.78
     port: 7420
 
