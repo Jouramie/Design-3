@@ -6,7 +6,7 @@ from src.robot_software import robot_controller
 
 def test_when_start_controller_then_get_host_ip():
     network_scanner = MagicMock()
-    ctrl = robot_controller.RobotController(network_scanner, MagicMock())
+    ctrl = robot_controller.RobotController(MagicMock(), network_scanner, MagicMock())
 
     ctrl.start()
 
@@ -18,7 +18,7 @@ def test_given_host_ip_when_start_controller_then_pair_with_host():
     network_scanner = Mock()
     network_scanner.attach_mock(Mock(return_value=host_ip), 'get_host_ip')
     network_ctrl = MagicMock()
-    ctrl = robot_controller.RobotController(network_scanner, network_ctrl)
+    ctrl = robot_controller.RobotController(MagicMock(), network_scanner, network_ctrl)
 
     ctrl.start()
 
@@ -27,7 +27,7 @@ def test_given_host_ip_when_start_controller_then_pair_with_host():
 
 def test_when_start_controller_then_wait_start_signal():
     network_ctrl = MagicMock()
-    ctrl = robot_controller.RobotController(MagicMock(), network_ctrl)
+    ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl)
 
     ctrl.start()
 

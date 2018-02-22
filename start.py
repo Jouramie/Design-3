@@ -9,6 +9,7 @@ import yaml
 
 import src.d3_network.server_network_controller as network_ctl
 import src.d3_network.ip_provider as network_scn
+import src.d3_network.encoder as encoder
 import src.robot_software.robot_controller as robot_ctl
 
 
@@ -56,9 +57,10 @@ def main():
 
 def start_robot(config, logger):
     scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
-    network = network_ctl.ServerNetworkController(config['network']['port'], logger.getChild("network_controller"))
+    network = network_ctl.ServerNetworkController(config['network']['port'], logger.getChild("network_controller"),
+                                                  encoder.DictionaryEncoder())
 
-    robot_ctl.RobotController(scanner, network).start()
+    robot_ctl.RobotController(logger, scanner, network).start()
 
 
 def start_station(config, logger):
@@ -67,7 +69,8 @@ def start_station(config, logger):
 
     logger.info("Waiting for robot to connect.")
 
-    network_ctl.ServerNetworkController(config['network']['port'], logger.getChild("network_controller")).host_network()
+    network_ctl.ServerNetworkController(logger.getChild("network_controller"), config['network']['port'],
+                                        encoder.DictionaryEncoder()).host_network()
 
 
 if __name__ == "__main__":
