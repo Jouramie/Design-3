@@ -26,3 +26,11 @@ class NetworkController:
     def send_start_command(self):
         msg = {'command': Command.START}
         self._server.send(self._encoder.encode(msg))
+
+        self._logger.info("Start command sent!")
+
+    def send_reset_command(self):
+        msg = {'command': Command.RESET}
+        self._server.send(self._encoder.encode(msg))
+
+        self._logger.info("Start command sent!")
