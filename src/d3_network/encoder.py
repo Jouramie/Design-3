@@ -1,3 +1,6 @@
+import ast
+
+
 class DictionaryEncoder:
     def __init__(self, encoding='ascii'):
         self.encoding = encoding
@@ -6,4 +9,4 @@ class DictionaryEncoder:
         return str(dictionary).encode(self.encoding)
 
     def decode(self, byte):
-        return dict(byte.decode(self.encoding))
+        return ast.literal_eval(byte.decode(self.encoding))
