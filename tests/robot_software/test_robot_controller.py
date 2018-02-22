@@ -31,5 +31,5 @@ def test_when_start_controller_then_wait_start_signal():
 
     ctrl.start()
 
-    network_ctrl.wait_start_command.assert_called_once_with(ctrl.on_receive_main_signal)
+    network_ctrl.wait_start_command.assert_called_once_with(ctrl.on_receive_start_command)
 
