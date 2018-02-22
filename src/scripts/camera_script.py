@@ -6,8 +6,9 @@ import os
 world_camera_id = None
 
 system = platform.system()
+print('system {}'.format(system))
 if  system == 'Linux':
-    world_camera_id = 1
+    world_camera_id = 2
 elif system == 'darwin':
     world_camera_id = 0
 elif system == 'Windows':
@@ -26,7 +27,7 @@ directory = "../../fig/" + time.strftime("%Y-%m-%d")
 if not os.path.exists(directory):
     os.makedirs(directory)
 
-cv2.imwrite(directory + time.strftime("/%Hh%M.png"), img)
+cv2.imwrite(directory + time.strftime("/%Hh%M.jpg"), img)
 cv2.waitKey()
 
 
