@@ -9,11 +9,13 @@ class PathCalculator(object):
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
     __path = []
-    __width = 5
-    __height = 5
+    __width = 20
+    __height = 10
     __graph = Graph()
 
     def __init__(self):
+        self.__last_node = 0
+        self.__current_node = 0
         for y in range(self.__height):
             for x in range(self.__width):
                 self.__graph.add_vertex((x, y))
@@ -29,7 +31,6 @@ class PathCalculator(object):
             if 0 <= neighbor[0] < self.__width and 0 <= neighbor[1] < self.__height:
                 self.__graph.add_edge(node, neighbor, self.DEFAULT_WEIGHT)
 
-    # (starting/end)_point format: (x,y)
     def calculate_path(self, starting_point, end_point):
         self.__set_neighbor_step_value(end_point)
         if self.__find_gluttonous_path(starting_point, end_point):
@@ -54,47 +55,104 @@ class PathCalculator(object):
 
     def __find_gluttonous_path(self, starting_point, end_point):
         step_count = 0
-        dangerous_path = False
+
+        self.__current_node = starting_point
         self.__path.clear()
-        current_node = starting_point
-        self.__path.append(current_node)
-        while current_node != end_point and step_count < self.MAX_STEP:
-            for connection in self.__graph.get_vertex(current_node).get_connections():
+        self.__path.append(self.__current_node)
+
+        while self.__current_node != end_point and step_count < self.MAX_STEP:
+
+            dangerous_path = False
+            gluttonous_path = False
+
+            last_connection = False
+            connection_count = 0
+
+            print("New while", end="")
+            print(self.__current_node)
+
+            dangerous_next_node = 0
+            safer_next_node = 0
+            next_node = 0
+
+            for connection in self.__graph.get_vertex(self.__current_node).get_connections():
+
+                connection_count += 1
+                if connection_count == len(self.__graph.get_vertex(self.__current_node).get_connections()):
+                    print("Connection Count is the last: ", end="")
+                    print(connection_count)
+                    last_connection = True
+
                 step_count += 1
-                dangerous_path = False
-                potential_next_node = ()
-                if self.__graph.get_vertex(connection.get_id()).get_step_value() == \
-                        self.__graph.get_vertex(current_node).get_step_value() - 1:
-                    potential_next_node = connection.get_id()
-                    print(potential_next_node)
-                    #TODO FIX THIS
-                    if self.__graph.get_vertex(current_node).get_neighbor_weight(connection.get_id()) == \
-                            self.POTENTIAL_WEIGHT:
+
+                print("New connection", end="")
+                print(connection.get_id(), end="")
+                print(self.__graph.get_vertex(connection.get_id()).get_step_value())
+
+                # Section for the next step_value (gluttonous move)
+                if self.__graph.get_vertex(connection.get_id()).get_step_value() == self.__graph.get_vertex(
+                        self.__current_node).get_step_value() - 1:
+                    # Always go for safe move
+                    if self.__graph.get_vertex(self.__current_node).get_neighbor_weight(
+                            self.__graph.get_vertex(connection.get_id())) == self.DEFAULT_WEIGHT:
+                        gluttonous_path = True
+                        next_node = connection.get_id()
+                        print("GLUTTONOUS AND SAFETY FIRST!: ", end="")
+                        print(next_node)
+                    # Section for dangerous move
+                    elif self.__graph.get_vertex(self.__current_node).get_neighbor_weight(
+                            self.__graph.get_vertex(connection.get_id())) == self.POTENTIAL_WEIGHT:
                         dangerous_path = True
-                        print("Potentially Dangerous Path Detected")
-                    else:
-                        dangerous_path = False
-                        print("Safe Path Found")
-                if dangerous_path:
-                    print("Dangerous Path Adjustment")
-                    if self.__graph.get_vertex(connection.get_id()).get_step_value() == \
-                            self.__graph.get_vertex(current_node).get_step_value() and \
-                            self.__graph.get_vertex(current_node).get_neighbor_weight(
-                                self.__graph.get_vertex(potential_next_node)) == self.DEFAULT_WEIGHT:
-                        print("DPA Successful")
-                        current_node = connection.get_id()
-                    else:
-                        print("DPA Fail")
-                        current_node = potential_next_node
-                else:
-                    current_node = connection.get_id()
-                self.__path.append(current_node)
+                        dangerous_next_node = connection.get_id()
+                        print("POTENTIAL DANGER!: ", end="")
+                        print(dangerous_next_node)
 
+                if self.__last_node:
+                    print("last node", end="")
+                    print(self.__last_node)
+                    print("connection.get_id()", end="")
+                    print(connection.get_id())
 
-        if current_node != end_point:
+                # Section for the same step_value and not turning back
+                if connection.get_id() != self.__last_node:
+                    if self.__graph.get_vertex(connection.get_id()).get_step_value() == self.__graph.get_vertex(
+                            self.__current_node).get_step_value():
+                        # This move should only be used when is safer then a dangerous move
+                        if self.__graph.get_vertex(self.__current_node).get_neighbor_weight(
+                                self.__graph.get_vertex(connection.get_id())) == self.DEFAULT_WEIGHT:
+                            dangerous_path = True
+                            safer_next_node = connection.get_id()
+                            print("SAFE ROLLBACK MOVE AVAILABLE: ", end="")
+                            print(safer_next_node)
+
+                # Section to set next node (Gluttonous)
+                if gluttonous_path:
+                    print("A safe journey ahead: ", end="")
+                    print(next_node)
+                    self.__set_update_nodes(next_node)
+                    break
+                # Section to set next node (Safety first)
+                if last_connection:
+                    if dangerous_path:
+                        if safer_next_node:
+                            print("A safer journey is accessible: ", end="")
+                            print(safer_next_node)
+                            self.__set_update_nodes(safer_next_node)
+                        elif dangerous_next_node:
+                            print("A dangerous journey is ahead: ", end="")
+                            print(dangerous_next_node)
+                            self.__set_update_nodes(dangerous_next_node)
+
+        if self.__current_node != end_point:
             return False
         else:
             return True
+
+    def __set_update_nodes(self, next_node):
+        # something else than len(self.__path)-1 ?
+        self.__last_node = self.__path[len(self.__path) - 1]
+        self.__current_node = next_node
+        self.__path.append(next_node)
 
     def add_obstacle(self, point):
         self.__graph.get_vertex(point).set_step_value(self.OBSTACLE_VALUE)
@@ -133,6 +191,3 @@ class PathCalculator(object):
 
     def reset_graph_to_default(self):
         self.__graph.reset_graph()
-
-    # TODO WIP
-    # Weigth value
