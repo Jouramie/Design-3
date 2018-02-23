@@ -3,10 +3,10 @@
 
 robot:
   network:
-    host_ip: 10.42.0.78
+    host_ip: 127.0.0.1
     port: 7420
 
 station:
-  simulated_robot: false
+  update_robot: false
   network:
     port: 7420

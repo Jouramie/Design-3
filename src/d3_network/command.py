@@ -1,6 +1,4 @@
-from enum import Enum
 
-
-class Command(Enum):
+class Command:
     RESET = 'reset'
     START = 'start'

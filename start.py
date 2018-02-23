@@ -67,7 +67,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
-    if not config['simulated_robot']:
+    if config['update_robot']:
         subprocess.call("./scripts/boot_robot.bash", shell=True)
 
     logger.info("Waiting for robot to connect.")
