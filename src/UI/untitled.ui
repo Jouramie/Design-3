@@ -43,8 +43,8 @@
    <widget class="QLabel" name="FlagLabel">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>70</y>
+      <x>540</x>
+      <y>130</y>
       <width>171</width>
       <height>21</height>
      </rect>
@@ -53,7 +53,7 @@
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>Drapeau du pays à construire</string>
+     <string>Flag to be built :</string>
     </property>
    </widget>
    <widget class="QLabel" name="videoLabel">
@@ -72,13 +72,13 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="flagPicture">
     <property name="geometry">
      <rect>
       <x>590</x>
-      <y>110</y>
-      <width>101</width>
-      <height>81</height>
+      <y>170</y>
+      <width>100</width>
+      <height>100</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -91,52 +91,23 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>210</y>
+      <x>550</x>
+      <y>300</y>
       <width>141</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Prochain bloque</string>
+     <string>Next block :</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="cube_label">
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>240</y>
+      <y>340</y>
       <width>81</width>
       <height>81</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>350</y>
-      <width>55</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Leds</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>570</x>
-      <y>390</y>
-      <width>151</width>
-      <height>31</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -154,6 +125,47 @@
       <width>111</width>
       <height>41</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>70</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Country's name :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="CountryName">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>90</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>3</horstretch>
+      <verstretch>3</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="baseSize">
+     <size>
+      <width>3</width>
+      <height>3</height>
+     </size>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
