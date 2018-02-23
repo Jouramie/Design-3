@@ -1,5 +1,3 @@
-
-
 class Vertex:
     DEFAULT_VALUE = -1
     DEFAULT_WEIGHT = 1

@@ -1,12 +1,10 @@
 from .vertex import Vertex
 
+
 class Graph:
     def __init__(self):
         self.__vertices_dictionary = {}
         self.__number_vertices = 0
-
-    def __iter__(self):
-        return iter(self.__vertices_dictionary.values())
 
     def add_vertex(self, node):
         self.__number_vertices = self.__number_vertices + 1

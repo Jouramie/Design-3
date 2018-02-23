@@ -1,5 +1,6 @@
-from pathCalculator.graph import Graph
-from pathCalculator.pathCalculator import PathCalculator
+from path_calculator.graph import Graph
+from path_calculator.path_calculator import PathCalculator
+
 
 class Environment(object):
     # Parameter for environment as a Graph

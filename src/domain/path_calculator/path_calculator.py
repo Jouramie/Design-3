@@ -1,5 +1,6 @@
 from .graph import Graph
 
+
 class PathCalculator(object):
     MAX_STEP = 10000
     UNASSIGNED_VALUE = -1
