@@ -1,3 +1,5 @@
+
+
 class Vertex:
     DEFAULT_VALUE = -1
     DEFAULT_WEIGHT = 1
@@ -31,4 +33,4 @@ class Vertex:
     def reset_vertex(self):
         self.__stepValue = self.DEFAULT_VALUE
         for connection in self.get_connections():
-            self.set_new_weight(connection,self.DEFAULT_WEIGHT)
+            self.set_new_weight(connection, self.DEFAULT_WEIGHT)

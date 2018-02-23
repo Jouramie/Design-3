@@ -1,10 +1,10 @@
-from graph import Graph
+from pathCalculator.graph import Graph
 from pathCalculator.pathCalculator import PathCalculator
 
 class Environment(object):
     # Parameter for environment as a Graph
-    WIDTH = 20
-    HEIGHT = 10
+    WIDTH = 5
+    HEIGHT = 5
     DEFAULT_WEIGHT = 1
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
@@ -18,8 +18,8 @@ class Environment(object):
     # __cubes = [] define as obstacle for now
     __infrared_station = 0
 
-    def __init__(self):
-        # init environment with photo segmentation or user should call add_x method
+    #def __init__(self):
+        # init environment with photo segmentation
 
     def initiate_graph(self):
         self.__graph = Graph()
@@ -39,9 +39,8 @@ class Environment(object):
                 self.__graph.add_edge(node, neighbor, self.DEFAULT_WEIGHT)
 
     def initiate_path_calculator(self):
-        if not self.__graph:
-            self.initiate_graph()
-        __path_calculator = PathCalculator(self.__graph)
+        self.__path_calculator = PathCalculator(self.__graph)
+        # TODO add some catch to assure graph is ok first
 
     def add_obstacle(self, point):
         self.__graph.get_vertex(point).set_step_value(self.OBSTACLE_VALUE)
@@ -55,21 +54,36 @@ class Environment(object):
                     self.__graph.get_vertex(connection_decay.get_id()).set_new_weight(
                         self.__graph.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
 
+    def calculate_path(self, starting_point, ending_point):
+        if self.__path_calculator.calculate_path(starting_point, ending_point):
+            return True
+        else:
+            return False
+
+    def print_graph_path(self):
+        if self.__path_calculator.get_graph_path():
+            for node in self.__path_calculator.get_graph_path():
+                print(node)
+        else:
+            print("No graph to show")
+
     def print_graph_connections(self):
         for y in range(self.HEIGHT):
             for x in range(self.WIDTH):
                 print(self.__graph.get_vertex((x, y)).get_id(), end=" Edges::")
                 for connection in self.__graph.get_vertex((x, y)).get_connections():
-                    print(connection.get_id(), end=' W=')
+                    print(connection.get_id(), end=" W=")
                     print(self.__graph.get_vertex((x, y)).get_neighbor_weight(
-                        self.__graph.get_vertex(connection.get_id())), end=' : ')
+                        self.__graph.get_vertex(connection.get_id())), end=" : ")
                 print()
 
-    def print_graph_path(self):
+    def print_graph_steps(self):
+        for y in range(self.HEIGHT):
+            for x in range(self.WIDTH):
+                print(self.__graph.get_vertex((x, y)).get_step_value(), end=" ")
+            print()
 
-        for node in self.:
-            print(node)
-
+    # This reset graph to default connections and empty environment
     def reset_to_default(self):
         self.__graph.reset_graph()
 
