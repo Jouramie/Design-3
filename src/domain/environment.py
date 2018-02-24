@@ -97,7 +97,7 @@ class Environment(object):
         for y in range(self.__height):
             for x in range(self.__width):
                 logging.info(self.__graph.get_vertex((x, y)).get_step_value(), end=" ")
-                logging.info()
+            logging.info()
 
     def print_graph_connections(self):
         for y in range(self.__height):
