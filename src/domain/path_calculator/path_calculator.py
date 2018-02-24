@@ -19,8 +19,6 @@ class PathCalculator(object):
 
     def calculate_path(self, starting_point, ending_point):
         self.__path.clear()
-        print(starting_point)
-        print(ending_point)
         if self.__find_gluttonous_path(starting_point, ending_point):
             return True
         else:
@@ -40,7 +38,6 @@ class PathCalculator(object):
                 if self.__graph.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
                     self.__graph.get_vertex(connection.get_id()).set_step_value(
                         1 + self.__graph.get_vertex(current_node).get_step_value())
-                    print(connection.get_id())
                     processing_node.append(connection.get_id())
 
     def __find_gluttonous_path(self, starting_point, ending_point):
