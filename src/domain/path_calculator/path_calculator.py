@@ -1,4 +1,5 @@
 from .graph import Graph
+from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 
 
 class PathCalculator(object):
@@ -11,19 +12,22 @@ class PathCalculator(object):
     __graph = Graph()
 
     def __init__(self, graph):
+        self.__validate_graph(graph)
         self.__last_node = 0
         self.__current_node = 0
         self.__graph = graph
 
     def calculate_path(self, starting_point, ending_point):
         self.__path.clear()
-        self.__set_neighbor_step_value(ending_point)
+        print(starting_point)
+        print(ending_point)
         if self.__find_gluttonous_path(starting_point, ending_point):
             return True
         else:
-            print("Algo is not good enough")
-            # TODO Throw something?
             return False
+
+    def prepare_neighbor(self, ending_point):
+        self.__set_neighbor_step_value(ending_point)
 
     def __set_neighbor_step_value(self, ending_point):
         processing_node = []
@@ -36,13 +40,11 @@ class PathCalculator(object):
                 if self.__graph.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
                     self.__graph.get_vertex(connection.get_id()).set_step_value(
                         1 + self.__graph.get_vertex(current_node).get_step_value())
+                    print(connection.get_id())
                     processing_node.append(connection.get_id())
 
     def __find_gluttonous_path(self, starting_point, ending_point):
-        if not self.__validate_path_exist(starting_point):
-            print("Algo can't find a path")
-            return False
-            # TODO no path connection between starting and ending
+        self.__validate_path_exist(starting_point)
 
         step_count = 0
         self.__current_node = starting_point
@@ -109,15 +111,13 @@ class PathCalculator(object):
         self.__current_node = next_node
         self.__path.append(next_node)
 
+    def __validate_graph(self, graph):
+        if not graph:
+            raise PathCalculatorError("Can't use an empty Graph")
+
     def __validate_path_exist(self, starting_point):
         if self.__graph.get_vertex(starting_point).get_step_value() == self.UNASSIGNED_VALUE:
-            return False
-        return True
+            raise PathCalculatorNoPathError("PathCalculator could not connect start and end point")
 
     def get_graph_path(self):
-        if self.__path:
-            return self.__path
-        else:
-            # TODO Throw something?
-            print("Please call calculate path first")
-            return 0
+        return self.__path

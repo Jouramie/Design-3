@@ -2,6 +2,8 @@ from .vertex import Vertex
 
 
 class Graph:
+    DEFAULT_WEIGHT = 0
+
     def __init__(self):
         self.__vertices_dictionary = {}
         self.__number_vertices = 0
@@ -12,7 +14,7 @@ class Graph:
         self.__vertices_dictionary[node] = new_vertex
         return new_vertex
 
-    def add_edge(self, origin, destination, weight=0):
+    def add_edge(self, origin, destination, weight=DEFAULT_WEIGHT):
         self.__vertices_dictionary[origin].add_neighbor(self.__vertices_dictionary[destination], weight)
         self.__vertices_dictionary[destination].add_neighbor(self.__vertices_dictionary[origin], weight)
 
