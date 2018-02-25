@@ -1,4 +1,3 @@
-from .graph import Graph
 from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 
 
@@ -9,23 +8,16 @@ class PathCalculator(object):
     DEFAULT_WEIGHT = 1
     POTENTIAL_WEIGHT = 2
     __path = []
-    __graph = Graph()
 
-    def __init__(self, graph):
-        self.__validate_graph(graph)
+    def __init__(self):
         self.__last_node = 0
         self.__current_node = 0
-        self.__graph = graph
 
-    def calculate_path(self, starting_point, ending_point):
+    def calculate_path(self, starting_point, ending_point, graph):
+        self.__validate_graph(graph)
         self.__path.clear()
-        if self.__find_gluttonous_path(starting_point, ending_point):
-            return True
-        else:
-            return False
-
-    def prepare_neighbor(self, ending_point):
         self.__set_neighbor_step_value(ending_point)
+        return self.__find_gluttonous_path(starting_point, ending_point)
 
     def __set_neighbor_step_value(self, ending_point):
         processing_node = []
@@ -111,10 +103,11 @@ class PathCalculator(object):
     def __validate_graph(self, graph):
         if not graph:
             raise PathCalculatorError("Can't use an empty Graph")
+        self.__graph = graph
 
     def __validate_path_exist(self, starting_point):
         if self.__graph.get_vertex(starting_point).get_step_value() == self.UNASSIGNED_VALUE:
             raise PathCalculatorNoPathError("PathCalculator could not connect start and end point")
 
-    def get_graph_path(self):
+    def get_calculated_path(self):
         return self.__path

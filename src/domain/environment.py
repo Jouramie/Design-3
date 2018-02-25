@@ -18,26 +18,16 @@ class Environment(object):
 
     __width = 0
     __height = 0
-    __path_calculator = 0
-    __graph = 0
     __obstacles = []
     __infrared_station = 0
+    __graph = Graph()
 
-    def __init__(self, path_calculator=0, log_level=logging.INFO):
+    def __init__(self, log_level=logging.INFO):
         self.__initialize_log(log_level)
-        self.__path_calculator = path_calculator
 
-    def find_path(self, starting_point, ending_point):
-        try:
-            self.__path_calculator.prepare_neighbor(ending_point)
-            self.__path_calculator.calculate_path(starting_point, ending_point)
-        except PathCalculatorNoPathError as err:
-            logging.info(str(err))
-
-    def initiate_graph(self, width=DEFAULT_SIZE, height=DEFAULT_SIZE, graph=Graph()):
+    def create_graph(self, width=DEFAULT_SIZE, height=DEFAULT_SIZE):
         self.__width = width
         self.__height = height
-        self.__graph = graph
         for y in range(self.__height):
             for x in range(self.__width):
                 self.__graph.add_vertex((x, y))
@@ -46,19 +36,17 @@ class Environment(object):
             for x in range(self.__width):
                 self.__initiate_vertices_neighbors((x, y))
 
-    def initiate_path_calculator(self):
+    def add_obstacles(self, obstacles_point):
         try:
-            self.__path_calculator = PathCalculator(self.__graph)
-        except PathCalculatorError as err:
-            logging.info(str(err))
-
-    def add_obstacle(self, point):
-        try:
-            self.__validate_point_in_graph(point)
+            for point in obstacles_point:
+                self.__validate_point_in_graph(point)
+                self.__add_obstacle(point)
         except EnvironmentDataError as err:
             logging.info(str(err))
             return False
+        return True
 
+    def __add_obstacle(self, point):
         self.__graph.get_vertex(point).set_step_value(self.OBSTACLE_VALUE)
         for connection in self.__graph.get_vertex(point).get_connections():
             self.__graph.get_vertex(connection.get_id()).set_new_weight(
@@ -69,13 +57,15 @@ class Environment(object):
                         not self.__graph.get_vertex(connection.get_id()).get_step_value() == self.OBSTACLE_VALUE:
                     self.__graph.get_vertex(connection_decay.get_id()).set_new_weight(
                         self.__graph.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
-        return True
+
+    def get_graph(self):
+        return self.__graph
 
     def __validate_point_in_graph(self, point):
         try:
             self.__graph.get_vertex(point).get_id()
         except AttributeError:
-            raise EnvironmentDataError("Invalid point in environment graph")
+            raise EnvironmentDataError("Invalid point in environment graph: " + str(point))
 
     def __initiate_vertices_neighbors(self, node):
         directions = [(0, -1), (0, 1), (1, 0), (-1, 0), (-1, -1), (1, -1), (-1, 1), (1, -1)]
@@ -88,10 +78,6 @@ class Environment(object):
         if not os.path.exists(ENVIRONMENT_LOG_DIR):
             os.makedirs(ENVIRONMENT_LOG_DIR)
         logging.basicConfig(level=log_level, filename=ENVIRONMENT_LOG_FILE, format='%(asctime)s %(message)s')
-
-    def print_graph_path(self):
-        for node in self.__path_calculator.get_graph_path():
-            logging.info(node)
 
     def print_graph_steps(self):
         for y in range(self.__height):
