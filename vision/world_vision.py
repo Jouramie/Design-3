@@ -15,37 +15,37 @@ def create_environment(initial_image_file):
     image_file = draw_cube(image_file, blue_cube_contours, blue)
 
     red_cube_contours, center_of_red_rect = find_cube(initial_image_file, lower_red, upper_red)
-    image_file = draw_cube(image_file, red_cube_contours, (0, 0, 255))
+    image_file = draw_cube(image_file, red_cube_contours, red)
 
     green_cube_contours, center_of_green_rect = find_cube(initial_image_file, lower_green, upper_green)
-    image_file = draw_cube(image_file, green_cube_contours, (0, 255, 0))
+    image_file = draw_cube(image_file, green_cube_contours, green)
 
     yellow_cube_contours, center_of_yellow_rect = find_cube(initial_image_file, lower_yellow, upper_yellow)
-    image_file = draw_cube(image_file, yellow_cube_contours, (0, 255, 255))
+    image_file = draw_cube(image_file, yellow_cube_contours, yellow)
 
     black_cube_contours, center_of_black_rect = find_black_cube(initial_image_file)
-    image_file = draw_black_cube(image_file, black_cube_contours)
+    image_file = draw_cube(image_file, black_cube_contours, white)
 
     white_cube_contours, center_of_white_cube = find_white_cube(initial_image_file)
-    image_file = draw_white_cube(image_file, white_cube_contours)
+    image_file = draw_cube(image_file, white_cube_contours, sky_blue)
 
     #end_area_contours, center_of_end_area = find_end_area(initial_image_file)
     #image_file = draw_end_area(image_file, end_area_contours)
 
-    #centers_of_obstacles = find_obstacles(obstacle_file)
+    obstacle_test = crop_environment(obstacle_file)
+    centers_of_obstacles, obstacles_circles = find_obstacles(obstacle_test)
+    obstacle_test = draw_obstacles(obstacle_test, obstacles_circles, sky_blue)
 
     cv2.imshow('Cube', image_file)
     cv2.waitKey(0)
 
-    cv2.imshow('Initial', initial_image_file)
+    cv2.imshow('Obstacles', obstacle_test)
     cv2.waitKey(0)
 
     #return center_of_blue_rect, center_of_red_rect, center_of_green_rect, center_of_yellow_rect, center_of_black_rect
 
 
-def draw_cube(filename, contours, bgr):
-    im = filename
-
+def draw_cube(im, contours, bgr):
     for shape in contours:
         x, y, w, h = cv2.boundingRect(shape)
         cv2.rectangle(im, (x, y), (x + w, y + h), bgr, 2)
@@ -53,29 +53,7 @@ def draw_cube(filename, contours, bgr):
     return im
 
 
-def draw_black_cube(filename, contours):
-    im = filename
-
-    for shape in contours:
-        x, y, w, h = cv2.boundingRect(shape)
-        cv2.rectangle(im, (x, y), (x + w, y + h), white, 2)
-
-    return im
-
-
-def draw_white_cube(filename, contours):
-    im = filename
-
-    for shape in contours:
-        x, y, w, h = cv2.boundingRect(shape)
-        cv2.rectangle(im, (x, y), (x + w, y + h), sky_blue, 2)
-
-    return im
-
-
-def draw_end_area(filename, contours):
-    im = filename
-
+def draw_end_area(im, contours):
     for shape in contours:
         if 800 > len(shape) > 600 and shape[0][0][0] > 50:
             x, y, w, h = cv2.boundingRect(shape)
@@ -84,8 +62,14 @@ def draw_end_area(filename, contours):
     return im
 
 
-def find_cube(filename, lower_bound, upper_bound):
-    im = filename
+def draw_obstacles(img, circles, bgr):
+    for circle in circles:
+        cv2.circle(img, (circle[0], circle[1]), circle[2], bgr, thickness=2, lineType=cv2.LINE_AA)
+
+    return img
+
+
+def find_cube(im, lower_bound, upper_bound):
     center_of_rect = ''
     cube_contours = []
 
@@ -96,7 +80,7 @@ def find_cube(filename, lower_bound, upper_bound):
     img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE);
 
     for shape in contours:
-        if 200 > len(shape) > 50 and shape[0][0][0] > 400:
+        if cv2.arcLength(shape, True) > 50 and shape[0][0][0] > 400:
             x, y, w, h = cv2.boundingRect(shape)
             center_of_rect = (x + w/2, y + h/2)
             cube_contours.append(shape)
@@ -104,8 +88,7 @@ def find_cube(filename, lower_bound, upper_bound):
     return cube_contours, center_of_rect
 
 
-def find_black_cube(filename):
-    im = filename
+def find_black_cube(im):
     center_of_rect = ''
     cube_contours = []
     kernel = np.ones((5, 5), np.uint8)
@@ -126,8 +109,7 @@ def find_black_cube(filename):
     return cube_contours, center_of_rect
 
 
-def find_white_cube(filename):
-    im = filename
+def find_white_cube(im):
     center_of_rect = ''
     cube_contours = []
     kernel = np.ones((5, 5), np.uint8)
@@ -148,8 +130,7 @@ def find_white_cube(filename):
     return cube_contours, center_of_rect
 
 
-def find_end_area(filename):
-    im = filename
+def find_end_area(im):
     center_of_end_area = ''
 
     hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
@@ -167,9 +148,9 @@ def find_end_area(filename):
     return contours, center_of_end_area
 
 
-def find_obstacles(filename):
-    img = cv2.imread(filename)
+def find_obstacles(img):
     centers_of_obstacles = []
+    obstacles_circles = []
 
     im = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -177,13 +158,10 @@ def find_obstacles(filename):
 
     circles = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=20, maxRadius=40)
     for circle in circles[0, :]:
-        cv2.circle(img, (circle[0], circle[1]), circle[2], (255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
         centers_of_obstacles.append((circle[0], circle[1]))
+        obstacles_circles.append(circle)
 
-    cv2.imshow("obstacles", img)
-    cv2.waitKey(0)
-
-    return centers_of_obstacles
+    return centers_of_obstacles, obstacles_circles
 
 
 def crop_environment(filename):
