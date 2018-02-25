@@ -26,10 +26,6 @@ class MainView(QMainWindow):
     def show_flag(self):
         self.main_controller.select_flag()
         self.display_flag()
-
-    @pyqtSlot()
-    def show_country_name(self):
-        self.main_controller.select_country_name()
         self.display_country_name()
 
     @pyqtSlot()
@@ -51,7 +47,7 @@ class MainView(QMainWindow):
         self.ui.lcdNumber.display(time)
 
     def display_flag(self):
-        flag_pixmap = QtGui.QPixmap("../domain/country/Flag_" + self.model.flag + ".gif")
+        flag_pixmap = QtGui.QPixmap("../domain/country/Flag_" + self.model.countryName + ".gif")
         self.ui.flagPicture.setPixmap(flag_pixmap)
         self.ui.flagPicture.setMask(flag_pixmap.mask())
         self.ui.flagPicture.show()
@@ -68,4 +64,3 @@ class MainView(QMainWindow):
         self.ui.StartButton.clicked.connect(self.start_timer)
         self.ui.StartButton.clicked.connect(self.show_flag)
         self.ui.StartButton.clicked.connect(self.show_cube_next_color)
-        self.ui.StartButton.clicked.connect(self.show_country_name)

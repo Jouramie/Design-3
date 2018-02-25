@@ -6,11 +6,11 @@ class MainModel(object):
         self.time = QtCore.QTime(0, 10, 0, 0)
         self.passedTime = 0
         self.timer = QtCore.QTimer()
-        self.flag = ""
         self.countryName = "Country not yet selected"
         self.nextCubeColor = ""
         self.worldCamTimer = QtCore.QTimer()
         self.frame = ""
+        self.countryCode = 0
 
         self._update_functions = []
         self.running = False

@@ -1,15 +1,19 @@
 class CountryLoader(object):
     def __init__(self):
+        self.country_dictionnary = {}
         self.__country_code_loader()
-        self.__stylized_flag_loader()
+        #self.__stylized_flag_loader()
 
     def __country_code_loader(self):
         try:
-            with open("country\A-Liste_UTF-16.txt", "r", encoding='utf-16') as fileOpen:
-                self.country = [l.split() for l in fileOpen.readlines()]
-            for x in range(0,196):
-                self.country[x][1:len(self.country[x])] = [' '.join(self.country[x][1:len(self.country[x])])]
-            fileOpen.close()
+            with open("../domain/country/A-Liste_UTF-16.txt", "r", encoding='utf-16') as fileOpen:
+                for line in fileOpen:
+
+                    line_informations = line.split()
+                    country_code = int(line_informations[0])
+                    country_name = [' '.join(line_informations[1:len(line_informations)])]
+                    self.country_dictionnary[country_code]= country_name
+                fileOpen.close()
         except FileNotFoundError:
             print(' File does NOT exist')
 
@@ -19,4 +23,4 @@ class CountryLoader(object):
         # également si on load avec cv2 les gif et les images vs lodaer les fig et déchiffrer
 
     def get_country_list(self):
-        return self.country
+        return self.country_dictionnary
