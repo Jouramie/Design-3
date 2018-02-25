@@ -73,6 +73,6 @@ class TestPathCalculator(TestCase):
         path_calculator = PathCalculator()
 
         path_calculator.calculate_path(starting_point, ending_point, environment.get_graph())
-        expected = [starting_point,ending_point]
+        expected = [starting_point, ending_point]
         
         self.assertEqual(expected, path_calculator.get_calculated_path())
