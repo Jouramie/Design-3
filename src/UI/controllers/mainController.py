@@ -7,7 +7,7 @@ class MainController(object):
     def __init__(self, model):
         self.model = model
         self.countryLoader = CountryLoader()
-        self.set_country_code(48)
+        self.set_country_code(48) #Enter country code here
 
     def set_country_code(self, country_code):
         self.model.countryCode = country_code
