@@ -12,37 +12,34 @@ def create_environment(initial_image_file):
     image_file = copy.copy(initial_image_file)
 
     blue_cube_contours, center_of_blue_rect = find_cube(initial_image_file, lower_blue, upper_blue)
-    image_file = draw_cube(image_file, blue_cube_contours, blue)
+    draw_cube(image_file, blue_cube_contours, blue)
 
     red_cube_contours, center_of_red_rect = find_cube(initial_image_file, lower_red, upper_red)
-    image_file = draw_cube(image_file, red_cube_contours, red)
+    draw_cube(image_file, red_cube_contours, red)
 
     green_cube_contours, center_of_green_rect = find_cube(initial_image_file, lower_green, upper_green)
-    image_file = draw_cube(image_file, green_cube_contours, green)
+    draw_cube(image_file, green_cube_contours, green)
 
     yellow_cube_contours, center_of_yellow_rect = find_cube(initial_image_file, lower_yellow, upper_yellow)
-    image_file = draw_cube(image_file, yellow_cube_contours, yellow)
+    draw_cube(image_file, yellow_cube_contours, yellow)
 
     black_cube_contours, center_of_black_rect = find_black_cube(initial_image_file)
-    image_file = draw_cube(image_file, black_cube_contours, white)
+    draw_cube(image_file, black_cube_contours, white)
 
     white_cube_contours, center_of_white_cube = find_white_cube(initial_image_file)
-    image_file = draw_cube(image_file, white_cube_contours, sky_blue)
+    draw_cube(image_file, white_cube_contours, sky_blue)
 
-    #end_area_contours, center_of_end_area = find_end_area(initial_image_file)
-    #image_file = draw_end_area(image_file, end_area_contours)
+    end_area_contour, center_of_end_area = find_end_area(initial_image_file)
+    image_file = draw_end_area(image_file, end_area_contour)
 
-    obstacle_test = crop_environment(obstacle_file)
-    centers_of_obstacles, obstacles_circles = find_obstacles(obstacle_test)
-    obstacle_test = draw_obstacles(obstacle_test, obstacles_circles, sky_blue)
+    centers_of_obstacles, obstacles_circles = find_obstacles(initial_image_file)
+    draw_obstacles(image_file, obstacles_circles, sky_blue)
 
     cv2.imshow('Cube', image_file)
     cv2.waitKey(0)
 
-    cv2.imshow('Obstacles', obstacle_test)
-    cv2.waitKey(0)
-
-    #return center_of_blue_rect, center_of_red_rect, center_of_green_rect, center_of_yellow_rect, center_of_black_rect
+    return (center_of_blue_rect, center_of_red_rect, center_of_green_rect, center_of_yellow_rect, center_of_black_rect,
+            center_of_white_cube, end_area_contour, centers_of_obstacles)
 
 
 def draw_cube(im, contours, bgr):
@@ -55,9 +52,8 @@ def draw_cube(im, contours, bgr):
 
 def draw_end_area(im, contours):
     for shape in contours:
-        if 800 > len(shape) > 600 and shape[0][0][0] > 50:
-            x, y, w, h = cv2.boundingRect(shape)
-            cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        x, y, w, h = cv2.boundingRect(shape)
+        cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     return im
 
@@ -132,6 +128,7 @@ def find_white_cube(im):
 
 def find_end_area(im):
     center_of_end_area = ''
+    end_area_contour = ''
 
     hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
 
@@ -140,12 +137,13 @@ def find_end_area(im):
     img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE);
 
     for shape in contours:
-        if 800 > len(shape) > 600 and shape[0][0][0] > 50:
+        if cv2.arcLength(shape, True) > 300 and shape[0][0][0] > 50:
+            end_area_contour = shape
             x, y, w, h = cv2.boundingRect(shape)
             cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
             center_of_end_area = (x + w/2, y + h/2)
 
-    return contours, center_of_end_area
+    return end_area_contour, center_of_end_area
 
 
 def find_obstacles(img):
@@ -157,9 +155,10 @@ def find_obstacles(img):
     im = cv2.GaussianBlur(im, (5, 5), 0)
 
     circles = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=20, maxRadius=40)
-    for circle in circles[0, :]:
-        centers_of_obstacles.append((circle[0], circle[1]))
-        obstacles_circles.append(circle)
+    if circles is not None:
+        for circle in circles[0, :]:
+            centers_of_obstacles.append((circle[0], circle[1]))
+            obstacles_circles.append(circle)
 
     return centers_of_obstacles, obstacles_circles
 

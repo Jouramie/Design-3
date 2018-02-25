@@ -5,7 +5,7 @@ lower_blue = (np.array([90, 40, 40]))
 upper_blue = (np.array([130, 255, 255]))
 
 lower_green = (np.array([40, 80, 80]))
-upper_green = (np.array([70, 255, 120]))
+upper_green = (np.array([70, 255, 255]))
 
 lower_red = (np.array([0, 200, 80]))
 upper_red = (np.array([25, 255, 200]))
