@@ -23,7 +23,3 @@ class TestCamera(TestCase):
         camera = Camera(capture_object)
 
         self.assertRaises(CameraError, camera.take_picture)
-
-
-
-

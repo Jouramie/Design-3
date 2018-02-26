@@ -8,7 +8,7 @@ world_camera_id = None
 system = platform.system()
 print('system {}'.format(system))
 if  system == 'Linux':
-    world_camera_id = 2
+    world_camera_id = 1
 elif system == 'darwin':
     world_camera_id = 0
 elif system == 'Windows':
