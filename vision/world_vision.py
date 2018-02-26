@@ -16,16 +16,16 @@ class WorldVision:
         initial_image_file = self.__crop_environment__(initial_image_file)
         image_file = copy.copy(initial_image_file)
 
-        blue_cube_contours, centers_of_blue = self.__find_cubes__(initial_image_file, lower_blue, upper_blue)
+        blue_cube_contours, centers_of_blue = self.__find_cubes__(initial_image_file, lower_blue, upper_blue, blue)
         self.__draw_cubes__(image_file, blue_cube_contours, blue)
 
-        red_cube_contours, centers_of_red = self.__find_cubes__(initial_image_file, lower_red, upper_red)
+        red_cube_contours, centers_of_red = self.__find_cubes__(initial_image_file, lower_red, upper_red, red)
         self.__draw_cubes__(image_file, red_cube_contours, red)
 
-        green_cube_contours, centers_of_green = self.__find_cubes__( initial_image_file, lower_green, upper_green)
+        green_cube_contours, centers_of_green = self.__find_cubes__( initial_image_file, lower_green, upper_green, green)
         self.__draw_cubes__(image_file, green_cube_contours, green)
 
-        yellow_cube_contours, centers_of_yellow = self.__find_cubes__(initial_image_file, lower_yellow, upper_yellow)
+        yellow_cube_contours, centers_of_yellow = self.__find_cubes__(initial_image_file, lower_yellow, upper_yellow, yellow)
         self.__draw_cubes__(image_file, yellow_cube_contours, yellow)
 
         black_cube_contours, centers_of_black = self.__find_black_cubes__(initial_image_file)
@@ -40,9 +40,6 @@ class WorldVision:
 
         centers_of_obstacles, obstacles_circles = self.__find_obstacles__(initial_image_file)
         self.__draw_obstacles__(image_file, obstacles_circles, pink)
-
-        cv2.imshow('Cube', image_file)
-        cv2.waitKey(0)
 
         return Environment(self.cube_list, self.obstacle_list, center_of_end_area), image_file
 
@@ -66,7 +63,7 @@ class WorldVision:
 
         return img
 
-    def __find_cubes__(self, im, lower_bound, upper_bound):
+    def __find_cubes__(self, im, lower_bound, upper_bound, color):
         centers_of_rect = []
         cube_contours = []
 
@@ -83,7 +80,7 @@ class WorldVision:
                 centers_of_rect.append(center_of_rect)
                 cube_contours.append(shape)
 
-        self.__add_cube_to_cube_list__( centers_of_rect, blue)
+        self.__add_cube_to_cube_list__( centers_of_rect, color)
 
         return cube_contours, centers_of_rect
 
@@ -190,7 +187,7 @@ class WorldVision:
         for circle in circles[0, :]:
             center = (circle[0], circle[1])
             obstacle = Obstacle(center)
-            self.cube_list.append(obstacle)
+            self.obstacle_list.append(obstacle)
 
     def __crop_environment__(self, filename):
         im = cv2.imread(filename)
