@@ -1,16 +1,12 @@
-import cv2
-from PyQt5 import QtWidgets, QtCore, uic, QtGui
-
 class MainModel(object):
     def __init__(self):
-        self.time = QtCore.QTime(0, 10, 0, 0)
         self.passedTime = 0
-        self.timer = QtCore.QTimer()
-        self.countryName = "Country not yet selected"
+        self.country = "Country not yet selected"
         self.nextCubeColor = ""
-        self.worldCamTimer = QtCore.QTimer()
         self.frame = ""
         self.countryCode = 0
+        self.timer_is_on = False
+        self.worldCamera_is_on = False
 
         self._update_functions = []
         self.running = False
