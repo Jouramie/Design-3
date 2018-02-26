@@ -17,4 +17,4 @@ lower_black = (np.array([0, 0, 0]))
 upper_black = (np.array([180, 0, 40]))
 
 lower_white = (np.array([0, 0, 0]))
-upper_white = (np.array([0, 60, 255]))
+upper_white = (np.array([180, 60, 255]))

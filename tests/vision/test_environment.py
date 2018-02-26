@@ -1,8 +1,5 @@
-import numpy as np
-
 from unittest import TestCase
-from unittest.mock import MagicMock, Mock
-from vision.world_vision import *
+from src.vision.world_vision import *
 from src.domain.environment.environment import *
 
 cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-25/17h43.jpg'
@@ -19,6 +16,8 @@ class TestEnvironment(TestCase):
     def test_when_creating_environment_then_image_is_returned(self):
         world_vision = WorldVision()
         result = world_vision.create_environment(cube_file)
+        cv2.imshow('result', result[1])
+        cv2.waitKey(0)
         self.assertIsInstance(result[1], np.ndarray, 'Result contains a ndarray image')
 
     def test_given_cubes_when_creating_environment_then_environment_contains_list_of_cubes(self):
@@ -44,6 +43,8 @@ class TestEnvironment(TestCase):
     def test_given_no_cube_when_creating_environment_then_environment_contains_no_cube(self):
         world_vision = WorldVision()
         result = world_vision.create_environment(obstacle_file)
+        cv2.imshow('result', result[1])
+        cv2.waitKey(0)
         cubes_list = result[0].get_cubes()
         self.assertTrue(len(cubes_list) == 0, 'There is no cube')
 
