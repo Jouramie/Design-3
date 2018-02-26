@@ -15,12 +15,12 @@ pytest_unit_tests:
   script:
   - pytest unit_tests
 
-pytest_integration_test:
-  stage: integration_test
-  script:
-  - apt install -y git
-  - git clone https://gitlab.com/design3-equipe6/photos.git
-  - mv photos fig
-  - pytest interation_test
+#pytest_integration_test:
+#  stage: integration_test
+#  script:
+#  - apt install -y git
+#  - git clone https://gitlab.com/design3-equipe6/photos.git
+#  - mv photos fig
+#  - pytest interation_test
 
 
