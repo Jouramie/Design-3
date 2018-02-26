@@ -6,6 +6,8 @@ from vision.world_vision import *
 from src.domain.environment.environment import *
 
 cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-25/17h43.jpg'
+obstacle_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-10/obstacles10.jpg'
+no_obstacle_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-10/16h42.png'
 
 
 class TestEnvironment(TestCase):
@@ -18,8 +20,6 @@ class TestEnvironment(TestCase):
         world_vision = WorldVision()
         result = world_vision.create_environment(cube_file)
         self.assertIsInstance(result[1], np.ndarray, 'Result contains a ndarray image')
-        cv2.imshow('Result', result[1])
-        cv2.waitKey(0)
 
     def test_given_cubes_when_creating_environment_then_environment_contains_list_of_cubes(self):
         world_vision = WorldVision()
@@ -40,3 +40,17 @@ class TestEnvironment(TestCase):
         result = world_vision.create_environment(cube_file)
         target_zone = result[0].get_target_zone()
         self.assertIsInstance(target_zone, TargetZone, 'Environment contains a target zone')
+
+    def test_given_no_cube_when_creating_environment_then_environment_contains_no_cube(self):
+        world_vision = WorldVision()
+        result = world_vision.create_environment(obstacle_file)
+        cubes_list = result[0].get_cubes()
+        self.assertTrue(len(cubes_list) == 0, 'There is no cube')
+
+    def test_given_no_obstacle_when_creating_environment_then_environment_contains_no_obstacle(self):
+        world_vision = WorldVision()
+        result = world_vision.create_environment(no_obstacle_file)
+        obstacles_list = result[0].get_obstacles()
+        cv2.imshow('result', result[1])
+        cv2.waitKey(0)
+        self.assertTrue(len(obstacles_list) == 0, 'There is no obstacle')

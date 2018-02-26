@@ -36,7 +36,7 @@ class WorldVision:
         #draw_cube(image_file, white_cube_contours, sky_blue)
 
         end_area_contour, center_of_end_area = self.__find_end_area__(initial_image_file)
-        image_file = self.__draw_end_area__(image_file, end_area_contour)
+        self.__draw_end_area__(image_file, end_area_contour)
 
         centers_of_obstacles, obstacles_circles = self.__find_obstacles__(initial_image_file)
         self.__draw_obstacles__(image_file, obstacles_circles, pink)
@@ -74,7 +74,7 @@ class WorldVision:
         img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
         for shape in contours:
-            if cv2.arcLength(shape, True) > 50 and shape[0][0][0] > 400:
+            if 200 > cv2.arcLength(shape, True) > 50 and shape[0][0][0] > 400:
                 x, y, w, h = cv2.boundingRect(shape)
                 center_of_rect = (x + w/2, y + h/2)
                 centers_of_rect.append(center_of_rect)
@@ -102,7 +102,7 @@ class WorldVision:
         img_contours, contours, hierarchy = cv2.findContours(tresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         for shape in contours:
-            if cv2.arcLength(shape, True) > 50 and shape[0][0][0] > 400:
+            if 150 > cv2.arcLength(shape, True) > 60 and ((shape[0][0][0] > 480 and shape[0][0][1] > 245) or (shape[0][0][0] > 480 and shape[0][0][1] < 45) or shape[0][0][0] > 570):
                 x, y, w, h = cv2.boundingRect(shape)
                 center_of_rect = (x + w/2, y + h/2)
                 centers_of_rect.append(center_of_rect)
@@ -178,8 +178,7 @@ class WorldVision:
             for circle in circles[0, :]:
                 centers_of_obstacles.append((circle[0], circle[1]))
                 obstacles_circles.append(circle)
-
-        self.__add_obstacle_to_obstacle_list__(circles)
+            self.__add_obstacle_to_obstacle_list__(circles)
 
         return centers_of_obstacles, obstacles_circles
 
@@ -198,10 +197,12 @@ class WorldVision:
 
         img = cv2.drawContours(img, contours, -1, (0, 255, 0), 3)
 
+        y_adjustment = 5
+
         for shape in contours:
             if cv2.arcLength(shape, True) > 1000:
                 x, y, w, h = cv2.boundingRect(shape)
-                crop_img = im[y + 5:y + h, x:x+w]
+                crop_img = im[y + y_adjustment:y + h, x:x+w]
 
         return crop_img
 
