@@ -1,20 +1,23 @@
+from unittest import TestCase
+
 from src.d3_network.encoder import DictionaryEncoder
 from src.d3_network.command import Command
 
 
-def test_when_encode_then_return_byte_string():
-    msg = {'command': Command.START}
-    encoder = DictionaryEncoder()
+class TestCamera(TestCase):
 
-    byte = encoder.encode(msg)
+    def test_when_encode_then_return_byte_string(self):
+        msg = {'command': Command.START}
+        encoder = DictionaryEncoder()
 
-    assert byte == b"{'command': 'start'}"
+        byte = encoder.encode(msg)
 
+        self.assertEqual(byte, b"{'command': 'start'}")
 
-def test_when_decode_then_return_dictionary():
-    byte = b"{'msg': 'hello world'}"
-    encoder = DictionaryEncoder()
+    def test_when_decode_then_return_dictionary(self):
+        byte = b"{'msg': 'hello world'}"
+        encoder = DictionaryEncoder()
 
-    msg = encoder.decode(byte)
+        msg = encoder.decode(byte)
 
-    assert msg == {'msg': 'hello world'}
+        self.assertEqual(msg, {'msg': 'hello world'})
