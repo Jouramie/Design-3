@@ -2,11 +2,11 @@ from logging import Logger
 import socket
 from typing import Callable
 
-from src.d3_network.command import Command
-from src.d3_network.encoder import Encoder
+from .command import Command
+from .encoder import Encoder
 
 
-class ClientNetworkController:
+class ClientNetworkController(object):
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         self._logger = logger

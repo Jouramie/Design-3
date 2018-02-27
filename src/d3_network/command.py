@@ -1,3 +1,3 @@
-class Command:
+class Command(object):
     RESET = 'reset'
     START = 'start'

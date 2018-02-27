@@ -3,15 +3,16 @@ from src.d3_network.ip_provider import IpProvider
 from src.d3_network.client_network_controller import ClientNetworkController
 
 
-class RobotController:
+class RobotController(object):
 
     def __init__(self, logger: Logger, ip_provider: IpProvider, network: ClientNetworkController):
         self._logger = logger
-        self._network_scanner = ip_provider
+        self._ip_provider = ip_provider
         self._network = network
 
     def start(self) -> None:
-        host_ip = self._network_scanner.get_host_ip()
+        host_ip = self._ip_provider.get_host_ip()
+
         self._network.pair_with_host(host_ip)
 
         self._network.wait_start_command(self.on_receive_start_command)

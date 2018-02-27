@@ -1,11 +1,11 @@
 import socket
 from logging import Logger
 
-from src.d3_network.command import Command
-from src.d3_network.encoder import Encoder
+from .command import Command
+from .encoder import Encoder
 
 
-class ServerNetworkController:
+class ServerNetworkController(object):
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         self._logger = logger

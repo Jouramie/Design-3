@@ -1,4 +1,4 @@
-class IpProvider:
+class IpProvider(object):
     def get_host_ip(self):
         pass
 

@@ -1,7 +1,7 @@
 import ast
 
 
-class Encoder:
+class Encoder(object):
     def encode(self, message) -> bytes:
         pass
 
