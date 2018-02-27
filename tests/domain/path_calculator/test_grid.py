@@ -10,7 +10,7 @@ DEFAULT_WEIGHT = 1
 
 
 class TestGrid(TestCase):
-    def test_when_creating_grid_then_add_corresponding_vertex():
+    def test_when_creating_grid_then_add_corresponding_vertex(self):
         nodes = [(SOME_VALUE_0, SOME_VALUE_0), (SOME_VALUE_0, SOME_VALUE_1),
                  (SOME_VALUE_1, SOME_VALUE_0), (SOME_VALUE_1, SOME_VALUE_1)]
 
@@ -20,7 +20,7 @@ class TestGrid(TestCase):
         for node in nodes:
             assert node in grid.get_vertices()
 
-    def test_when_creating_grid_then_add_two_ways_connections_between_vertices():
+    def test_when_creating_grid_then_add_two_ways_connections_between_vertices(self):
         node_1 = (SOME_VALUE_0, SOME_VALUE_0)
         node_2 = (SOME_VALUE_0, SOME_VALUE_1)
 
@@ -31,8 +31,8 @@ class TestGrid(TestCase):
             assert node_1 == value.get_id()
         for value in grid.get_vertex(node_1).get_connections():
             assert node_2 == value.get_id()
-    
-    def test_when_adding_edge_then_add_default_weight():
+
+    def test_when_adding_edge_then_add_default_weight(self):
         node_1 = (SOME_VALUE_0, SOME_VALUE_0)
         node_2 = (SOME_VALUE_0, SOME_VALUE_1)
 
