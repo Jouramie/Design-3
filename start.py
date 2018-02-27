@@ -85,7 +85,7 @@ def start_station(config: dict, logger: logging.Logger) -> None:
             network_ctl.send_start_command()
         elif command == 'reset':
             network_ctl.send_reset_command()
-        elif command == 'quit':
+        elif command == 'quit' or 'exit':
             station_loop = False
         else:
             print('Unknown command.')
