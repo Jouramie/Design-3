@@ -6,7 +6,7 @@ from unittest.mock import patch
 from src.d3_network import server_network_controller as server_network_ctl
 
 
-class TestCamera(TestCase):
+class TestServerNetworkController(TestCase):
 
     @patch('src.d3_network.server_network_controller.socket')
     def test_given_connected_client_when_send_start_command_then_send_encoded_message(self, socket):

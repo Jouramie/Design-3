@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from src.robot_software import robot_controller
 
 
-class TestCamera(TestCase):
+class TestRobotController(TestCase):
 
     def test_when_start_controller_then_get_host_ip(self):
         network_scanner = MagicMock()

@@ -7,7 +7,7 @@ from src.d3_network import client_network_controller as client_network_ctl
 from src.d3_network.command import Command
 
 
-class TestCamera(TestCase):
+class TestClientNetworkController(TestCase):
 
     @patch('src.d3_network.client_network_controller.socket')
     def test_when_pair_with_host_then_connect(self, socket):

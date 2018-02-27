@@ -4,7 +4,7 @@ from src.d3_network.encoder import DictionaryEncoder
 from src.d3_network.command import Command
 
 
-class TestCamera(TestCase):
+class TestDictionaryEncoder(TestCase):
 
     def test_when_encode_then_return_byte_string(self):
         msg = {'command': Command.START}
