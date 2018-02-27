@@ -16,8 +16,7 @@ class RobotController(object):
 
         self._network.pair_with_host(host_ip)
 
-
-        incoming_data = self._network.wait_start_command()
+        self._network.wait_start_command()
 
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
         self._main_loop()

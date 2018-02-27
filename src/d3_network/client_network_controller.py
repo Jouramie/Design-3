@@ -1,5 +1,5 @@
 from logging import Logger
-import socket
+from socket import socket, AF_INET, SOCK_STREAM, timeout
 from .command import Command
 from .encoder import Encoder
 from .network_exception import NetworkException
@@ -10,7 +10,7 @@ class ClientNetworkController(NetworkController):
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket = socket(AF_INET, SOCK_STREAM)
         self._socket.settimeout(5)
 
     def pair_with_host(self, host_ip: str) -> None:
@@ -18,7 +18,7 @@ class ClientNetworkController(NetworkController):
 
         try:
             msg = self._receive_data()
-        except socket.timeout:
+        except timeout:
             raise NetworkException('No answer from host.')
 
         if msg['command'] == Command.HELLO:
@@ -33,8 +33,8 @@ class ClientNetworkController(NetworkController):
         msg = None
         while msg is None:
             try:
-                msg = self._encoder.decode(self._socket.recv(1024))
-            except socket.timeout:
+                msg = self._receive_data()
+            except timeout:
                 self._logger.info('Waiting for start signal.')
 
         self._logger.info(msg)

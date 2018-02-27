@@ -32,4 +32,4 @@ class TestRobotController(TestCase):
 
         ctrl.start()
 
-        network_ctrl.wait_start_command.assert_called_once_with(ctrl.on_receive_start_command)
+        network_ctrl.wait_start_command.assert_called_once()
