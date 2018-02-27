@@ -14,65 +14,71 @@ UNASSIGNED_VALUE = -1
 
 
 class TestPathCalculator(TestCase):
-    def test_when_calculate_path_with_invalid_graph_then_exception_raised(self):
+    def test_when_calculate_path_with_invalid_grid_then_exception_raised(self):
         starting_point = (SOME_VALUE_1, SOME_VALUE_1)
         ending_point = (SOME_VALUE_2, SOME_VALUE_2)
-        invalid_graph = 0
+        invalid_grid = 0
         path_calculator = PathCalculator()
 
-        try:
-            path_calculator.calculate_path(starting_point, ending_point, invalid_graph)
-            self.fail("Didn't raise Error")
-        except PathCalculatorError as err:
-            self.assertEqual("Can't use an empty Graph", str(err))
+        with self.assertRaises(PathCalculatorError):
+            path_calculator.calculate_path(starting_point, ending_point, invalid_grid)
 
     def test_when_calculate_path_with_invalid_starting_point_then_exception_raised(self):
         starting_point = (SOME_VALUE_2, SOME_VALUE_1)
         starting_vertex = MagicMock()
         starting_vertex.attach_mock(Mock(return_value=UNASSIGNED_VALUE), 'get_step_value')
         ending_point = (SOME_VALUE_2, SOME_VALUE_1)
-        graph = Mock()
+        grid = Mock()
         path_calculator = PathCalculator()
-        graph.attach_mock(Mock(return_value=starting_vertex), 'get_vertex')
+        grid.attach_mock(Mock(return_value=starting_vertex), 'get_vertex')
 
-        try:
-            path_calculator.calculate_path(starting_point, ending_point, graph)
-            self.fail("Didn't raise Error")
-        except PathCalculatorNoPathError as err:
-            self.assertEqual("PathCalculator could not connect start and end point", str(err))
+        with self.assertRaises(PathCalculatorNoPathError):
+            path_calculator.calculate_path(starting_point, ending_point, grid)
 
     def test_when_calculate_path_then_validate_path_exist(self):
         starting_point = (SOME_VALUE_2, SOME_VALUE_1)
         starting_vertex = MagicMock()
         ending_point = (SOME_VALUE_2, SOME_VALUE_1)
-        graph = Mock()
+        grid = Mock()
         path_calculator = PathCalculator()
-        graph.attach_mock(Mock(return_value=starting_vertex), 'get_vertex')
+        grid.attach_mock(Mock(return_value=starting_vertex), 'get_vertex')
 
-        path_calculator.calculate_path(starting_point, ending_point, graph)
+        path_calculator.calculate_path(starting_point, ending_point, grid)
 
         starting_vertex.get_step_value.assert_called_once()
 
-    def test_when_calculate_path_then_increment_neighbor_step_value(self):
+    def test_when_calculate_path_then_set_ending_point_step_value(self):
         environment = Environment()
-        environment.create_graph(2, 1)
+        environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
         starting_point = (SOME_VALUE_0, SOME_VALUE_0)
         ending_point = (SOME_VALUE_1, SOME_VALUE_0)
         path_calculator = PathCalculator()
 
-        path_calculator.calculate_path(starting_point, ending_point, environment.get_graph())
-        expected = environment.get_graph().get_vertex(ending_point).get_step_value() + 1
+        path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
+        expected = environment.get_grid().get_vertex(ending_point).get_step_value() + 1
 
-        self.assertEqual(expected, environment.get_graph().get_vertex(starting_point).get_step_value())
+        self.assertEqual(expected, environment.get_grid().get_vertex(starting_point).get_step_value())
+
+    def test_when_calculate_path_then_increment_neighbor_step_value(self):
+        environment = Environment()
+        environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
+        starting_point = (SOME_VALUE_0, SOME_VALUE_0)
+        ending_point = (SOME_VALUE_1, SOME_VALUE_0)
+        path_calculator = PathCalculator()
+
+        path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
+        expected = END_POINT_VALUE
+
+        self.assertEqual(expected, environment.get_grid().get_vertex(ending_point).get_step_value())
 
     def test_when_calculate_path_then_calculate_path(self):
         environment = Environment()
-        environment.create_graph(2, 1)
+        environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
         starting_point = (SOME_VALUE_1, SOME_VALUE_0)
         ending_point = (SOME_VALUE_0, SOME_VALUE_0)
         path_calculator = PathCalculator()
 
-        path_calculator.calculate_path(starting_point, ending_point, environment.get_graph())
+        path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
         expected = [starting_point, ending_point]
         
         self.assertEqual(expected, path_calculator.get_calculated_path())

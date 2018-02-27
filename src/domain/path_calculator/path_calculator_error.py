@@ -1,6 +1,6 @@
 class PathCalculatorError(Exception):
     def __init__(self, message):
-        Exception.__init__(self, message)
+        super().__init__(self, message)
 
 
 class PathCalculatorNoPathError(PathCalculatorError):

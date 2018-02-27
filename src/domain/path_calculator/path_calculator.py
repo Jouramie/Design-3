@@ -13,23 +13,23 @@ class PathCalculator(object):
         self.__last_node = 0
         self.__current_node = 0
 
-    def calculate_path(self, starting_point, ending_point, graph):
-        self.__validate_graph(graph)
+    def calculate_path(self, starting_point, ending_point, grid):
+        self.__validate_grid(grid)
         self.__path.clear()
         self.__set_neighbor_step_value(ending_point)
         return self.__find_gluttonous_path(starting_point, ending_point)
 
     def __set_neighbor_step_value(self, ending_point):
         processing_node = []
-        self.__graph.get_vertex(ending_point).set_step_value(self.END_POINT_VALUE)
+        self.__grid.get_vertex(ending_point).set_step_value(self.END_POINT_VALUE)
         processing_node.append(ending_point)
 
         while processing_node:
             current_node = processing_node.pop(0)
-            for connection in self.__graph.get_vertex(current_node).get_connections():
-                if self.__graph.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
-                    self.__graph.get_vertex(connection.get_id()).set_step_value(
-                        1 + self.__graph.get_vertex(current_node).get_step_value())
+            for connection in self.__grid.get_vertex(current_node).get_connections():
+                if self.__grid.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
+                    self.__grid.get_vertex(connection.get_id()).set_step_value(
+                        1 + self.__grid.get_vertex(current_node).get_step_value())
                     processing_node.append(connection.get_id())
 
     def __find_gluttonous_path(self, starting_point, ending_point):
@@ -48,33 +48,33 @@ class PathCalculator(object):
             safer_next_node = 0
             next_node = 0
 
-            for connection in self.__graph.get_vertex(self.__current_node).get_connections():
+            for connection in self.__grid.get_vertex(self.__current_node).get_connections():
                 connection_count += 1
-                if connection_count == len(self.__graph.get_vertex(self.__current_node).get_connections()):
+                if connection_count == len(self.__grid.get_vertex(self.__current_node).get_connections()):
                     last_connection = True
 
                 step_count += 1
                 # Section for the next step_value (gluttonous move)
-                if self.__graph.get_vertex(connection.get_id()).get_step_value() == self.__graph.get_vertex(
+                if self.__grid.get_vertex(connection.get_id()).get_step_value() == self.__grid.get_vertex(
                         self.__current_node).get_step_value() - 1:
                     # Always go for safe move
-                    if self.__graph.get_vertex(self.__current_node).get_neighbor_weight(
-                            self.__graph.get_vertex(connection.get_id())) == self.DEFAULT_WEIGHT:
+                    if self.__grid.get_vertex(self.__current_node).get_neighbor_weight(
+                            self.__grid.get_vertex(connection.get_id())) == self.DEFAULT_WEIGHT:
                         gluttonous_path = True
                         next_node = connection.get_id()
                     # Section for dangerous move
-                    elif self.__graph.get_vertex(self.__current_node).get_neighbor_weight(
-                            self.__graph.get_vertex(connection.get_id())) == self.POTENTIAL_WEIGHT:
+                    elif self.__grid.get_vertex(self.__current_node).get_neighbor_weight(
+                            self.__grid.get_vertex(connection.get_id())) == self.POTENTIAL_WEIGHT:
                         dangerous_path = True
                         dangerous_next_node = connection.get_id()
 
                 # Section for the same step_value and not turning back
                 if connection.get_id() != self.__last_node:
-                    if self.__graph.get_vertex(connection.get_id()).get_step_value() == self.__graph.get_vertex(
+                    if self.__grid.get_vertex(connection.get_id()).get_step_value() == self.__grid.get_vertex(
                             self.__current_node).get_step_value():
                         # This move should only be used when is safer then a dangerous move
-                        if self.__graph.get_vertex(self.__current_node).get_neighbor_weight(
-                                self.__graph.get_vertex(connection.get_id())) == self.DEFAULT_WEIGHT:
+                        if self.__grid.get_vertex(self.__current_node).get_neighbor_weight(
+                                self.__grid.get_vertex(connection.get_id())) == self.DEFAULT_WEIGHT:
                             dangerous_path = True
                             safer_next_node = connection.get_id()
 
@@ -100,13 +100,13 @@ class PathCalculator(object):
         self.__current_node = next_node
         self.__path.append(next_node)
 
-    def __validate_graph(self, graph):
-        if not graph:
-            raise PathCalculatorError("Can't use an empty Graph")
-        self.__graph = graph
+    def __validate_grid(self, grid):
+        if not grid:
+            raise PathCalculatorError("Can't use an empty Grid")
+        self.__grid = grid
 
     def __validate_path_exist(self, starting_point):
-        if self.__graph.get_vertex(starting_point).get_step_value() == self.UNASSIGNED_VALUE:
+        if self.__grid.get_vertex(starting_point).get_step_value() == self.UNASSIGNED_VALUE:
             raise PathCalculatorNoPathError("PathCalculator could not connect start and end point")
 
     def get_calculated_path(self):

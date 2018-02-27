@@ -11,7 +11,7 @@ SOME_VALUE_2 = 2
 class TestPathCalculator(TestCase):
     def test_when_adding_invalid_obstacle_then_return_false(self):
         environment = Environment()
-        environment.create_graph()
+        environment.create_grid()
 
         value = environment.add_obstacles([(SOME_NEGATIVE_VALUE, SOME_NEGATIVE_VALUE)])
 
@@ -19,7 +19,7 @@ class TestPathCalculator(TestCase):
 
     def test_when_adding_obstacle_then_return_true(self):
         environment = Environment()
-        environment.create_graph()
+        environment.create_grid()
 
         value = environment.add_obstacles([(SOME_VALUE_0, SOME_VALUE_0)])
 
