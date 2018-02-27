@@ -62,8 +62,12 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
     network = client_network_ctl.ClientNetworkController(logger.getChild("network_controller"),
                                                          config['network']['port'], encoder.DictionaryEncoder())
-
-    robot_ctl.RobotController(logger, scanner, network).start()
+    try:
+        robot_ctl.RobotController(logger, scanner, network).start()
+    except client_network_ctl.socket.timeout as err:
+        logger.info(err)
+    finally:
+        network._socket.close()
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
