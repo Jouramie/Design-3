@@ -14,7 +14,7 @@ class PathCalculator(object):
         self.__current_node = 0
 
     def calculate_path(self, starting_point, ending_point, grid):
-        self.__validate_grid(grid)
+        self.__set_grid(grid)
         self.__path.clear()
         self.__set_neighbor_step_value(ending_point)
         return self.__find_gluttonous_path(starting_point, ending_point)
@@ -100,7 +100,7 @@ class PathCalculator(object):
         self.__current_node = next_node
         self.__path.append(next_node)
 
-    def __validate_grid(self, grid):
+    def __set_grid(self, grid):
         if not grid:
             raise PathCalculatorError("Can't use an empty Grid")
         self.__grid = grid
