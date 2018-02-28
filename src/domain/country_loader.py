@@ -1,22 +1,52 @@
+from PIL import Image
+
+from src.domain.colour import Colour
+from src.domain.cube import Cube
+from src.domain.stylizedFlag import StylizedFlag
+from src.domain.country import Country
+
+
 class CountryLoader(object):
     def __init__(self):
+        self.__country_dictionnary = {}
+        self.__image_max_size = 96
+        self.__number_of_pixels_between_two_cubes = 32
         self.__country_code_loader()
-        self.__stylized_flag_loader()
 
     def __country_code_loader(self):
         try:
-            with open("country\A-Liste_UTF-16.txt", "r", encoding='utf-16') as fileOpen:
-                self.country = [l.split() for l in fileOpen.readlines()]
-            for x in range(0, 196):
-                self.country[x][1:len(self.country[x])] = [' '.join(self.country[x][1:len(self.country[x])])]
-            fileOpen.close()
+            with open("../domain/countries/A-Liste_UTF-16.txt", "r", encoding='utf-16') as fileOpen:
+                for line in fileOpen:
+                    line_informations = line.split()
+                    country_code = int(line_informations[0])
+                    country_name = [' '.join(line_informations[1:len(line_informations)])]
+                    stylized_flag = self.__stylized_flag_loader(country_name[0])
+                    country = Country(country_name[0], stylized_flag)
+                    self.__country_dictionnary[country_code] = country
+                fileOpen.close()
         except FileNotFoundError:
             print(' File does NOT exist')
 
-    # TODO WIP
-    # def __stylized_flag_loader(self):
-        # Discuter a savoir comment géré les nombreuses exceptions (ie Congo, République démocratique -> CongoDM)
-        # également si on load avec cv2 les gif et les images vs lodaer les fig et déchiffrer
+    def __stylized_flag_loader(self, country_name):
+        pil_gif = Image.open("../domain/countries/Flag_" + country_name + ".gif")
+        rgb_im = pil_gif.convert('RGB')
+        stylized_flag = StylizedFlag()
+        pixel_position_x = 16
+        pixel_position_y = 16
+        while pixel_position_y <= self.__image_max_size:
+            while pixel_position_x <= self.__image_max_size:
+                r, g, b = rgb_im.getpixel((pixel_position_x, pixel_position_y))
+                for colour in Colour:
+                    rgb_colour = colour.value
+                    rgb_cube_colour = (r, g, b)
+                    if list(rgb_colour) == list(rgb_cube_colour):
+                        cube = Cube(colour)
+                        stylized_flag.add_cube(cube)
+                        pixel_position_x = pixel_position_x + self.__number_of_pixels_between_two_cubes
+            pixel_position_x = 16
+            pixel_position_y = pixel_position_y + self.__number_of_pixels_between_two_cubes
+
+        return stylized_flag
 
     def get_country_list(self):
-        return self.country
+        return self.__country_dictionnary
