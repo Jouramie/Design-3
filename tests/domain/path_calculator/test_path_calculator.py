@@ -88,6 +88,7 @@ class TestPathCalculator(TestCase):
         environment = Environment()
         environment.create_grid(6, 6)
         obstacles = [(2, 2), (2, 3), (3, 2), (3, 3)]
+        #obstacles = [(2, 1), (3, 1), (4, 1), (5, 1), (1, 5), (2, 5), (3, 5)]
         environment.add_obstacles(obstacles)
         starting_point = (0, 0)
         ending_point = (5, 5)
