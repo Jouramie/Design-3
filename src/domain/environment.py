@@ -66,18 +66,19 @@ class Environment(object):
     def print_grid_steps(self):
         for y in range(self.__height):
             for x in range(self.__width):
-                logging.info(self.__grid.get_vertex((x, y)).get_step_value(), end=" ")
-            logging.info()
+                logging.info(str(self.__grid.get_vertex((x, y)).get_step_value()) + " ")
+            logging.info('\n')
 
     def print_grid_connections(self):
         for y in range(self.__height):
             for x in range(self.__width):
-                logging.info(self.__grid.get_vertex((x, y)).get_id(), end=" Edges::")
+                logging.info(str(self.__grid.get_vertex((x, y)).get_id()) + " Edges::")
                 for connection in self.__grid.get_vertex((x, y)).get_connections():
-                    logging.info(connection.get_id(), end=" W=")
-                    logging.info(self.__grid.get_vertex((x, y)).get_neighbor_weight(
-                        self.__grid.get_vertex(connection.get_id())), end=" : ")
-                logging.info()
+                    logging.info(str(connection.get_id()) + " W=")
+                    logging.info(str(self.__grid.get_vertex((x, y)).get_neighbor_weight(
+                        self.__grid.get_vertex(connection.get_id()))) + " : ")
+                logging.info('\n')
+        return
 
     def reset_to_default(self):
         self.__grid.reset_graph()

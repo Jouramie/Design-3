@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 from unittest import TestCase
+import csv
 
 from src.domain.environment import Environment
 from src.domain.path_calculator.path_calculator import PathCalculator
@@ -82,3 +83,40 @@ class TestPathCalculator(TestCase):
         expected = [starting_point, ending_point]
         
         self.assertEqual(expected, path_calculator.get_calculated_path())
+
+    def test_demonstration_that_create_csv(self):
+        environment = Environment()
+        environment.create_grid(6, 6)
+        obstacles = [(2, 2), (2, 3), (3, 2), (3, 3)]
+        environment.add_obstacles(obstacles)
+        starting_point = (0, 0)
+        ending_point = (5, 5)
+        path_calculator = PathCalculator()
+        path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
+
+        my_file = open("path_demo.csv", "w")
+        try:
+            with my_file:
+                my_data = ""
+                for y in range(6):
+                    for x in range(6):
+                        my_data += str(environment.get_grid().get_vertex((x, y)).get_step_value()) + ","
+                    my_data += '\n'
+                my_file.write(my_data)
+        except FileNotFoundError:
+            print("not found")
+
+        my_file = open("path_demo.csv", "a")
+        try:
+            with my_file:
+                my_data = ""
+                for y in range(6):
+                    for x in range(6):
+                        if (x, y) in path_calculator.get_calculated_path():
+                            my_data += "X" + ","
+                        else:
+                            my_data += "_" + ","
+                    my_data += '\n'
+                my_file.write(my_data)
+        except FileNotFoundError:
+            print("not found")
