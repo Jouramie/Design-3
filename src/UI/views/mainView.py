@@ -14,27 +14,23 @@ class MainView(QMainWindow):
         self.setup_button()
         super(MainView, self).__init__()
 
-    @pyqtSlot()
     def start_capture(self):
         self.main_controller.select_frame()
         if self.model.worldCamera_is_on:
             self.worldCamTimer.start(1)
             self.worldCamTimer.timeout.connect(self.display_frame)
 
-    @pyqtSlot()
     def start_timer(self):
         self.main_controller.start_timer()
         if self.model.timer_is_on:
             self.timer.start(1000)
             self.timer.timeout.connect(self.display_time)
 
-    @pyqtSlot()
     def show_selected_country(self):
         self.main_controller.select_country()
         self.display_flag()
         self.display_country_name()
 
-    @pyqtSlot()
     def show_cube_next_color(self):
         self.main_controller.select_next_cube_color()
         self.display_next_cube_color()

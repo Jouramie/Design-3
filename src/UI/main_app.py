@@ -13,6 +13,7 @@ class App(QApplication):
         self.main_view = MainView(self.main_model, self.main_controller)
         self.main_view.ui.show()
 
+
 if __name__ == '__main__':
     app = App(sys.argv)
     sys.exit(app.exec_())
