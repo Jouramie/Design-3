@@ -29,13 +29,13 @@ class ClientNetworkController(NetworkController):
         self._logger.info(msg)
 
     def wait_start_command(self) -> dict:
-        self._logger.info('Waiting for start signal.')
+        self._logger.info('Waiting for start command.')
         msg = None
         while msg is None:
             try:
                 msg = self._receive_data()
             except timeout:
-                self._logger.info('Waiting for start signal.')
+                self._logger.info('Waiting for start command.')
 
         self._logger.info(msg)
 
@@ -44,4 +44,22 @@ class ClientNetworkController(NetworkController):
         else:
             raise NetworkException('Wrong command received.')
 
+    def wait_ir_ask(self) -> dict:
+        self._logger.info('Waiting for ir signal.')
+        msg = None
+        while msg is None:
+            try:
+                msg = self._receive_data()
+            except timeout:
+                self._logger.info('Waiting for ir signal.')
 
+        self._logger.info(msg)
+
+        if msg['command'] == Command.IR_SIGNAL:
+            return msg
+        else:
+            raise NetworkException('Wrong command received.')
+
+    def send_ir_ask(self, country_code: int):
+        self._logger.info('Sending country_code {}.'.format(country_code))
+        self._send_command(Command.IR_SIGNAL, {'country_code': country_code})

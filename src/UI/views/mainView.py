@@ -11,7 +11,7 @@ class MainView(QMainWindow):
         self.time = QTime(0, 10, 0, 0)
         self.timer = QTimer()
         self.worldCamTimer = QTimer()
-        self.ir_timer = QTimer()
+        self.infrared_timer = QTimer()
         self.setup_button()
         super(MainView, self).__init__()
 
@@ -30,12 +30,13 @@ class MainView(QMainWindow):
     def start_network(self):
         self.main_controller.start_network()
         if self.model.infrared_signal_asked:
-            self.ir_timer.start(100)
-            self.timer.timeout.connect(self.check_ir_signal)
+            self.infrared_timer.start(100)
+            self.infrared_timer.timeout.connect(self.check_ir_signal)
 
     def check_ir_signal(self):
         self.main_controller.check_ir_signal()
         if self.model.countryCode != 0:
+            self.infrared_timer.stop()
             self.show_selected_country()
             self.show_cube_next_color()
 

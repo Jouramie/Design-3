@@ -34,7 +34,8 @@ class MainController(object):
 
     def check_ir_signal(self):
         country_code = self.network.check_ir_signal()
-        self.model.countryCode = country_code
+        if country_code != 0:
+            self.model.countryCode = country_code
 
     def select_country(self):
         try:

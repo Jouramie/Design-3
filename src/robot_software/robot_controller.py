@@ -1,7 +1,8 @@
+import time
 from logging import Logger
-from src.d3_network.ip_provider import IpProvider
+
 from src.d3_network.client_network_controller import ClientNetworkController
-from src.d3_network.network_exception import NetworkException
+from src.d3_network.ip_provider import IpProvider
 
 
 class RobotController(object):
@@ -22,6 +23,8 @@ class RobotController(object):
         self._main_loop()
 
     def _main_loop(self):
-        pass
-
+        time.sleep(2)
+        self._network.wait_ir_ask()
+        self._network.send_ir_ask(43)
+        time.sleep(1000)
 

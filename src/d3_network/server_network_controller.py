@@ -50,16 +50,20 @@ class ServerNetworkController(NetworkController):
 
     def ask_ir_signal(self) -> None:
         msg = {'command': Command.IR_SIGNAL}
-        self._client.send(self._encoder.encode(msg))
-        self._client.timeout(1)
+        self._socket.send(self._encoder.encode(msg))
+        self._socket.settimeout(1)
 
         self._logger.info("Infrared signal asked command sent!")
 
     def check_ir_signal(self) -> int:
-        encoded_message = self._client.recv(1024)
-        if encoded_message is not None:
+        try:
+            encoded_message = self._socket.recv(1024)
+            print(encoded_message)
             msg = self._encoder.decode(encoded_message)
-            return msg['country_code']
-        else:
+            country_code = msg['country_code']
+            self._logger.info("Infrared signal received! {}".format(country_code))
+            return country_code
+        except socket.timeout:
             self._logger.info("No infrared signal received!")
             return 0
+

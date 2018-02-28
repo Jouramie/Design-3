@@ -1,7 +1,8 @@
 from logging import Logger
+from socket import socket
 
-from .encoder import Encoder
 from .command import Command
+from .encoder import Encoder
 
 
 class NetworkController(object):
@@ -9,7 +10,7 @@ class NetworkController(object):
         self._logger = logger
         self._port = port
         self._encoder = encoder
-        self._socket = None
+        self._socket: socket = None
 
     def _receive_data(self) -> dict:
         return self._encoder.decode(self._socket.recv(1024))
