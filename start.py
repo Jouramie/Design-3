@@ -4,15 +4,20 @@
 import argparse
 import logging
 import subprocess
-import time
+import sys
 
 import yaml
+from PyQt5.QtWidgets import QApplication
 
 import src.d3_network.client_network_controller as client_network_ctl
 import src.d3_network.encoder as encoder
 import src.d3_network.ip_provider as network_scn
 import src.d3_network.server_network_controller as server_network_ctl
 import src.robot_software.robot_controller as robot_ctl
+from src.UI.main_app import App
+from src.UI.controllers.mainController import MainController
+from src.UI.models.mainModel import MainModel
+from src.UI.views.mainView import MainView
 
 
 def main() -> None:
@@ -71,16 +76,14 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
-    if config['update_robot']:
-        subprocess.call("./scripts/boot_robot.bash", shell=True)
-
-    logger.info("Waiting for robot to connect.")
-
     network_ctl = server_network_ctl.ServerNetworkController(logger.getChild("network_controller"),
                                                              config['network']['port'], encoder.DictionaryEncoder())
+    app = App(network_ctl, logger.getChild("main_controller"), config)
+    sys.exit(app.exec_())
 
+"""
     network_ctl.host_network()
-
+    logger.info("Waiting for robot to connect.")
     station_loop = True
     while station_loop:
         command = input('Type your command: ')
@@ -94,6 +97,6 @@ def start_station(config: dict, logger: logging.Logger) -> None:
         else:
             print('Unknown command.')
 
-
+"""
 if __name__ == "__main__":
     main()

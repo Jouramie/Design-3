@@ -1,13 +1,17 @@
+import subprocess
+
 import cv2
 
 from src.domain.countryLoader import CountryLoader
 
 
 class MainController(object):
-    def __init__(self, model):
+    def __init__(self, model, network, logger, config):
         self.model = model
         self.countryLoader = CountryLoader()
-        self.set_country_code(34) #Enter country code here
+        self.network = network
+        self.logger = logger
+        self.config = config
 
     def set_country_code(self, country_code):
         self.model.countryCode = country_code
@@ -15,6 +19,22 @@ class MainController(object):
     def start_timer(self):
         self.model.timer_is_on = True
         print("start timer")
+
+    def start_network(self):
+        self.model.network_is_on = True
+
+        if self.config['update_robot']:
+            subprocess.call("./scripts/boot_robot.bash", shell=True)
+
+        self.network.host_network()
+        self.logger.info("Waiting for robot to connect.")
+        self.network.send_start_command()
+        self.network.ask_ir_signal()
+        self.model.infrared_signal_asked = True
+
+    def check_ir_signal(self):
+        country_code = self.network.check_ir_signal()
+        self.model.countryCode = country_code
 
     def select_country(self):
         try:

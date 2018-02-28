@@ -7,7 +7,8 @@ class MainModel(object):
         self.countryCode = 0
         self.timer_is_on = False
         self.worldCamera_is_on = False
-
+        self.network_is_on = False
+        self.infrared_signal_asked = False
         self._update_functions = []
         self.running = False
 
