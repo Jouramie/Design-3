@@ -61,4 +61,4 @@ class TestClientNetworkController(TestCase):
 
         network_controller.wait_start_command()
 
-        self.assertEqual(client.recv.call_count, 2)
+        self.assertEqual(2, client.recv.call_count)
