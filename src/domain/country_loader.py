@@ -20,7 +20,7 @@ class CountryLoader(object):
                 country_code = int(line_informations[0])
                 country_name = [' '.join(line_informations[1:len(line_informations)])]
                 stylized_flag = self.__stylized_flag_loader(country_name[0])
-                country = Country(country_name[0], stylized_flag)
+                country = Country(country_name[0], country_code, stylized_flag)
                 self.__country_dictionnary[country_code] = country
             fileOpen.close()
 

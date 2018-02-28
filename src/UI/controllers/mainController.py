@@ -2,7 +2,7 @@ import subprocess
 
 import cv2
 
-from src.domain.countryLoader import CountryLoader
+from src.domain.country_loader import CountryLoader
 
 
 class MainController(object):
@@ -26,8 +26,8 @@ class MainController(object):
         if self.config['update_robot']:
             subprocess.call("./scripts/boot_robot.bash", shell=True)
 
-        self.network.host_network()
         self.logger.info("Waiting for robot to connect.")
+        self.network.host_network()
         self.network.send_start_command()
         self.network.ask_ir_signal()
         self.model.infrared_signal_asked = True
