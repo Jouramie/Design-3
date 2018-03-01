@@ -4,12 +4,12 @@ import numpy as np
 
 class Color(Enum):
 
-    RED = ((0, 0, 255), np.array([0, 150, 0]), np.array([20, 231, 200]))
-    GREEN = ((0, 255, 0), np.array([40, 80, 80]), np.array([70, 255, 255]))
-    BLUE = ((255, 0, 0), np.array([90, 40, 40]), np.array([130, 255, 255]))
-    YELLOW = ((0, 255, 255), np.array([26, 100, 80]), np.array([36, 255, 255]))
-    WHITE = ((255, 255, 255), np.array([0, 0, 0]), np.array([180, 60, 255]))
     BLACK = ((0, 0, 0), np.array([0, 0, 0]), np.array([180, 0, 40]))
+    BLUE = ((255, 0, 0), np.array([90, 40, 40]), np.array([130, 255, 255]))
+    GREEN = ((0, 255, 0), np.array([40, 80, 80]), np.array([70, 255, 255]))
+    RED = ((0, 0, 255), np.array([0, 80, 0]), np.array([20, 231, 200]))
+    WHITE = ((255, 255, 255), np.array([20, 0, 140]), np.array([180, 255, 255]))
+    YELLOW = ((0, 255, 255), np.array([26, 100, 80]), np.array([36, 255, 255]))
 
     SKY_BLUE = ((235, 206, 135), None, None)
     PINK = ((147, 20, 255), None, None)

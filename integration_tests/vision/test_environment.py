@@ -2,9 +2,10 @@ from unittest import TestCase
 from src.vision.world_vision import *
 from src.domain.environment.environment import *
 
-cube_file = '../fig/2018-02-25/17h43.jpg'
-obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
-no_obstacle_file = '../fig/2018-02-10/16h42.png'
+cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-28/19h25m04s.jpg'
+obstacle_file = '../../fig/2018-02-10/obstacles10.jpg'
+high_constrast_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-28/16h54m47s.jpg'
+no_obstacle_file = '../../fig/2018-02-10/16h42.png'
 
 
 class TestEnvironment(TestCase):
@@ -16,6 +17,8 @@ class TestEnvironment(TestCase):
     def test_when_creating_environment_then_image_is_returned(self):
         world_vision = WorldVision()
         result = world_vision.create_environment(cube_file)
+        cv2.imshow('result', result[1])
+        cv2.waitKey(0)
         self.assertIsInstance(result[1], np.ndarray, 'Result contains a ndarray image')
 
     def test_given_cubes_when_creating_environment_then_environment_contains_list_of_cubes(self):

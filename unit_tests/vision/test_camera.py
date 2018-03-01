@@ -23,3 +23,11 @@ class TestCamera(TestCase):
         camera = Camera(capture_object)
 
         self.assertRaises(CameraError, camera.take_picture)
+
+    def test_when_successfully_taking_a_video_then_openCV_called(self):
+        capture_object = MagicMock()
+        capture_object.attach_mock(Mock(return_value=[False, True]), 'read')
+
+        camera = Camera(capture_object)
+        camera.take_video()
+

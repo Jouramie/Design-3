@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import math
 
 import cv2
 
@@ -29,6 +30,16 @@ class Camera:
             logging.info(message)
             raise CameraError(message)
 
+    def take_video(self):
+        while self.capture_object.isOpened():
+            ret, frame = self.capture_object.read()
+            if ret:
+                cv2.imshow('frame', frame)
+                if cv2.waitKey(0):
+                    break
+            else:
+                break
+
     def _initialize_log(self, log_level):
         if not os.path.exists(WORLD_CAM_LOG_DIR):
             os.makedirs(WORLD_CAM_LOG_DIR)
@@ -38,8 +49,11 @@ class Camera:
 
 def create_camera(camera_id):
     capture_object = cv2.VideoCapture(camera_id)
-    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, 1600)
-    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
+    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
+    capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
+
     if capture_object.isOpened():
         for i in range(15):
             temp_is_frame_returned, temp_img = capture_object.read()

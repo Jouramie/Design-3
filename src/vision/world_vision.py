@@ -14,6 +14,7 @@ class WorldVision:
         pass
 
     def create_environment(self, image_location):
+        initial_image = cv2.imread(image_location)
         cropped_image = self.__crop_environment(image_location)
         cropped_image_copy = copy.copy(cropped_image)
 
@@ -39,11 +40,11 @@ class WorldVision:
         for cube in self.__find_black_cubes(cropped_image):
             cubes.append(cube)
             self.__draw_cube(cropped_image_copy, cube)
-
-        # TODO rendre le blanc fonctionnel
-        # white_cube_contours, center_of_white_cube = find_white_cube(initial_image_file)
-        # draw_cube(image_file, white_cube_contours, sky_blue)
-
+        '''
+        for cube in self.__find_white_cube(cropped_image):
+            cubes.append(cube)
+            self.__draw_cube(cropped_image_copy, cube)
+        '''
         target_zone = self.__find_target_zone(cropped_image)
         self.__draw_target_zone(cropped_image_copy, target_zone)
 
@@ -63,7 +64,10 @@ class WorldVision:
         cv2.circle(image, obstacle.center, obstacle.radius, Color.PINK.bgr, thickness=THICKNESS, lineType=cv2.LINE_AA)
 
     def __find_color_cubes(self, original_image, color: Color):
-        hsv = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
+        image = cv2.medianBlur(original_image, 5)
+        image = cv2.GaussianBlur(image, (5, 5), 0)
+
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(hsv, color.lower_bound, color.upper_bound)
 
@@ -77,13 +81,15 @@ class WorldVision:
                 yield self.__create_cube(contour, color)
 
     def __find_black_cubes(self, original_image):
+        image = cv2.medianBlur(original_image, 5)
+        image = cv2.GaussianBlur(image, (5, 5), 0)
         kernel = np.ones((5, 5), np.uint8)
 
         image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         image = cv2.dilate(image, kernel, iterations=1)
         image = cv2.erode(image, kernel, iterations=1)
 
-        ret, thresh = cv2.threshold(image, 36, 255, cv2.THRESH_BINARY_INV)
+        ret, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         for contour in contours:
@@ -94,29 +100,18 @@ class WorldVision:
                 yield self.__create_cube(contour, Color.BLACK)
 
     def __find_white_cube(self, original_image) -> [Cube]:
-        kernel = np.ones((5, 5), np.uint8)
+        image = cv2.medianBlur(original_image, 5)
+        image = cv2.GaussianBlur(image, (5, 5), 0)
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        '''
-        hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
-
-        mask = cv2.inRange(hsv, lower_white, lower_white)
+        mask = cv2.inRange(hsv, Color.WHITE.lower_bound, Color.WHITE.upper_bound)
 
         img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
         cv2.imshow('white', img)
-        '''
-
-        image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-        image = cv2.erode(image, kernel, iterations=1)
-        image = cv2.dilate(image, kernel, iterations=1)
-
-        ret, thresh = cv2.threshold(image, 10, 255, cv2.THRESH_BINARY_INV)
-        image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.imshow('white', image_with_contours)
-        cv2.waitKey(0)
 
         for contour in contours:
-            if cv2.arcLength(contour, True) > 20 and (
+            if cv2.contourArea(contour) > 20 and (
                     (contour[0][0][0] > 480 and contour[0][0][1] > 245) or (
                     contour[0][0][0] > 460 and contour[0][0][1] < 45) or
                     contour[0][0][0] > 570):
