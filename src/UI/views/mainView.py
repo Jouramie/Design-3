@@ -7,10 +7,11 @@ class MainView(QMainWindow):
     def __init__(self, model, main_controller):
         self.model = model
         self.main_controller = main_controller
-        self.ui = uic.loadUi('untitled.ui')
+        self.ui = uic.loadUi('UI/untitled.ui')
         self.time = QTime(0, 10, 0, 0)
         self.timer = QTimer()
         self.worldCamTimer = QTimer()
+        self.infrared_timer = QTimer()
         self.setup_button()
         super(MainView, self).__init__()
 
@@ -25,6 +26,19 @@ class MainView(QMainWindow):
         if self.model.timer_is_on:
             self.timer.start(1000)
             self.timer.timeout.connect(self.display_time)
+
+    def start_network(self):
+        self.main_controller.start_network()
+        if self.model.infrared_signal_asked:
+            self.infrared_timer.start(100)
+            self.infrared_timer.timeout.connect(self.check_ir_signal)
+
+    def check_ir_signal(self):
+        self.main_controller.check_ir_signal()
+        if self.model.countryCode != 0:
+            self.infrared_timer.stop()
+            self.show_selected_country()
+            self.show_cube_next_color()
 
     def show_selected_country(self):
         self.main_controller.select_country()
@@ -50,7 +64,7 @@ class MainView(QMainWindow):
         self.ui.lcdNumber.display(time)
 
     def display_flag(self):
-        flag_pixmap = QtGui.QPixmap("../domain/countries/Flag_" + self.model.country.get_country_name() + ".gif")
+        flag_pixmap = QtGui.QPixmap("domain/countries/Flag_" + self.model.country.get_country_name() + ".gif")
         self.ui.flagPicture.setPixmap(flag_pixmap)
         self.ui.flagPicture.setMask(flag_pixmap.mask())
         self.ui.flagPicture.show()
@@ -65,5 +79,4 @@ class MainView(QMainWindow):
     def setup_button(self):
         self.ui.StartButton.clicked.connect(self.start_capture)
         self.ui.StartButton.clicked.connect(self.start_timer)
-        self.ui.StartButton.clicked.connect(self.show_selected_country)
-        self.ui.StartButton.clicked.connect(self.show_cube_next_color)
+        self.ui.StartButton.clicked.connect(self.start_network)

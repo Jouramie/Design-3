@@ -6,10 +6,10 @@ from src.UI.views.mainView import MainView
 
 
 class App(QApplication):
-    def __init__(self, sys_argv):
-        super(App, self).__init__(sys_argv)
+    def __init__(self, network, logger, config: dict):
+        super(App, self).__init__([''])
         self.main_model = MainModel()
-        self.main_controller = MainController(self.main_model)
+        self.main_controller = MainController(self.main_model, network, logger, config)
         self.main_view = MainView(self.main_model, self.main_controller)
         self.main_view.ui.show()
 

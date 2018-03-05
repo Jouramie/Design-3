@@ -14,21 +14,18 @@ class CountryLoader(object):
         self.__country_code_loader()
 
     def __country_code_loader(self):
-        try:
-            with open("../domain/countries/A-Liste_UTF-16.txt", "r", encoding='utf-16') as fileOpen:
-                for line in fileOpen:
-                    line_informations = line.split()
-                    country_code = int(line_informations[0])
-                    country_name = [' '.join(line_informations[1:len(line_informations)])]
-                    stylized_flag = self.__stylized_flag_loader(country_name[0])
-                    country = Country(country_name[0], stylized_flag)
-                    self.__country_dictionnary[country_code] = country
-                fileOpen.close()
-        except FileNotFoundError:
-            print(' File does NOT exist')
+        with open("domain/countries/A-Liste_UTF-16.txt", "r", encoding='utf-16') as fileOpen:
+            for line in fileOpen:
+                line_informations = line.split()
+                country_code = int(line_informations[0])
+                country_name = [' '.join(line_informations[1:len(line_informations)])]
+                stylized_flag = self.__stylized_flag_loader(country_name[0])
+                country = Country(country_name[0], country_code, stylized_flag)
+                self.__country_dictionnary[country_code] = country
+            fileOpen.close()
 
     def __stylized_flag_loader(self, country_name):
-        pil_gif = Image.open("../domain/countries/Flag_" + country_name + ".gif")
+        pil_gif = Image.open("domain/countries/Flag_" + country_name + ".gif")
         rgb_im = pil_gif.convert('RGB')
         stylized_flag = StylizedFlag()
         pixel_position_x = 16
