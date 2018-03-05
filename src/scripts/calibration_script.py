@@ -1,4 +1,3 @@
-import cv2
 import argparse
 
 from vision.camera import create_camera
@@ -13,7 +12,6 @@ def main(number, camera_id):
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser()
     parser.add_argument("number", type=int, help="number of picture to be taken")
     args = parser.parse_args()

@@ -1,9 +1,10 @@
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM, timeout
+
 from .command import Command
 from .encoder import Encoder
-from .network_exception import NetworkException
 from .network_controller import NetworkController
+from .network_exception import NetworkException
 
 
 class ClientNetworkController(NetworkController):

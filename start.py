@@ -3,10 +3,10 @@
 
 import argparse
 import logging
+import os
 import sys
 import time
 
-import os
 import yaml
 
 import src.d3_network.client_network_controller as client_network_ctl
@@ -76,6 +76,7 @@ def start_station(config: dict, logger: logging.Logger) -> None:
                                                              config['network']['port'], encoder.DictionaryEncoder())
     app = App(network_ctl, logger.getChild("main_controller"), config)
     sys.exit(app.exec_())
+
 
 """
     network_ctl.host_network()

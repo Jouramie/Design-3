@@ -1,9 +1,9 @@
 from PIL import Image
 
 from src.domain.colour import Colour
+from src.domain.country import Country
 from src.domain.cube import Cube
 from src.domain.stylizedFlag import StylizedFlag
-from src.domain.country import Country
 
 
 class CountryLoader(object):
