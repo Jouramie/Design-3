@@ -33,22 +33,13 @@ def start_system(args: dict) -> None:
 
     logger.setLevel(logging.INFO)
 
-    try:
-        with open("config.yml", 'r') as stream:
-            try:
-                config = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                logger.error("Could not load config file. Exiting.")
-                logger.exception(exc)
-                return
-    except FileNotFoundError:
-        with open("../config.yml", 'r') as stream:
-            try:
-                config = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                logger.error("Could not load config file. Exiting.")
-                logger.exception(exc)
-                return
+    with open("config.yml", 'r') as stream:
+        try:
+            config = yaml.load(stream)
+        except yaml.YAMLError as exc:
+            logger.error("Could not load config file. Exiting.")
+            logger.exception(exc)
+            return
 
     logger.info("Config file loaded.\n%s", config)
 
