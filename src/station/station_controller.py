@@ -24,7 +24,7 @@ class StationController(object):
         self.model.network_is_on = True
 
         if self.config['update_robot']:
-            subprocess.call("./scripts/boot_robot.bash", shell=True)
+            subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()

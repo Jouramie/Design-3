@@ -2,6 +2,8 @@
 ---
 
 port: &port 7420
+log_dir: "log"
+log_file: "log/{date}.log"
 
 robot:
   network:

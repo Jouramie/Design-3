@@ -4,7 +4,9 @@
 import argparse
 import logging
 import sys
+import time
 
+import os
 import yaml
 
 import src.d3_network.client_network_controller as client_network_ctl
@@ -40,6 +42,14 @@ def start_system(args: dict) -> None:
             logger.error("Could not load config file. Exiting.")
             logger.exception(exc)
             return
+
+    if not os.path.exists(config['log_dir']):
+        os.makedirs(config['log_dir'])
+
+    log_file: str = config['log_file'].format(date=time.strftime("%Y-%m-%d-%H:%M:%S"))
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(log_formatter)
+    logger.addHandler(file_handler)
 
     logger.info("Config file loaded.\n%s", config)
 
