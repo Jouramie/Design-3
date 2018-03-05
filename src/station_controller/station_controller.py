@@ -5,7 +5,7 @@ import cv2
 from src.domain.country_loader import CountryLoader
 
 
-class MainController(object):
+class StationController(object):
     def __init__(self, model, network, logger, config):
         self.model = model
         self.countryLoader = CountryLoader()

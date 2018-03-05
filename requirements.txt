@@ -1,1 +1,5 @@
-pytest opencv-python pyserial pillow pyqt5
+PyQt5
+pytest
+opencv-python
+pyserial
+pillow

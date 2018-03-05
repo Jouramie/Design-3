@@ -1,19 +1,19 @@
-from PyQt5.QtWidgets import QMainWindow
 from PyQt5 import uic, QtGui
-from PyQt5.QtCore import pyqtSlot, QTime, QTimer
+from PyQt5.QtCore import QTime, QTimer
+from PyQt5.QtWidgets import QMainWindow
 
 
-class MainView(QMainWindow):
+class StationView(QMainWindow):
     def __init__(self, model, main_controller):
         self.model = model
         self.main_controller = main_controller
-        self.ui = uic.loadUi('UI/untitled.ui')
+        self.ui = uic.loadUi('ui/untitled.ui')
         self.time = QTime(0, 10, 0, 0)
         self.timer = QTimer()
         self.worldCamTimer = QTimer()
         self.infrared_timer = QTimer()
         self.setup_button()
-        super(MainView, self).__init__()
+        super(StationView, self).__init__()
 
     def start_capture(self):
         self.main_controller.select_frame()

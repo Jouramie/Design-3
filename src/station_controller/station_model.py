@@ -1,4 +1,4 @@
-class MainModel(object):
+class StationModel(object):
     def __init__(self):
         self.passedTime = 0
         self.country = "Country not yet selected"
