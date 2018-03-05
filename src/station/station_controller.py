@@ -8,7 +8,7 @@ from src.domain.country_loader import CountryLoader
 class StationController(object):
     def __init__(self, model, network, logger, config):
         self.model = model
-        self.countryLoader = CountryLoader()
+        self.countryLoader = CountryLoader(config)
         self.network = network
         self.logger = logger
         self.config = config

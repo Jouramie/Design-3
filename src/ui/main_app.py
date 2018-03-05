@@ -10,10 +10,6 @@ class App(QApplication):
         super(App, self).__init__([''])
         self.main_model = StationModel()
         self.main_controller = StationController(self.main_model, network, logger, config)
-        self.main_view = StationView(self.main_model, self.main_controller)
+        self.main_view = StationView(self.main_model, self.main_controller, config)
         self.main_view.ui.show()
 
-
-if __name__ == '__main__':
-    app = App(sys.argv)
-    sys.exit(app.exec_())
