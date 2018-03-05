@@ -11,7 +11,7 @@ import src.d3_network.client_network_controller as client_network_ctl
 import src.d3_network.encoder as encoder
 import src.d3_network.ip_provider as network_scn
 import src.d3_network.server_network_controller as server_network_ctl
-import src.robot_software.robot_controller as robot_ctl
+import src.robot.robot_controller as robot_ctl
 from src.ui.main_app import App
 
 
@@ -33,7 +33,7 @@ def start_system(args: dict) -> None:
 
     logger.setLevel(logging.INFO)
 
-    with open("config.yml", 'r') as stream:
+    with open("resources/config.yml", 'r') as stream:
         try:
             config = yaml.load(stream)
         except yaml.YAMLError as exc:
