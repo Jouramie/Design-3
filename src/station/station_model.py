@@ -12,14 +12,14 @@ class StationModel(object):
         self._update_functions = []
         self.running = False
 
-    def subscribe_update_function(self, function):
-        if function not in self._update_functions:
-            self._update_functions.append(function)
+    def subscribe_update_function(self, func):
+        if func not in self._update_functions:
+            self._update_functions.append(func)
 
-    def unsubscribe_update_function(self, function):
-        if function in self._update_functions:
-            self._update_functions.remove(function)
+    def unsubscribe_update_function(self, func):
+        if func in self._update_functions:
+            self._update_functions.remove(func)
 
-    def annonce_update(self):
-        for function in self._update_functions:
-            function()
+    def announce_update(self):
+        for func in self._update_functions:
+            func()
