@@ -1,4 +1,4 @@
-from enum import Enum
+from src.robot_hardware.command import Command
 
 
 class CommandBuilder():
@@ -21,10 +21,3 @@ class CommandBuilder():
     def rotate(self, alpha: int, positive_negative: str) -> str:
         return 'R{}{}'.format(alpha, positive_negative)
 
-class Command(Enum):
-    backward = 'B'
-    forward = 'F'
-    right = 'R'
-    left = 'L'
-    positve = 'P'
-    negative = 'N'

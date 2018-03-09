@@ -2,6 +2,7 @@ import serial
 
 
 class ChannelWriter():
+
     def __init__(self, serial):
         self.serial = serial
 
