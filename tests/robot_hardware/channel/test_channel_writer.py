@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 from serial import Serial
 
-from src.robot_software.channel import writer
+from src.robot_hardware.channel import writer
 
 
 class TestChannelWriter(TestCase):

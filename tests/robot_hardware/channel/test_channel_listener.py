@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from src.robot_software.channel import listener
-from src.robot_software.channel.channel_listener_exception import ChannelListenerException
+from src.robot_hardware.channel import ChannelListenerException
+from src.robot_hardware.channel import listener
 
 
 class TestChannelListener(TestCase):
