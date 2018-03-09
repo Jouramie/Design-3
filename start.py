@@ -66,7 +66,8 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     try:
         robot_ctl.RobotController(logger, scanner, network).start()
     finally:
-        network._socket.close()
+        if network._socket is not None:
+            network._socket.close()
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
@@ -76,8 +77,10 @@ def start_station(config: dict, logger: logging.Logger) -> None:
         app = App(network_ctl, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
     finally:
-        network_ctl._server.close()
-        network_ctl._socket.close()
+        if network_ctl._server is not None:
+            network_ctl._server.close()
+        if network_ctl._socket is not None:
+            network_ctl._socket.close()
 
 """
     network_ctl.host_network()
