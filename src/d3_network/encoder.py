@@ -9,7 +9,7 @@ class Encoder(object):
     def encode(self, message) -> bytes:
         pass
 
-    def decode(self, message: bytes):
+    def decode(self, message: bytes = b""):
         pass
 
 

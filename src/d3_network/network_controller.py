@@ -16,9 +16,9 @@ class NetworkController(object):
     def _receive_message(self) -> dict:
         try:
             msg = self._socket.recv(1024)
-            return self._encoder.decode(msg)
         except BlockingIOError:
-            raise MessageNotReceivedYet()
+            return self._encoder.decode()
+        return self._encoder.decode(msg)
 
     def _send_command(self, command: Command, data: dict = None) -> None:
         if data is None:

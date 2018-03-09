@@ -1,10 +1,11 @@
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM, timeout
+from time import sleep
 
 from .command import Command
 from .encoder import Encoder
 from .network_controller import NetworkController
-from .network_exception import NetworkException, WrongCommand
+from .network_exception import NetworkException, WrongCommand, MessageNotReceivedYet
 
 
 class ClientNetworkController(NetworkController):
@@ -36,8 +37,9 @@ class ClientNetworkController(NetworkController):
         while msg is None:
             try:
                 msg = self._receive_message()
-            except timeout:
+            except MessageNotReceivedYet:
                 self._logger.info('Waiting for start command.')
+                sleep(1)
 
         self._logger.info(msg)
 
@@ -52,8 +54,9 @@ class ClientNetworkController(NetworkController):
         while msg is None:
             try:
                 msg = self._receive_message()
-            except timeout:
+            except MessageNotReceivedYet:
                 self._logger.info('Waiting for ir signal.')
+                sleep(1)
 
         self._logger.info(msg)
 
