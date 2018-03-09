@@ -15,6 +15,6 @@ station:
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
     country_flag: "resources/countries/Flag_{country}.gif"
-    ui: "src/ui/untitled.ui"
+    ui: "src/ui/main_windows.ui"
   network:
     port: *port

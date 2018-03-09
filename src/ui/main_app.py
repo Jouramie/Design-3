@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QApplication
 
 from src.ui.views.main_view import StationView
-from station.station_controller import StationController
-from station.station_model import StationModel
+from src.station.station_controller import StationController
+from src.station.station_model import StationModel
 
 
 class App(QApplication):
