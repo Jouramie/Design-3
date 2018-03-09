@@ -14,7 +14,6 @@ class WorldVision:
         pass
 
     def create_environment(self, image_location):
-        initial_image = cv2.imread(image_location)
         cropped_image = self.__crop_environment(image_location)
         cropped_image_copy = copy.copy(cropped_image)
 
@@ -89,7 +88,7 @@ class WorldVision:
         image = cv2.dilate(image, kernel, iterations=1)
         image = cv2.erode(image, kernel, iterations=1)
 
-        ret, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
+        _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         for contour in contours:
@@ -159,7 +158,7 @@ class WorldVision:
         original_image = cv2.imread(filename)
 
         image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-        ret, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
+        _, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
         image_with_contours, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         y_adjustment = 5
@@ -169,7 +168,7 @@ class WorldVision:
         for contour in contours:
             if cv2.arcLength(contour, True) > 1500:
                 x, y, w, h = cv2.boundingRect(contour)
-                crop_img = original_image[y + y_adjustment:y + h, x:x + w]
+                crop_img = original_image[y + y_adjustment:y + h, x:x + w + 3]
 
         if crop_img is None:
             raise VisionException('Impossible to crop image.')
