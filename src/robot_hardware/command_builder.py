@@ -12,11 +12,5 @@ class CommandBuilder():
     def backward(self, vx: int, vy: int, left_right: Command) -> str:
         return self.__move(vx, vy, Command.backward.value, left_right.value)
 
-    def right(self, vx: int, vy: int, backward_forward: Command) -> str:
-        return self.__move(vx, vy, backward_forward.value, Command.right.value)
-
-    def left(self, vx: int, vy: int, backward_forward: Command) -> str:
-        return self.__move(vx, vy, backward_forward.value, Command.left.value)
-
     def rotate(self, angle: int, positive_negative: Command) -> str:
         return 'R{}{}'.format(angle, positive_negative.value)
