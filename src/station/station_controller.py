@@ -5,10 +5,10 @@ import cv2
 from src.domain.country_loader import CountryLoader
 
 
-class MainController(object):
+class StationController(object):
     def __init__(self, model, network, logger, config):
         self.model = model
-        self.countryLoader = CountryLoader()
+        self.countryLoader = CountryLoader(config)
         self.network = network
         self.logger = logger
         self.config = config
@@ -24,7 +24,7 @@ class MainController(object):
         self.model.network_is_on = True
 
         if self.config['update_robot']:
-            subprocess.call("./scripts/boot_robot.bash", shell=True)
+            subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()

@@ -1,13 +1,14 @@
-import cv2
+import os
 import platform
 import time
-import os
+
+import cv2
 
 world_camera_id = None
 
 system = platform.system()
 print('system {}'.format(system))
-if  system == 'Linux':
+if system == 'Linux':
     world_camera_id = 2
 elif system == 'darwin':
     world_camera_id = 0
@@ -29,6 +30,3 @@ if not os.path.exists(directory):
 
 cv2.imwrite(directory + time.strftime("/%Hh%M.jpg"), img)
 cv2.waitKey()
-
-
-

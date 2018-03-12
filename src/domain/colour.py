@@ -1,7 +1,7 @@
 from enum import Enum
 
-class Colour(Enum):
 
+class Colour(Enum):
     RED = (255, 0, 0)
     GREEN = (0, 209, 0)
     BLUE = (0, 0, 255)

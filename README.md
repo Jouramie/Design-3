@@ -1,3 +1,17 @@
+# How run the system
+
+Just run the `start.py` script. You also need to specify what part you want to run, robot or station.
+
+```commandline
+start.py station
+```
+
+Also, make sure the requirements are installed. Run the following command at the root of the project: 
+
+```commandline
+pip install -r requirements.txt
+```
+
 # How to network
 
 The robot host is own wifi network called `equipe6`. Make sure you're connected to it.

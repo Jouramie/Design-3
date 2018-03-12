@@ -1,9 +1,8 @@
 import logging
 import os
 
-
-from .path_calculator.grid import Grid
 from .environment_error import EnvironmentDataError
+from .path_calculator.grid import Grid
 from ..config import ENVIRONMENT_LOG_DIR, ENVIRONMENT_LOG_FILE
 
 
