@@ -39,11 +39,11 @@ class WorldVision:
         for cube in self.__find_black_cubes(cropped_image):
             cubes.append(cube)
             self.__draw_cube(cropped_image_copy, cube)
-        '''
+
         for cube in self.__find_white_cube(cropped_image):
             cubes.append(cube)
             self.__draw_cube(cropped_image_copy, cube)
-        '''
+
         target_zone = self.__find_target_zone(cropped_image)
         self.__draw_target_zone(cropped_image_copy, target_zone)
 
@@ -110,10 +110,8 @@ class WorldVision:
         cv2.imshow('white', img)
 
         for contour in contours:
-            if cv2.contourArea(contour) > 20 and (
-                    (contour[0][0][0] > 480 and contour[0][0][1] > 245) or (
-                    contour[0][0][0] > 460 and contour[0][0][1] < 45) or
-                    contour[0][0][0] > 570):
+            if cv2.contourArea(contour) > 20 and ((contour[0][0][0] > 480 and contour[0][0][1] > 245) or
+                                                  (460 < contour[0][0][0] < 610 and contour[0][0][1] < 45) or (contour[0][0][1] > 500)):
                 yield self.__create_cube(contour, Color.WHITE)
 
     def __create_cube(self, contour, color: Color) -> Cube:
