@@ -110,8 +110,8 @@ class WorldVision:
         cv2.imshow('white', img)
 
         for contour in contours:
-            if cv2.contourArea(contour) > 20 and ((contour[0][0][0] > 480 and contour[0][0][1] > 245) or
-                                                  (460 < contour[0][0][0] < 610 and contour[0][0][1] < 45) or (contour[0][0][1] > 500)):
+            if 200 > cv2.arcLength(contour, True) > 1 and ((contour[0][0][0] > 480 and contour[0][0][1] > 245) or
+                                                (460 < contour[0][0][0] < 610 and contour[0][0][1] < 45) or (contour[0][0][1] > 500)):
                 yield self.__create_cube(contour, Color.WHITE)
 
     def __create_cube(self, contour, color: Color) -> Cube:
