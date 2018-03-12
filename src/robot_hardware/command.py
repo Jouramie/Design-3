@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class Command(Enum):
-    backward = 'B'
-    forward = 'F'
-    right = 'R'
-    left = 'L'
-    positve = 'P'
-    negative = 'N'
+    BACKWARD = 'B'
+    FORWARD = 'F'
+    RIGHT = 'R'
+    LEFT = 'L'
+    POSITIVE = 'P'
+    NEGATIVE = 'N'
