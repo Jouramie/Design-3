@@ -6,6 +6,7 @@ from src.robot_hardware.channel.channel_listener_exception import ChannelListene
 
 
 class TestChannelListener(TestCase):
+
     def setUp(self):
         self.message = '11111111'
 

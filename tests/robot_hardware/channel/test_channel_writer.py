@@ -9,6 +9,7 @@ from src.robot_hardware.channel import writer
 
 
 class TestChannelWriter(TestCase):
+
     def setUp(self):
         self.message = '11111111'
         self.master, self.port = create_virtual_serial_device()
