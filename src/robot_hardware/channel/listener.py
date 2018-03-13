@@ -4,6 +4,7 @@ from .channel_listener_exception import ChannelListenerException
 
 
 class ChannelListener:
+
     def __init__(self, serial):
         self.serial = serial
 
