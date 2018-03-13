@@ -65,18 +65,22 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
                                                          config['network']['port'], encoder.DictionaryEncoder())
     try:
         robot_ctl.RobotController(logger, scanner, network).start()
-    except client_network_ctl.socket.timeout as err:
-        logger.info(err)
     finally:
-        network._socket.close()
+        if network._socket is not None:
+            network._socket.close()
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
     network_ctl = server_network_ctl.ServerNetworkController(logger.getChild("network_controller"),
                                                              config['network']['port'], encoder.DictionaryEncoder())
-    app = App(network_ctl, logger.getChild("main_controller"), config)
-    sys.exit(app.exec_())
-
+    try:
+        app = App(network_ctl, logger.getChild("main_controller"), config)
+        sys.exit(app.exec_())
+    finally:
+        if network_ctl._server is not None:
+            network_ctl._server.close()
+        if network_ctl._socket is not None:
+            network_ctl._socket.close()
 
 """
     network_ctl.host_network()

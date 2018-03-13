@@ -2,7 +2,7 @@ image: python:3.6-slim-jessie
 
 before_script:
   - apt update && apt install -y libglib2.0 libsm6 libxext6 libxrender1
-  - pip install pytest opencv-python pyserial
+  - pip install -r requirements.txt
 
 
 stages:

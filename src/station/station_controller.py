@@ -3,6 +3,7 @@ import subprocess
 import cv2
 
 from src.domain.country_loader import CountryLoader
+from src.d3_network.network_exception import MessageNotReceivedYet
 
 
 class StationController(object):
@@ -33,9 +34,12 @@ class StationController(object):
         self.model.infrared_signal_asked = True
 
     def check_ir_signal(self):
-        country_code = self.network.check_ir_signal()
-        if country_code != 0:
-            self.model.countryCode = country_code
+        try:
+            country_code = self.network.check_ir_signal()
+        except MessageNotReceivedYet:
+            return
+
+        self.model.countryCode = country_code
 
     def select_country(self):
         try:
