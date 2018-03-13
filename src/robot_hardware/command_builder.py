@@ -1,4 +1,4 @@
-from src.robot_hardware.command import Command
+from .command import Command
 
 
 class CommandBuilder():
