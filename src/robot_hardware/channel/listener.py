@@ -24,5 +24,3 @@ def create_channel_listener():
     ser.open()
 
     return ChannelListener(ser)
-
-
