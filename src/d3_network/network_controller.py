@@ -3,6 +3,7 @@ from socket import socket
 
 from .command import Command
 from .encoder import Encoder
+from .network_exception import MessageNotReceivedYet
 
 
 class NetworkController(object):
@@ -12,8 +13,12 @@ class NetworkController(object):
         self._encoder = encoder
         self._socket: socket = None
 
-    def _receive_data(self) -> dict:
-        return self._encoder.decode(self._socket.recv(1024))
+    def _receive_message(self) -> dict:
+        try:
+            msg = self._socket.recv(1024)
+        except BlockingIOError:
+            return self._encoder.decode()
+        return self._encoder.decode(msg)
 
     def _send_command(self, command: Command, data: dict = None) -> None:
         if data is None:

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PIL import Image
 
 from src.domain.colour import Colour
@@ -15,7 +17,7 @@ class CountryLoader(object):
         self.__country_code_loader()
 
     def __country_code_loader(self):
-        with open(self.__config['resources_path']['countries_list'], "r", encoding='utf-16') as fileOpen:
+        with Path(self.__config['resources_path']['countries_list']).open(encoding='utf-16') as fileOpen:
             for line in fileOpen:
                 line_information = line.split()
                 country_code = int(line_information[0])
@@ -28,7 +30,7 @@ class CountryLoader(object):
     def __stylized_flag_loader(self, country_name: str):
         image_path: str = self.__config['resources_path']['country_flag'].format(country=country_name)
 
-        pil_gif = Image.open(image_path)
+        pil_gif = Image.open(Path(image_path))
         rgb_im = pil_gif.convert('RGB')
         stylized_flag = StylizedFlag()
         pixel_position_x = 16

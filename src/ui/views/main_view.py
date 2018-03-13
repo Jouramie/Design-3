@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PyQt5 import uic, QtGui
 from PyQt5.QtCore import QTime, QTimer
 from PyQt5.QtWidgets import QMainWindow
@@ -8,7 +10,7 @@ class StationView(QMainWindow):
         self.__config = config
         self.model = model
         self.main_controller = main_controller
-        self.ui = uic.loadUi(self.__config['resources_path']['ui'])
+        self.ui = uic.loadUi(Path(self.__config['resources_path']['ui']))
         self.time = QTime(0, 10, 0, 0)
         self.timer = QTimer()
         self.worldCamTimer = QTimer()
@@ -65,10 +67,10 @@ class StationView(QMainWindow):
         self.ui.lcdNumber.display(time)
 
     def display_flag(self):
-        image_path: str = self.__config['resources_path']['country_flag'] \
-            .format(country=self.model.country.get_country_name())
+        image_path: Path = Path(self.__config['resources_path']['country_flag']
+                                .format(country=self.model.country.get_country_name()))
 
-        flag_pixmap = QtGui.QPixmap(image_path)
+        flag_pixmap = QtGui.QPixmap(str(image_path))
         self.ui.flagPicture.setPixmap(flag_pixmap)
         self.ui.flagPicture.setMask(flag_pixmap.mask())
         self.ui.flagPicture.show()

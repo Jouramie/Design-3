@@ -12,7 +12,7 @@ class TestServerNetworkController(TestCase):
     def test_given_connected_client_when_send_start_command_then_send_encoded_message(self, socket):
         client = MagicMock()
         encoder = MagicMock()
-        encoded_msg = b"{'msg': 'qwerty'}"
+        encoded_msg = b"0017{'msg': 'qwerty'}"
         encoder.attach_mock(Mock(return_value=encoded_msg), 'encode')
         serv_network_ctl = server_network_ctl.ServerNetworkController(MagicMock(), MagicMock(), encoder)
         serv_network_ctl._socket = client

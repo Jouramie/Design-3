@@ -1,4 +1,4 @@
-from socket import timeout
+
 from unittest import TestCase
 from unittest.mock import MagicMock
 from unittest.mock import Mock
@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from src.d3_network import client_network_controller as client_network_ctl
 from src.d3_network.command import Command
+from src.d3_network.network_exception import MessageNotReceivedYet
 
 
 class TestClientNetworkController(TestCase):
@@ -55,7 +56,7 @@ class TestClientNetworkController(TestCase):
         encoder = MagicMock()
         encoder.attach_mock(Mock(return_value={'command': Command.START}), 'decode')
         client = MagicMock()
-        client.attach_mock(Mock(side_effect=[timeout, None]), 'recv')
+        client.attach_mock(Mock(side_effect=[MessageNotReceivedYet, None]), 'recv')
         socket.return_value = client
         network_controller = client_network_ctl.ClientNetworkController(MagicMock(), MagicMock(), encoder)
 
