@@ -12,6 +12,7 @@ no_cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-25/17h36.jpg'
 white_cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-03-09/15h02m12s.jpg'
 white_cube_file_2 = '/home/willvalin/PycharmProjects/system/fig/2018-03-09/15h01m02s.jpg'
 all_cubes_file = '/home/willvalin/PycharmProjects/system/fig/2018-03-09/15h04m14s.jpg'
+new_def = '/home/willvalin/PycharmProjects/system/fig/2018-03-13/20h54m23s.jpg'
 
 class TestEnvironment(TestCase):
     def test_when_creating_environment_then_environment_is_returned(self):
@@ -26,7 +27,7 @@ class TestEnvironment(TestCase):
 
     def test_given_white_cube_when_creating_environement_then_white_cube_is_returned(self):
         world_vision = WorldVision()
-        environment, image = world_vision.create_environment(white_cube_file_2)
+        environment, image = world_vision.create_environment(new_def)
         cubes_list = environment.get_cubes()
         cv2.imshow('White cube', image)
         cv2.waitKey(0)

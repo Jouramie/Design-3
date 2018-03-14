@@ -5,7 +5,7 @@ import math
 
 import cv2
 
-from src.config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE
+from src.config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE, ORIGINAL_IMAGE_WIDTH, ORIGINAL_IMAGE_HEIGHT
 from src.vision.cameraError import CameraInitializationError, CameraError
 
 
@@ -49,8 +49,8 @@ class Camera:
 
 def create_camera(camera_id):
     capture_object = cv2.VideoCapture(camera_id)
-    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, ORIGINAL_IMAGE_WIDTH)
+    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, ORIGINAL_IMAGE_HEIGHT)
     capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
     capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
 

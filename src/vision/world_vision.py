@@ -73,11 +73,11 @@ class WorldVision:
         image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
         for contour in contours:
-            if 200 > cv2.arcLength(contour, True) > 50 and (
-                    (contour[0][0][0] > 480 and contour[0][0][1] > 245) or (
-                    contour[0][0][0] > 460 and contour[0][0][1] < 45) or
-                    contour[0][0][0] > 570):
-                yield self.__create_cube(contour, color)
+            x = contour[0][0][0]
+            y = contour[0][0][1]
+            if 400 > cv2.arcLength(contour, True) > 200:
+                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
+                    yield self.__create_cube(contour, color)
 
     def __find_black_cubes(self, original_image):
         image = cv2.medianBlur(original_image, 5)
@@ -92,11 +92,11 @@ class WorldVision:
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         for contour in contours:
-            if 150 > cv2.arcLength(contour, True) > 60 and (
-                    (contour[0][0][0] > 470 and contour[0][0][1] > 245) or (
-                    contour[0][0][0] > 470 and contour[0][0][1] < 45) or
-                    contour[0][0][0] > 570):
-                yield self.__create_cube(contour, Color.BLACK)
+            x = contour[0][0][0]
+            y = contour[0][0][1]
+            if cv2.arcLength(contour, True) > 200:
+                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
+                    yield self.__create_cube(contour, Color.BLACK)
 
     def __find_white_cube(self, original_image) -> [Cube]:
         image = cv2.medianBlur(original_image, 5)
@@ -107,13 +107,11 @@ class WorldVision:
 
         img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-        cv2.imshow('white', img)
-
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if 200 > cv2.arcLength(contour, True) > 1:
-                if ((x > 500 and y > 45) or (460 < x < 610 and y < 45) or (y > 500)):
+            if 400 > cv2.arcLength(contour, True) > 100:
+                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
                     yield self.__create_cube(contour, Color.WHITE)
 
     def __create_cube(self, contour, color: Color) -> Cube:
@@ -129,7 +127,8 @@ class WorldVision:
         img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
         for shape in contours:
-            if cv2.arcLength(shape, True) > 300 and shape[0][0][0] > 50:
+            x = shape[0][0][0]
+            if cv2.arcLength(shape, True) > 2000 and x > 50:
                 return self.__create_target_zone(shape)
 
     def __create_target_zone(self, contour) -> TargetZone:
@@ -143,7 +142,7 @@ class WorldVision:
 
         im = cv2.GaussianBlur(im, (5, 5), 0)
 
-        contours = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=20, maxRadius=40)
+        contours = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=50, maxRadius=80)
 
         if contours is not None:
             for contour in contours[0]:
@@ -161,14 +160,12 @@ class WorldVision:
         _, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
         image_with_contours, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        y_adjustment = 5
-
         crop_img = None
 
         for contour in contours:
-            if cv2.arcLength(contour, True) > 1500:
+            if cv2.arcLength(contour, True) > 3000:
                 x, y, w, h = cv2.boundingRect(contour)
-                crop_img = original_image[y + y_adjustment:y + h, x:x + w + 3]
+                crop_img = original_image[y:y + h, x:x + w ]
 
         if crop_img is None:
             raise VisionException('Impossible to crop image.')
