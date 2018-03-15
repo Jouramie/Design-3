@@ -1,4 +1,5 @@
 from .vertex import Vertex
+from src.domain.path_calculator.direction import Direction
 
 
 class Grid:
@@ -27,9 +28,8 @@ class Grid:
         return new_vertex
 
     def __initiate_vertices_neighbors(self, node):
-        directions = [(0, -1), (0, 1), (1, 0), (-1, 0), (-1, -1), (1, -1), (-1, 1), (1, -1)]
-        for direction in directions:
-            neighbor = (node[0] + direction[0], node[1] + direction[1])
+        for direction in Direction:
+            neighbor = (node[0] + direction.value[0], node[1] + direction.value[1])
             if 0 <= neighbor[0] < self.__width and 0 <= neighbor[1] < self.__height:
                 self.__add_edge(node, neighbor)
 
