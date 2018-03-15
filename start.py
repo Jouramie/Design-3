@@ -46,11 +46,11 @@ def start_system(args: dict) -> None:
     if not os.path.exists(config['log_dir']):
         os.makedirs(config['log_dir'])
 
-    log_file: str = config['log_file'].format(date=time.strftime("%Y-%m-%d-%H:%M:%S"))
+    log_file: str = config['log_file'].format(date=time.strftime("%Y-%m-%d-%Hh%Mm%Ss"))
+
     file_handler = logging.FileHandler(log_file)
     file_handler.setFormatter(log_formatter)
     logger.addHandler(file_handler)
-
     logger.info("Config file loaded.\n%s", config)
 
     if args['sys'] == 'robot':
