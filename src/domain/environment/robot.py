@@ -7,8 +7,8 @@ class Robot:
     def __init__(self, center: tuple, orientation: float):
         self.center = center
         self.orientation = orientation
-        self.height = 16.35
-        self.width = 16.35
+        self.height = 22
+        self.width = 22
 
     def get_corners(self):
         orientation_rad = radians(self.orientation)
