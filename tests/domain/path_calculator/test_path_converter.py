@@ -1,5 +1,7 @@
 from unittest import TestCase
 from src.domain.path_calculator.direction import Direction
+from src.domain.path_calculator.direction import NINETY_DEGREES_MOVE_LENGTH
+from src.domain.path_calculator.direction import FORTY_FIVE_DEGREES_MOVE_LENGTH
 from src.domain.path_calculator.path_converter import PathConverter
 
 
@@ -12,56 +14,56 @@ class TestPathConverter(TestCase):
     def test_when_convert_north_direction_then_command_length_is_one(self):
         self.path.append(Direction.NORTH.value)
 
-        expected = [(Direction.NINETY_DEGREES_MOVE_LENGTH.value, 'NORTH')]
+        expected = [(NINETY_DEGREES_MOVE_LENGTH, 'NORTH')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
     def test_when_convert_south_direction_then_command_length_is_one(self):
         self.path.append(Direction.SOUTH.value)
 
-        expected = [(Direction.NINETY_DEGREES_MOVE_LENGTH.value, 'SOUTH')]
+        expected = [(NINETY_DEGREES_MOVE_LENGTH, 'SOUTH')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
     def test_when_convert_east_direction_then_command_length_is_one(self):
         self.path.append(Direction.EAST.value)
 
-        expected = [(Direction.NINETY_DEGREES_MOVE_LENGTH.value, 'EAST')]
+        expected = [(NINETY_DEGREES_MOVE_LENGTH, 'EAST')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
     def test_when_convert_west_direction_then_command_length_is_one(self):
         self.path.append(Direction.WEST.value)
 
-        expected = [(Direction.NINETY_DEGREES_MOVE_LENGTH.value, 'WEST')]
+        expected = [(NINETY_DEGREES_MOVE_LENGTH, 'WEST')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
     def test_when_convert_north_east_direction_then_command_length_is_radical_two(self):
         self.path.append(Direction.NORTH_EAST.value)
 
-        expected = [(Direction.FORTY_FIVE_DEGREES_MOVE_LENGTH.value, 'NORTH_EAST')]
+        expected = [(FORTY_FIVE_DEGREES_MOVE_LENGTH, 'NORTH_EAST')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
     def test_when_convert_south_east_direction_then_command_length_is_radical_two(self):
         self.path.append(Direction.SOUTH_EAST.value)
 
-        expected = [(Direction.FORTY_FIVE_DEGREES_MOVE_LENGTH.value, 'SOUTH_EAST')]
+        expected = [(FORTY_FIVE_DEGREES_MOVE_LENGTH, 'SOUTH_EAST')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
     def test_when_convert_north_west_direction_then_command_length_is_radical_two(self):
         self.path.append(Direction.NORTH_WEST.value)
 
-        expected = [(Direction.FORTY_FIVE_DEGREES_MOVE_LENGTH.value, 'NORTH_WEST')]
+        expected = [(FORTY_FIVE_DEGREES_MOVE_LENGTH, 'NORTH_WEST')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
     def test_when_convert_south_west_direction_then_command_length_is_radical_two(self):
         self.path.append(Direction.SOUTH_WEST.value)
 
-        expected = [(Direction.FORTY_FIVE_DEGREES_MOVE_LENGTH.value, 'SOUTH_WEST')]
+        expected = [(FORTY_FIVE_DEGREES_MOVE_LENGTH, 'SOUTH_WEST')]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
