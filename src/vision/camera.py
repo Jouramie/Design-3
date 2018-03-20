@@ -1,10 +1,11 @@
 import logging
 import os
 import time
+import math
 
 import cv2
 
-from src.config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE
+from src.config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE, ORIGINAL_IMAGE_WIDTH, ORIGINAL_IMAGE_HEIGHT
 from src.vision.cameraError import CameraInitializationError, CameraError
 
 
@@ -29,6 +30,16 @@ class Camera:
             logging.info(message)
             raise CameraError(message)
 
+    def take_video(self):
+        while self.capture_object.isOpened():
+            ret, frame = self.capture_object.read()
+            if ret:
+                cv2.imshow('frame', frame)
+                if cv2.waitKey(0):
+                    break
+            else:
+                break
+
     def _initialize_log(self, log_level):
         if not os.path.exists(WORLD_CAM_LOG_DIR):
             os.makedirs(WORLD_CAM_LOG_DIR)
@@ -38,8 +49,11 @@ class Camera:
 
 def create_camera(camera_id):
     capture_object = cv2.VideoCapture(camera_id)
-    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, 1600)
-    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
+    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, ORIGINAL_IMAGE_WIDTH)
+    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, ORIGINAL_IMAGE_HEIGHT)
+    capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
+    capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
+
     if capture_object.isOpened():
         for i in range(15):
             temp_is_frame_returned, temp_img = capture_object.read()

@@ -6,13 +6,21 @@ before_script:
 
 
 stages:
-  - unittest
-  - itest
+  - unit_test
+  - integration_test
 
 
 pytest_unit_tests:
-  stage: unittest
+  stage: unit_test
   script:
-  - pytest tests
+  - pytest unit_tests
+
+#pytest_integration_test:
+#  stage: integration_test
+#  script:
+#  - apt install -y git
+#  - git clone https://gitlab.com/design3-equipe6/photos.git
+#  - mv photos fig
+#  - pytest interation_test
 
 
