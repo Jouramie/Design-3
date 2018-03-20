@@ -2,12 +2,14 @@ import subprocess
 
 import cv2
 
-from src.domain.country_loader import CountryLoader
 from src.d3_network.network_exception import MessageNotReceivedYet
+from src.domain.country_loader import CountryLoader
+from .station_model import StationModel
+from src.d3_network.server_network_controller import NetworkController
 
 
 class StationController(object):
-    def __init__(self, model, network, logger, config):
+    def __init__(self, model: StationModel, network: NetworkController, logger, config):
         self.model = model
         self.countryLoader = CountryLoader(config)
         self.network = network
@@ -21,7 +23,7 @@ class StationController(object):
         self.model.timer_is_on = True
         print("start timer")
 
-    def start_network(self):
+    def start_robot(self):
         self.model.network_is_on = True
 
         if self.config['update_robot']:
@@ -30,8 +32,6 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
-        self.network.ask_ir_signal()
-        self.model.infrared_signal_asked = True
 
     def check_ir_signal(self):
         try:
@@ -62,3 +62,49 @@ class StationController(object):
     def select_frame(self):
         self.model.frame = cv2.VideoCapture(0)
         self.model.worldCamera_is_on = True
+
+    def update(self):
+        if not self.model.infrared_signal_asked:
+            self.network.ask_ir_signal()
+            self.model.infrared_signal_asked = True
+            return
+
+        if self.model.countryCode is None:
+            country_received = False  # Check network if signal received
+
+            if not country_received:
+                return
+
+        # Verifier message du robot
+            # Si mouvement terminé
+                # robot_is_moving = false
+
+        # Si robot en mouvement
+            # Envoyer update de position
+            # return
+
+        # Si il reste des cubes a placer
+            # Sinon
+                # Si cube dans préhenseur
+                    # Calculer le path vers la place dans le drapeau
+                    # Envoyer la commande de déplacement au robot
+                    # robot_is_moving = true
+                # Sinon
+                    # Choisir un cube
+                    # Calculer le path vers le cube
+                    # Envoyer la commande de déplacement au robot
+                    # robot_is_moving = true
+        # Sinon
+            # Si le robot a fini d'allumer la led
+                # soft_reset model
+            # Sinon
+                # Calculer le path vers l'exterieur de la zone
+                # Envoyer la commande de déplacement + led
+                # robot_is_moving = true
+
+
+
+
+
+
+

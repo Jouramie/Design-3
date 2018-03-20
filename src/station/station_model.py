@@ -4,10 +4,11 @@ class StationModel(object):
         self.country = "Country not yet selected"
         self.nextCubeColor = ""
         self.frame = ""
-        self.countryCode = 0
+        self.countryCode = None
+        self.network_is_on = False
+        self.robot_is_moving = False
         self.timer_is_on = False
         self.worldCamera_is_on = False
-        self.network_is_on = False
         self.infrared_signal_asked = False
         self._update_functions = []
         self.running = False
