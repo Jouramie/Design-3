@@ -6,4 +6,6 @@ ENVIRONMENT_LOG_DIR = '../../log/'
 ENVIRONMENT_LOG_FILE = ENVIRONMENT_LOG_DIR + 'environment.log'
 MAIN_CONTROLLER_LOG_DIR = '../../log/'
 MAIN_CONTROLLER_LOG_FILE = ENVIRONMENT_LOG_DIR + 'main_controller.log'
+PATH_CONVERTER_LOG_DIR = '../../../log/'
+PATH_CONVERTER_LOG_FILE = PATH_CONVERTER_LOG_DIR + 'path_converter.log'
 FIG_DIRECTORY = "../../fig/"
