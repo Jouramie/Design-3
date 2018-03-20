@@ -30,21 +30,4 @@ class RobotDetector:
                 center_y = robot_info[1]
                 orientation = robot_info[5]
 
-                robot = Robot((center_x, center_y), orientation)
-
-                # 4 corners in world coordinates
-                robot_corners = robot.get_corners()
-
-                # Project corners in image
-                camera_to_world_parameters = self.coordinateConverter.get_camera_to_world().to_parameters()
-                camera_to_world_tvec = np.array([camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
-                camera_to_world_rvec = np.array([camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
-                robot_projected_points, jac = cv2.projectPoints(robot_corners, camera_to_world_rvec, camera_to_world_tvec, self.camParam.CameraMatrix, self.camParam.Distorsion)
-
-                # Draw robot
-                cv2.line(img, tuple(robot_projected_points[0][0]), tuple(robot_projected_points[1][0]), (204, 0, 204), 3)
-                cv2.line(img, tuple(robot_projected_points[1][0]), tuple(robot_projected_points[2][0]), (204, 0, 204), 3)
-                cv2.line(img, tuple(robot_projected_points[2][0]), tuple(robot_projected_points[3][0]), (204, 0, 204), 3)
-                cv2.line(img, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
-
-                return robot
+                return Robot((center_x, center_y), orientation)
