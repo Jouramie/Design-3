@@ -1,10 +1,9 @@
 import logging
 import os
-import time
 
+from src.config import MAIN_CONTROLLER_LOG_DIR, MAIN_CONTROLLER_LOG_FILE
 from src.domain.environment import Environment
 from src.domain.path_calculator.path_calculator import PathCalculator
-from src.config import MAIN_CONTROLLER_LOG_DIR, MAIN_CONTROLLER_LOG_FILE
 
 
 class MainController(object):

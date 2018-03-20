@@ -1,19 +1,22 @@
-from PyQt5.QtWidgets import QMainWindow
+from pathlib import Path
+
 from PyQt5 import uic, QtGui
-from PyQt5.QtCore import pyqtSlot, QTime, QTimer
+from PyQt5.QtCore import QTime, QTimer
+from PyQt5.QtWidgets import QMainWindow
 
 
-class MainView(QMainWindow):
-    def __init__(self, model, main_controller):
+class StationView(QMainWindow):
+    def __init__(self, model, main_controller, config: dict):
+        self.__config = config
         self.model = model
         self.main_controller = main_controller
-        self.ui = uic.loadUi('UI/untitled.ui')
+        self.ui = uic.loadUi(Path(self.__config['resources_path']['ui']))
         self.time = QTime(0, 10, 0, 0)
         self.timer = QTimer()
         self.worldCamTimer = QTimer()
         self.infrared_timer = QTimer()
         self.setup_button()
-        super(MainView, self).__init__()
+        super(StationView, self).__init__()
 
     def start_capture(self):
         self.main_controller.select_frame()
@@ -64,7 +67,10 @@ class MainView(QMainWindow):
         self.ui.lcdNumber.display(time)
 
     def display_flag(self):
-        flag_pixmap = QtGui.QPixmap("domain/countries/Flag_" + self.model.country.get_country_name() + ".gif")
+        image_path: Path = Path(self.__config['resources_path']['country_flag']
+                                .format(country=self.model.country.get_country_name()))
+
+        flag_pixmap = QtGui.QPixmap(str(image_path))
         self.ui.flagPicture.setPixmap(flag_pixmap)
         self.ui.flagPicture.setMask(flag_pixmap.mask())
         self.ui.flagPicture.show()

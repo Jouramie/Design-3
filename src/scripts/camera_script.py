@@ -1,24 +1,32 @@
-import glob
-import time
 import os
+import platform
+import time
 
 import cv2
 
-from src.vision.camera import create_camera
-from vision.world_vision import WorldVision
+world_camera_id = None
 
-camera_id = 1
-camera = create_camera(camera_id)
+system = platform.system()
+print('system {}'.format(system))
+if system == 'Linux':
+    world_camera_id = 2
+elif system == 'darwin':
+    world_camera_id = 0
+elif system == 'Windows':
+    world_camera_id = 1
 
-capture = camera.take_picture()
-cv2.imshow('capture', capture)
+capture_object = cv2.VideoCapture(world_camera_id)
+assert capture_object.isOpened(), "Erreur lors de l'ouverture"
 
-directory = '../../fig/' + time.strftime('%Y-%m-%d')
-photo = glob.glob(directory + '/*.jpg')
-demonstration = max(photo, key=os.path.getctime)
+for i in range(10):
+    isFrameReturned, img = capture_object.read()
 
-world_vision = WorldVision()
-result = world_vision.create_environment(demonstration)
-cv2.imshow('result', result[1])
-if cv2.waitKey(0):
-    cv2.destroyAllWindows()
+cv2.namedWindow('capture')
+cv2.imshow('capture', img)
+
+directory = "../../fig/" + time.strftime("%Y-%m-%d")
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+cv2.imwrite(directory + time.strftime("/%Hh%M.jpg"), img)
+cv2.waitKey()

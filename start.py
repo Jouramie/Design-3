@@ -3,21 +3,18 @@
 
 import argparse
 import logging
-import subprocess
+import os
 import sys
+import time
 
 import yaml
-from PyQt5.QtWidgets import QApplication
 
 import src.d3_network.client_network_controller as client_network_ctl
 import src.d3_network.encoder as encoder
 import src.d3_network.ip_provider as network_scn
 import src.d3_network.server_network_controller as server_network_ctl
-import src.robot_software.robot_controller as robot_ctl
-from src.UI.main_app import App
-from src.UI.controllers.mainController import MainController
-from src.UI.models.mainModel import MainModel
-from src.UI.views.mainView import MainView
+import src.robot.robot_controller as robot_ctl
+from src.ui.main_app import App
 
 
 def main() -> None:
@@ -38,22 +35,21 @@ def start_system(args: dict) -> None:
 
     logger.setLevel(logging.INFO)
 
-    try:
-        with open("config.yml", 'r') as stream:
-            try:
-                config = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                logger.error("Could not load config file. Exiting.")
-                logger.exception(exc)
-                return
-    except FileNotFoundError:
-        with open("../config.yml", 'r') as stream:
-            try:
-                config = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                logger.error("Could not load config file. Exiting.")
-                logger.exception(exc)
-                return
+    with open("resources/config.yml", 'r') as stream:
+        try:
+            config = yaml.load(stream)
+        except yaml.YAMLError as exc:
+            logger.error("Could not load config file. Exiting.")
+            logger.exception(exc)
+            return
+
+    if not os.path.exists(config['log_dir']):
+        os.makedirs(config['log_dir'])
+
+    log_file: str = config['log_file'].format(date=time.strftime("%Y-%m-%d-%H:%M:%S"))
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(log_formatter)
+    logger.addHandler(file_handler)
 
     logger.info("Config file loaded.\n%s", config)
 
@@ -69,17 +65,22 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
                                                          config['network']['port'], encoder.DictionaryEncoder())
     try:
         robot_ctl.RobotController(logger, scanner, network).start()
-    except client_network_ctl.socket.timeout as err:
-        logger.info(err)
     finally:
-        network._socket.close()
+        if network._socket is not None:
+            network._socket.close()
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
     network_ctl = server_network_ctl.ServerNetworkController(logger.getChild("network_controller"),
                                                              config['network']['port'], encoder.DictionaryEncoder())
-    app = App(network_ctl, logger.getChild("main_controller"), config)
-    sys.exit(app.exec_())
+    try:
+        app = App(network_ctl, logger.getChild("main_controller"), config)
+        sys.exit(app.exec_())
+    finally:
+        if network_ctl._server is not None:
+            network_ctl._server.close()
+        if network_ctl._socket is not None:
+            network_ctl._socket.close()
 
 """
     network_ctl.host_network()
