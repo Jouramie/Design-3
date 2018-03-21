@@ -1,9 +1,9 @@
 import logging
 import os
 
-from src.domain.environment_error import EnvironmentDataError
-from src.domain.path_calculator.grid import Grid
-from src.config import ENVIRONMENT_LOG_DIR, ENVIRONMENT_LOG_FILE
+from .environment_error import EnvironmentDataError
+from .path_calculator.grid import Grid
+from ..config import ENVIRONMENT_LOG_DIR, ENVIRONMENT_LOG_FILE
 
 
 class Environment(object):
