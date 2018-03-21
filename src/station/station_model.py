@@ -1,14 +1,15 @@
 class StationModel(object):
     def __init__(self):
-        self.passedTime = 0
+        self.start_time = 0
+        self.passed_time = 0
         self.country = "Country not yet selected"
-        self.nextCubeColor = ""
-        self.frame = ""
-        self.countryCode = None
-        self.network_is_on = False
+        self.next_cube_color = None
+        self.frame = None
+        self.country_code = None
+        self.robot_is_started = False
         self.robot_is_moving = False
         self.timer_is_on = False
-        self.worldCamera_is_on = False
+        self.world_camera_is_on = False
         self.infrared_signal_asked = False
         self._update_functions = []
         self.running = False
