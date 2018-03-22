@@ -1,7 +1,6 @@
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 from unittest import TestCase
-import csv
 
 from src.domain.environment import Environment
 from src.domain.path_calculator.path_calculator import PathCalculator
