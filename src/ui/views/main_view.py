@@ -4,69 +4,54 @@ from PyQt5 import uic, QtGui
 from PyQt5.QtCore import QTime, QTimer
 from PyQt5.QtWidgets import QMainWindow
 
+from src.station.station_controller import StationController
+from src.station.station_model import StationModel
+
 
 class StationView(QMainWindow):
-    def __init__(self, model, main_controller, config: dict):
+    def __init__(self, model: StationModel, main_controller: StationController, config: dict):
         self.__config = config
         self.model = model
         self.main_controller = main_controller
         self.ui = uic.loadUi(Path(self.__config['resources_path']['ui']))
-        self.time = QTime(0, 10, 0, 0)
-        self.timer = QTimer()
-        self.worldCamTimer = QTimer()
-        self.infrared_timer = QTimer()
-        self.setup_button()
+        self.time = QTime(0, 0, 0, 0)
+        self.update_timer = QTimer()
+        self.ui.StartButton.clicked.connect(self.start_robot)
+        self.update_timer.start(100)
+        self.update_timer.timeout.connect(self.update)
         super(StationView, self).__init__()
 
-    def start_capture(self):
-        self.main_controller.select_frame()
-        if self.model.worldCamera_is_on:
-            self.worldCamTimer.start(1)
-            self.worldCamTimer.timeout.connect(self.display_frame)
+    def start_robot(self):
+        self.main_controller.start_robot()
 
-    def start_timer(self):
-        self.main_controller.start_timer()
-        if self.model.timer_is_on:
-            self.timer.start(1000)
-            self.timer.timeout.connect(self.display_time)
+    def update(self):
+        self.main_controller.update()
 
-    def start_network(self):
-        self.main_controller.start_network()
-        if self.model.infrared_signal_asked:
-            self.infrared_timer.start(100)
-            self.infrared_timer.timeout.connect(self.check_ir_signal)
+        # update ui with model
+        self.__update_timer_display()
 
-    def check_ir_signal(self):
-        self.main_controller.check_ir_signal()
-        if self.model.countryCode != 0:
-            self.infrared_timer.stop()
-            self.show_selected_country()
-            self.show_cube_next_color()
+        if self.model.world_camera_is_on:
+            self.__display_world_camera_image()
 
-    def show_selected_country(self):
-        self.main_controller.select_country()
-        self.display_flag()
-        self.display_country_name()
+        if self.model.country_code is not None:
+            self.__display_flag()
+            self.__display_country_name()
+            self.__display_next_cube_color()
 
-    def show_cube_next_color(self):
-        self.main_controller.select_next_cube_color()
-        self.display_next_cube_color()
+    def __update_timer_display(self):
+        t = self.time.addSecs(self.model.passed_time)
+        display_time = t.toString()
+        self.ui.lcdNumber.display(display_time)
 
-    def display_frame(self):
-        ret, frame = self.model.frame.read()
+    def __display_world_camera_image(self):
+        _, frame = self.model.frame.read()
         image = QtGui.QImage(frame, frame.shape[1], frame.shape[0], frame.shape[1] * frame.shape[2],
                              QtGui.QImage.Format_RGB888)
         pixmap = QtGui.QPixmap()
         pixmap.convertFromImage(image.rgbSwapped())
         self.ui.videoLabel.setPixmap(pixmap)
 
-    def display_time(self):
-        self.model.passedTime = self.model.passedTime - 1
-        t = self.time.addSecs(self.model.passedTime)
-        time = t.toString()
-        self.ui.lcdNumber.display(time)
-
-    def display_flag(self):
+    def __display_flag(self):
         image_path: Path = Path(self.__config['resources_path']['country_flag']
                                 .format(country=self.model.country.get_country_name()))
 
@@ -75,14 +60,9 @@ class StationView(QMainWindow):
         self.ui.flagPicture.setMask(flag_pixmap.mask())
         self.ui.flagPicture.show()
 
-    def display_country_name(self):
+    def __display_country_name(self):
         self.ui.CountryName.setText(self.model.country.get_country_name())
 
-    def display_next_cube_color(self):
-        self.ui.cube_label.setStyleSheet('background-color:' + self.model.nextCubeColor + ';')
+    def __display_next_cube_color(self):
+        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube_color + ';')
         self.ui.cube_label.show()
-
-    def setup_button(self):
-        self.ui.StartButton.clicked.connect(self.start_capture)
-        self.ui.StartButton.clicked.connect(self.start_timer)
-        self.ui.StartButton.clicked.connect(self.start_network)
