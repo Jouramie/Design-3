@@ -1,6 +1,6 @@
 from unittest import TestCase
 from src.vision.world_vision import *
-from src.domain.environment.environment import *
+from domain.vision_environment.environment import *
 from src.domain.color import *
 
 cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-28/19h25m04s.jpg'

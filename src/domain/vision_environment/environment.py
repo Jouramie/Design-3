@@ -1,6 +1,6 @@
-from src.domain.environment.cube import *
-from src.domain.environment.obstacle import *
-from src.domain.environment.target_zone import *
+from domain.vision_environment.cube import *
+from domain.vision_environment.obstacle import *
+from domain.vision_environment.target_zone import *
 
 
 class Environment:

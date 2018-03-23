@@ -2,7 +2,7 @@ import cv2
 import copy
 import numpy as np
 from .vision_exception import VisionException
-from src.domain.environment.environment import *
+from domain.vision_environment.environment import *
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
