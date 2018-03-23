@@ -1,6 +1,6 @@
-from domain.vision_environment.cube import *
-from domain.vision_environment.obstacle import *
-from domain.vision_environment.target_zone import *
+from .cube import Cube
+from .obstacle import Obstacle
+from .target_zone import TargetZone
 
 
 class Environment:

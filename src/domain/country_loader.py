@@ -5,7 +5,7 @@ from PIL import Image
 from src.domain.colour import Colour
 from src.domain.country import Country
 from src.domain.cube import Cube
-from src.domain.stylizedFlag import StylizedFlag
+from src.domain.stylized_flag import StylizedFlag
 
 IMAGE_MAX_SIZE = 96
 NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES = 32
