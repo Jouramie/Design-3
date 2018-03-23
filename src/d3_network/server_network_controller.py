@@ -47,12 +47,12 @@ class ServerNetworkController(NetworkController):
 
         self._logger.info("Reset command sent!")
 
-    def ask_ir_signal(self) -> None:
-        self._send_command(Command.IR_SIGNAL)
+    def ask_infrared_signal(self) -> None:
+        self._send_command(Command.INFRARED_SIGNAL)
 
         self._logger.info("Infrared signal asked!")
 
-    def check_ir_signal(self) -> int:
+    def check_infrared_signal(self) -> int:
         msg = self._receive_message()
 
         country_code = msg['country_code']
