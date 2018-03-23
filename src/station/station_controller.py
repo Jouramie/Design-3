@@ -31,9 +31,9 @@ class StationController(object):
         self.network.host_network()
         self.network.send_start_command()
 
-    def __check_ir_signal(self):
+    def __check_infrared_signal(self):
         try:
-            return self.network.check_ir_signal()
+            return self.network.check_infrared_signal()
         except MessageNotReceivedYet:
             return None
 
@@ -62,12 +62,12 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if not self.model.infrared_signal_asked:
-            self.network.ask_ir_signal()
+            self.network.ask_infrared_signal()
             self.model.infrared_signal_asked = True
             return
 
         if self.model.country_code is None:
-            country_received = self.__check_ir_signal()
+            country_received = self.__check_infrared_signal()
 
             if country_received is not None:
                 self.model.country_code = country_received
