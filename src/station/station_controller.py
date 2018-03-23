@@ -38,16 +38,10 @@ class StationController(object):
             return None
 
     def __find_country(self):
-        try:
-            countries = self.countryLoader.get_country_list()
-            selected_country = countries[self.model.country_code]
-            self.model.country = selected_country
-
-        except FileNotFoundError:
-            print("This countries doesn't exists")
+        self.model.country = self.countryLoader.get_country(self.model.country_code)
 
     def __select_next_cube_color(self):
-        stylized_flag = self.model.country.get_stylized_flag()
+        stylized_flag = self.model.country.stylized_flag
         cubes = stylized_flag.get_cube_list()
         for cube in cubes:
             color_name = cube.get_colour_name()
