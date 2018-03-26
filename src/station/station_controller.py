@@ -6,19 +6,43 @@ import cv2
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
+from src.vision.tableManager import TableManager
+from src.vision.table import Table
+from src.vision.coordinateConverter import CoordinateConverter
+from src.vision.robotDetector import RobotDetector
+from src.vision.frameDrawer import FrameDrawer
 from .station_model import StationModel
+from src.config import TABLE_NUMBER
 
 
 class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController, logger, config):
         self.model = model
         self.countryLoader = CountryLoader(config)
+        self.table = self.set_table(TABLE_NUMBER)
+        self.coord_converter = CoordinateConverter(self.table.world_to_camera)
+        self.robot_detector = RobotDetector(self.table.camParam, self.coord_converter)
+        self.frame_drawer = FrameDrawer(self.table.camParam, self.coord_converter)
         self.network = network
         self.logger = logger
         self.config = config
 
-        self.model.frame = cv2.VideoCapture(0)
+        self.model.frame = self.get_frame()
         self.model.world_camera_is_on = True
+
+    def set_table(self, table_number) -> Table:
+        table_manager = TableManager()
+        table = table_manager.create_table(table_number)
+        return table
+
+    def get_frame(self):
+        frame = cv2.VideoCapture(0)
+        frame.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
+        frame.set(cv2.CAP_PROP_FRAME_WIDTH, 1600)
+        frame.set(cv2.CAP_PROP_BRIGHTNESSH, 0.5)
+        frame.set(cv2.CAP_PROP_CONTRAST, 0.1)
+
+        return frame
 
     def start_robot(self):
         self.model.robot_is_started = True
@@ -36,6 +60,29 @@ class StationController(object):
             return self.network.check_infrared_signal()
         except MessageNotReceivedYet:
             return None
+
+    def __draw_environment(self):
+        if self.model.robot is not None:
+            self.frame_drawer.drawRobot(self.model.frame, self.model.robot)
+        if self.model.projected_path is not None:
+            self.__draw_projected_path()
+        if self.model.real_path is not None:
+            self.__draw_real_path()
+
+    def __draw_real_path(self):
+        i = 0;
+        number_of_points = (len(self.model.real_path) - 1)
+        while i < number_of_points:
+            cv2.line(self.model.frame, self.model.real_path[i], self.model.real_path[i + 1], (255, 0, 0), 3)
+            i = i + 1
+
+    def __draw_projected_path(self):
+        i = 0;
+        number_of_points = (len(self.model.projected_path) - 1)
+        while i < number_of_points:
+            cv2.line(self.model.frame, self.model.projected_path[i], self.model.projected_path[i + 1], (0, 255, 0), 3)
+            i = i + 1
+
 
     def __find_country(self):
         try:
@@ -60,6 +107,7 @@ class StationController(object):
             return
 
         self.model.passed_time = time.time() - self.model.start_time
+        self.model.robot = self.robot_detector.detect(self.model.frame)
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()

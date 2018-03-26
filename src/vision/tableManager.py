@@ -1,4 +1,4 @@
-import aruco
+import cv2
 import numpy as np
 
 from src.vision.transform import Transform
@@ -22,7 +22,7 @@ class TableManager:
 
     def create_table(self, id):
         if 1 <= id <= 6:
-            camParam = aruco.CameraParameters()
+            camParam = cv2.aruco.CameraParameters()
             camParam.readFromXMLFile(self.cam_path[id-1])
             world_to_camera = Transform.from_matrix(np.load(self.world_calibration_path[id-1]))
 
