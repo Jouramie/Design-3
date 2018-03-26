@@ -23,7 +23,6 @@ class RobotDetector:
         self.board = cv2.aruco.Board_create(points, self.marker_dict, ids)
 
     def detect(self, img):
-        # New code
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
                                                                   cameraMatrix=self.camParam.CameraMatrix,
