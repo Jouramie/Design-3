@@ -1,30 +1,38 @@
-import aruco
+import cv2
 import numpy as np
 
 from src.domain.environment.robot import Robot
 from src.vision.transform import Transform
 from src.vision.coordinateConverter import CoordinateConverter
+from src.vision.cameraParameters import CameraParameters
 
 
 class RobotDetector:
 
-    def __init__(self, cam_param: aruco.CameraParameters, coordinate_converter: CoordinateConverter):
+    def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter):
         self.camParam = cam_param
         self.coordinateConverter = coordinate_converter
-        self.detector = aruco.MarkerDetector()
-        self.marker_map = aruco.MarkerMap("robot_layout.xml")
-        self.marker_tracker = aruco.MarkerMapPoseTracker()
-        self.marker_tracker.setParams(self.camParam, self.marker_map)
         self.success = False
+        self.marker_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_ARUCO_ORIGINAL)
+        self.parameters = cv2.aruco.DetectorParameters_create()
+        points = [np.array([(-10, 10, 0), (-1, 10, 0), (-1, 1, 0), (-10, 1, 0)], 'float32'),
+                  np.array([(1, 10, 0), (10, 10, 0), (10, 1, 0), (1, 1, 0)], 'float32'),
+                  np.array([(1, -1, 0), (10, -1, 0), (10, -10, 0), (1, -10, 0)], 'float32'),
+                  np.array([(-10, 1, 0), (-1, -1, 0), (-1, -10, 0), (-10, -10, 0)], 'float32')]
+        ids = np.array([[2], [23], [25], [103]])
+        self.board = cv2.aruco.Board_create(points, self.marker_dict, ids)
 
     def detect(self, img):
-        markers = self.detector.detect(img)
-        self.marker_tracker.reset()
-        self.success = self.marker_tracker.estimatePose(markers)
+        # New code
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
+                                                                  cameraMatrix=self.camParam.CameraMatrix,
+                                                                  distCoeff=self.camParam.Distorsion)
+        self.success, rotation, translation = cv2.aruco.estimatePoseBoard(corners, ids, self.board, self.camParam.CameraMatrix, self.camParam.Distorsion)
 
         if self.success:
-            rvec = self.marker_tracker.getRvec().copy()[0]
-            tvec = self.marker_tracker.getTvec().copy()[0]
+            rvec = rotation.copy()
+            tvec = translation.copy()
 
             camera_to_robot = Transform.from_parameters(np.asscalar(tvec[0]), np.asscalar(tvec[1]),
                                                         np.asscalar(tvec[2]), np.asscalar(rvec[0]),
