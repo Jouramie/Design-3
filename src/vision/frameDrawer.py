@@ -3,12 +3,19 @@ import numpy as np
 
 from src.domain.environment.robot import Robot
 from src.vision.coordinateConverter import CoordinateConverter
+from src.vision.cameraParameters import CameraParameters
 
 
 class FrameDrawer:
+<<<<<<< HEAD
     def __init__(self, cam_param: cv2.aruco.CameraParameters, coordinate_converter: CoordinateConverter):
         self.cam_param = cam_param
         self.coordinate_converter = coordinate_converter
+=======
+    def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter):
+        self.camParam = cam_param
+        self.coordinateConverter = coordinate_converter
+>>>>>>> origin/tracking_robot
 
     def drawRobot(self, frame, robot: Robot):
         robot_corners = robot.get_corners()
@@ -26,7 +33,11 @@ class FrameDrawer:
         camera_to_world_parameters = self.coordinate_converter.get_camera_to_world().to_parameters()
         camera_to_world_tvec = np.array([camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
         camera_to_world_rvec = np.array([camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
+<<<<<<< HEAD
         projected_points, jac = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec, self.cam_param.CameraMatrix, self.cam_param.Distorsion)
+=======
+        projected_points, jac = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec, self.camParam.CameraMatrix, self.camParam.Distorsion)
+>>>>>>> origin/tracking_robot
 
         return projected_points
 
