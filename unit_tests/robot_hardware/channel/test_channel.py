@@ -15,6 +15,7 @@ class TestChannel(TestCase):
         serial = Mock()
         serial.readline = Mock(return_value=self.message)
         channel = Channel(serial)
+
         channel.listen()
 
         serial.readline.assert_called_once()
@@ -23,6 +24,7 @@ class TestChannel(TestCase):
         serial = Mock()
         serial.isOpen = Mock(return_value=False)
         channel = Channel(serial)
+
         channel.listen()
 
         self.assertRaises(ChannelException)
@@ -31,6 +33,7 @@ class TestChannel(TestCase):
         serial = Mock()
         serial.write = Mock()
         channel = Channel(serial)
+
         channel.write(self.message)
 
         serial.write.assert_called_once()
@@ -39,6 +42,7 @@ class TestChannel(TestCase):
         serial = Mock()
         serial.write = Mock()
         channel = Channel(serial)
+
         channel.write(self.message)
 
         serial.write.assert_called_once_with(self.expected_message)
