@@ -28,6 +28,13 @@ class RobotController(object):
         time.sleep(2)
         self._network.wait_infrared_ask()
         self._network.send_infrared_ask(43)
-        self._channel.write(b'\x41\x42')
+        # self._channel.write(b'\x41\x42')
+        self._logger.info('wheel #1')
+        self._channel.write(b'\x42\x42')
+        self._logger.info('wheel #2')
+        self._channel.write(b'\x44\x42')
+        self._logger.info('wheel STOP')
+
+
         time.sleep(1000)
 
