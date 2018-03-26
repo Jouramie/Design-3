@@ -27,7 +27,7 @@ class StationController(object):
         self.logger = logger
         self.config = config
 
-        self.model.frame = self.get_frame()
+        self.model.capture = self.get_capture()
         self.model.world_camera_is_on = True
 
     def set_table(self, table_number) -> Table:
@@ -35,14 +35,14 @@ class StationController(object):
         table = table_manager.create_table(table_number)
         return table
 
-    def get_frame(self):
-        frame = cv2.VideoCapture(0)
-        frame.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
-        frame.set(cv2.CAP_PROP_FRAME_WIDTH, 1600)
-        frame.set(cv2.CAP_PROP_BRIGHTNESSH, 0.5)
-        frame.set(cv2.CAP_PROP_CONTRAST, 0.1)
+    def get_capture(self):
+        capture = cv2.VideoCapture(1)
+        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
+        capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1600)
+        capture.set(cv2.CAP_PROP_BRIGHTNESS, 128)
+        capture.set(cv2.CAP_PROP_CONTRAST, 100)
 
-        return frame
+        return capture
 
     def start_robot(self):
         self.model.robot_is_started = True
@@ -63,7 +63,7 @@ class StationController(object):
 
     def __draw_environment(self):
         if self.model.robot is not None:
-            self.frame_drawer.drawRobot(self.model.frame, self.model.robot)
+            self.frame_drawer.drawRobot(self.model.capture, self.model.robot)
         if self.model.projected_path is not None:
             self.__draw_projected_path()
         if self.model.real_path is not None:
@@ -73,14 +73,14 @@ class StationController(object):
         i = 0;
         number_of_points = (len(self.model.real_path) - 1)
         while i < number_of_points:
-            cv2.line(self.model.frame, self.model.real_path[i], self.model.real_path[i + 1], (255, 0, 0), 3)
+            cv2.line(self.model.capture, self.model.real_path[i], self.model.real_path[i + 1], (255, 0, 0), 3)
             i = i + 1
 
     def __draw_projected_path(self):
         i = 0;
         number_of_points = (len(self.model.projected_path) - 1)
         while i < number_of_points:
-            cv2.line(self.model.frame, self.model.projected_path[i], self.model.projected_path[i + 1], (0, 255, 0), 3)
+            cv2.line(self.model.capture, self.model.projected_path[i], self.model.projected_path[i + 1], (0, 255, 0), 3)
             i = i + 1
 
 
@@ -107,7 +107,7 @@ class StationController(object):
             return
 
         self.model.passed_time = time.time() - self.model.start_time
-        self.model.robot = self.robot_detector.detect(self.model.frame)
+        self.model.robot = self.robot_detector.detect(self.model.capture)
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()

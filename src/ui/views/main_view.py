@@ -1,11 +1,13 @@
 from pathlib import Path
 
 from PyQt5 import uic, QtGui
-from PyQt5.QtCore import QTime, QTimer
+from PyQt5.QtCore import QTime, QTimer, Qt
 from PyQt5.QtWidgets import QMainWindow
 
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
+
+import cv2
 
 
 class StationView(QMainWindow):
@@ -44,9 +46,15 @@ class StationView(QMainWindow):
         self.ui.lcdNumber.display(display_time)
 
     def __display_world_camera_image(self):
-        _, frame = self.model.frame.read()
-        image = QtGui.QImage(frame, frame.shape[1], frame.shape[0], frame.shape[1] * frame.shape[2],
+        _, frame = self.model.capture.read()
+        resized = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
+        #desired_width = self.ui.videoLabel.width()
+        #desired_height = self.ui.videoLabel.height()
+        image = QtGui.QImage(resized, resized.shape[1], resized.shape[0], resized.shape[1] * resized.shape[2],
                              QtGui.QImage.Format_RGB888)
+
+        #pixmap = QtGui.QPixmap(image).scaled(desired_width, desired_height, Qt.KeepAspectRatio)
+        #pixmap.convertFromImage(image.rgbSwapped())
         pixmap = QtGui.QPixmap()
         pixmap.convertFromImage(image.rgbSwapped())
         self.ui.videoLabel.setPixmap(pixmap)
