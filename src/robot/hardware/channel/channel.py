@@ -1,9 +1,9 @@
 import serial
 
-from .channel_listener_exception import ChannelListenerException
+from .channel_listen_exception import ChannelException
 
 
-class ChannelListener:
+class Channel:
 
     def __init__(self, serial):
         self.serial = serial
@@ -12,9 +12,12 @@ class ChannelListener:
         if self.serial.is_open:
             return str(self.serial.readline())
         else:
-            raise ChannelListenerException('Serial connection not opened')
+            raise ChannelException('Serial connection not opened')
 
-def create_channel_listener():
+    def write(self, message: bytes):
+        self.serial.write(message)
+
+def create_channel():
     ser = serial.Serial()
     ser.port = "/dev/ttyUSB0"
     ser.baudrate = 115200
@@ -24,4 +27,4 @@ def create_channel_listener():
     ser.timeout = 2
     ser.open()
 
-    return ChannelListener(ser)
+    return Channel(ser)
