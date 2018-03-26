@@ -34,7 +34,7 @@ class RobotController(object):
         while go:
             command = input('enter 1: activate wheel 1, 2: activate wheel 2, 3: deactivate wheels\n')
             if command in commands:
-                self.channel.write(commands[command])
+                self._channel.write(commands[command])
                 print(commands[command])
             else:
                 go = False
