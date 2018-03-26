@@ -14,8 +14,15 @@ class Channel:
         else:
             raise ChannelException('Serial connection not opened')
 
-    def write(self, message: bytes):
+    def write(self, message: bytes) -> bytearray:
+        message = bytearray(message)
+        total = 0
+        for h in message:
+            total += h
+        checksum = 0x100-total
+        message.append(checksum)
         self.serial.write(message)
+        return message
 
 def create_channel():
     ser = serial.Serial()
