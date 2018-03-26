@@ -22,7 +22,8 @@ class TableManager:
 
     def create_table(self, id):
         if 1 <= id <= 6:
-            cam_param = CameraParameters() # TODO hard coded for now its bad
+            cam_param = CameraParameters()
+            cam_param.readFromFile(self.cam_path[id-1])
             world_to_camera = Transform.from_matrix(np.load(self.world_calibration_path[id-1]))
 
             return Table(id, cam_param, world_to_camera)
