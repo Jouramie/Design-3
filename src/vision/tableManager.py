@@ -22,9 +22,8 @@ class TableManager:
 
     def create_table(self, id):
         if 1 <= id <= 6:
-            camParam = CameraParameters() # TODO hard coded for now its bad
-            #camParam = aruco.CameraParameters()
-            #camParam.readFromXMLFile(self.cam_path[id-1])
+            camParam = CameraParameters()
+            camParam.readFromFile(self.cam_path[id-1])
             world_to_camera = Transform.from_matrix(np.load(self.world_calibration_path[id-1]))
 
             return Table(id, camParam, world_to_camera)
