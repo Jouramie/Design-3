@@ -1,4 +1,5 @@
 import cv2
+import cv2.aruco as aruco
 import numpy as np
 
 from src.domain.environment.robot import Robot
@@ -13,21 +14,24 @@ class RobotDetector:
         self.camParam = cam_param
         self.coordinateConverter = coordinate_converter
         self.success = False
-        self.marker_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_ARUCO_ORIGINAL)
-        self.parameters = cv2.aruco.DetectorParameters_create()
+        self.marker_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+        self.parameters = aruco.DetectorParameters_create()
         points = [np.array([(-10, 10, 0), (-1, 10, 0), (-1, 1, 0), (-10, 1, 0)], 'float32'),
                   np.array([(1, 10, 0), (10, 10, 0), (10, 1, 0), (1, 1, 0)], 'float32'),
                   np.array([(1, -1, 0), (10, -1, 0), (10, -10, 0), (1, -10, 0)], 'float32'),
                   np.array([(-10, 1, 0), (-1, -1, 0), (-1, -10, 0), (-10, -10, 0)], 'float32')]
         ids = np.array([[2], [23], [25], [103]])
-        self.board = cv2.aruco.Board_create(points, self.marker_dict, ids)
+        self.board = aruco.Board_create(points, self.marker_dict, ids)
 
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
-                                                                  cameraMatrix=self.camParam.CameraMatrix,
-                                                                  distCoeff=self.camParam.Distorsion)
-        self.success, rotation, translation = cv2.aruco.estimatePoseBoard(corners, ids, self.board, self.camParam.CameraMatrix, self.camParam.Distorsion)
+        corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
+                                                              cameraMatrix=self.camParam.CameraMatrix,
+                                                              distCoeff=self.camParam.Distorsion)
+
+        self.success, rotation, translation = aruco.estimatePoseBoard(corners, ids, self.board,
+                                                                      self.camParam.CameraMatrix,
+                                                                      self.camParam.Distorsion)
 
         if self.success:
             rvec = rotation.copy()
