@@ -14,6 +14,7 @@ import src.d3_network.encoder as encoder
 import src.d3_network.ip_provider as network_scn
 import src.d3_network.server_network_controller as server_network_ctl
 import src.robot.robot_controller as robot_ctl
+from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
 
 
@@ -64,10 +65,13 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     network = client_network_ctl.ClientNetworkController(logger.getChild("network_controller"),
                                                          config['network']['port'], encoder.DictionaryEncoder())
     try:
-        robot_ctl.RobotController(logger, scanner, network).start()
+        channel = create_channel(config['serial']['port'])
+        robot_ctl.RobotController(logger, scanner, network, channel).start()
     finally:
         if network._socket is not None:
             network._socket.close()
+        if channel.serial.isOpen is True:
+            channel.serial.close()
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:

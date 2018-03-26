@@ -24,9 +24,9 @@ class Channel:
         self.serial.write(message)
         return message
 
-def create_channel():
+def create_channel(port: str):
     ser = serial.Serial()
-    ser.port = "/dev/ttyUSB0"
+    ser.port = port
     ser.baudrate = 115200
     ser.bytesize = serial.EIGHTBITS
     ser.parity = serial.PARITY_NONE
