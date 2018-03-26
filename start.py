@@ -70,7 +70,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     finally:
         if network._socket is not None:
             network._socket.close()
-        if channel.serial.isOpen is True:
+        if channel.serial.isOpen:
             channel.serial.close()
 
 
