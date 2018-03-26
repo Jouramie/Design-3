@@ -1,6 +1,6 @@
 import serial
 
-from src.robot.hardware.channel_listen_exception import ChannelException
+from .channel_listen_exception import ChannelException
 
 
 class Channel:
