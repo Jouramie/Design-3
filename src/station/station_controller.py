@@ -83,7 +83,8 @@ class StationController(object):
         frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(frame)
         if self.model.robot is not None:
-            self.model.real_path.append(self.model.robot.center())
+            robot_center_array = [self.model.robot.center[0], self.model.robot.center[1], 0]
+            self.model.real_path.append(robot_center_array)
         self.__draw_environment(frame)
         self.model.frame = frame
         if not self.model.robot_is_started:
