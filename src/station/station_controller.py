@@ -9,9 +9,9 @@ from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
 from src.vision.tableManager import TableManager
 from src.vision.table import Table
-from src.vision.coordinateConverter import CoordinateConverter
-from src.vision.robotDetector import RobotDetector
-from src.vision.frameDrawer import FrameDrawer
+from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.robot_detector import RobotDetector
+from src.vision.frame_drawer import FrameDrawer
 from .station_model import StationModel
 from src.config import TABLE_NUMBER
 from src.vision.camera import *
@@ -23,8 +23,8 @@ class StationController(object):
         self.countryLoader = CountryLoader(config)
         self.table = self.set_table(TABLE_NUMBER)
         self.coord_converter = CoordinateConverter(self.table.world_to_camera)
-        self.robot_detector = RobotDetector(self.table.camParam, self.coord_converter)
-        self.frame_drawer = FrameDrawer(self.table.camParam, self.coord_converter)
+        self.robot_detector = RobotDetector(self.table.cam_param, self.coord_converter)
+        self.frame_drawer = FrameDrawer(self.table.cam_param, self.coord_converter)
         self.network = network
         self.logger = logger
         self.config = config
@@ -56,7 +56,7 @@ class StationController(object):
 
     def __draw_environment(self, frame):
         if self.model.robot is not None:
-            self.frame_drawer.drawRobot(frame, self.model.robot)
+            self.frame_drawer.draw_robot(frame, self.model.robot)
         if self.model.planned_path is not None:
             self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
         if self.model.real_path is not None:

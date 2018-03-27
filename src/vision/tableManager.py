@@ -2,7 +2,7 @@ import numpy as np
 
 from src.vision.transform import Transform
 from src.vision.table import Table
-from src.vision.cameraParameters import *
+from src.vision.camera_parameters import *
 
 
 class TableManager:
