@@ -63,7 +63,7 @@ class TestPathConverter(TestCase):
     def test_when_convert_south_west_direction_then_command_length_is_radical_two(self):
         self.path.append(Direction.SOUTH_WEST.value)
 
-        expected = [(FORTY_FIVE_DEGREES_MOVE_LENGTH, 'SOUTH_WEST')], [((0, 0), (1, 10))]
+        expected = [(FORTY_FIVE_DEGREES_MOVE_LENGTH, 'SOUTH_WEST')], [((0, 0), (1, 1))]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))
 
