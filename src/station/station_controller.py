@@ -13,6 +13,7 @@ from src.vision.robot_detector import RobotDetector
 from src.vision.frame_drawer import FrameDrawer
 from .station_model import StationModel
 from src.vision.camera import *
+from src.vision.world_vision import *
 
 
 class StationController(object):
@@ -27,7 +28,8 @@ class StationController(object):
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(1)
+        self.camera = create_camera(0)
+        self.world_vision = WorldVision()
 
         self.model.world_camera_is_on = True
 
@@ -70,6 +72,7 @@ class StationController(object):
 
     def update(self):
         frame = self.camera.get_frame()
+        self.model.environment = self.world_vision.create_environment(frame)
         self.model.robot = self.robot_detector.detect(frame)
         if self.model.robot is not None:
             robot_center_3d = self.model.robot.get_center_3d()
