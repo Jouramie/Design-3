@@ -10,13 +10,13 @@ class TableManager:
         self.cam_path = ["",
                          "",
                          "",
-                         "../../calibration/table4_2018-03-01.yml",
+                         "../../resources/calibration/table4_2018-03-01.yml",
                          "",
                          ""]
         self.world_calibration_path = ["",
                                        "",
                                        "",
-                                       "calibration/world_calibration_4.npy",
+                                       "../../resources/calibration/world_calibration_4.npy",
                                        "",
                                        ""]
 

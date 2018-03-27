@@ -47,7 +47,24 @@ class Camera:
                 is_frame_returned, frame = self.capture_object.read()
             return frame
         else:
-            message = 'No frame was returned while taking a picture'
+            message = 'Camera is not opened'
+            logging.info(message)
+            raise CameraError(message)
+
+    def get_fps(self):
+        if self.capture_object.isOpened():
+            fps = self.capture_object.get(cv2.CAP_PROP_FPS)
+            return fps
+        else:
+            message = 'Camera is not opened'
+            logging.info(message)
+            raise CameraError(message)
+
+    def release(self):
+        if self.capture_object.isOpened():
+            self.capture_object.release()
+        else:
+            message = 'Camera is not opened'
             logging.info(message)
             raise CameraError(message)
 
