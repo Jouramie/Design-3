@@ -16,7 +16,6 @@ class FrameDrawer:
 
         robot_projected_points = self.__projectPoints(robot_corners)
 
-        pt1 = tuple(robot_projected_points[0][0])
         cv2.line(frame, tuple(robot_projected_points[0][0]), tuple(robot_projected_points[1][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[1][0]), tuple(robot_projected_points[2][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[2][0]), tuple(robot_projected_points[3][0]), (204, 0, 204), 3)
@@ -35,8 +34,6 @@ class FrameDrawer:
         world_points = self.__projectPoints(points)
         number_of_points = (len(world_points) - 1)
         while i < number_of_points:
-            pt1 = tuple(world_points[i][0])
-            pt2 = tuple(world_points[i + 1][0])
             cv2.line(frame, tuple(world_points[i][0]), tuple(world_points[i + 1][0]), (255, 0, 0), 3)
             i = i + 1
 
