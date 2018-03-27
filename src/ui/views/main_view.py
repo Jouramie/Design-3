@@ -45,8 +45,9 @@ class StationView(QMainWindow):
         self.ui.lcdNumber.display(display_time)
 
     def __display_world_camera_image(self):
-        resized = cv2.resize(self.model.frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
-        image = QtGui.QImage(resized, resized.shape[1], resized.shape[0], resized.shape[1] * resized.shape[2],
+        resized_image = cv2.resize(self.model.frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
+        image = QtGui.QImage(resized_image, resized_image.shape[1], resized_image.shape[0],
+                             resized_image.shape[1] * resized_image.shape[2],
                              QtGui.QImage.Format_RGB888)
         pixmap = QtGui.QPixmap()
         pixmap.convertFromImage(image.rgbSwapped())

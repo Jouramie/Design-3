@@ -27,16 +27,16 @@ if __name__ == '__main__':
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, marker_dict, parameters=parameters,
-                                                          cameraMatrix=camParam.CameraMatrix,
-                                                          distCoeff=camParam.Distorsion)
+                                                          cameraMatrix=camParam.camera_matrix,
+                                                          distCoeff=camParam.distortion)
     if len(ids) == 1:
-        rvecs, tvecs, objPoints = aruco.estimatePoseSingleMarkers(corners, SIZE, camParam.CameraMatrix, camParam.Distorsion)
+        rvecs, tvecs, objPoints = aruco.estimatePoseSingleMarkers(corners, SIZE, camParam.camera_matrix, camParam.distortion)
         tvec = tvecs[0][0]
         rvec = rvecs[0][0]
         half_size = SIZE/2.0
         tvec[0] = tvec[0] - half_size
         tvec[1] = tvec[1] + half_size
-        aruco.drawAxis(img, camParam.CameraMatrix, camParam.Distorsion, rvec, tvec, 20)
+        aruco.drawAxis(img, camParam.camera_matrix, camParam.distortion, rvec, tvec, 20)
         camera_to_world = Transform.from_parameters(np.asscalar(tvec[0]), np.asscalar(tvec[1]),
                                                         np.asscalar(tvec[2]), np.asscalar(rvec[0]),
                                                         np.asscalar(rvec[1]), np.asscalar(rvec[2]))

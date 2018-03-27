@@ -57,8 +57,8 @@ class StationController(object):
     def __draw_environment(self, frame):
         if self.model.robot is not None:
             self.frame_drawer.drawRobot(frame, self.model.robot)
-        if self.model.projected_path is not None:
-            self.frame_drawer.draw_projected_path(frame, self.model.projected_path)
+        if self.model.planned_path is not None:
+            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
         if self.model.real_path is not None:
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 

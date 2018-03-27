@@ -26,12 +26,12 @@ class RobotDetector:
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
-                                                              cameraMatrix=self.camParam.CameraMatrix,
-                                                              distCoeff=self.camParam.Distorsion)
+                                                              cameraMatrix=self.camParam.camera_matrix,
+                                                              distCoeff=self.camParam.distortion)
 
         self.success, rotation, translation = aruco.estimatePoseBoard(corners, ids, self.board,
-                                                                      self.camParam.CameraMatrix,
-                                                                      self.camParam.Distorsion)
+                                                                      self.camParam.camera_matrix,
+                                                                      self.camParam.distortion)
 
         if self.success:
             rvec = rotation.copy()
