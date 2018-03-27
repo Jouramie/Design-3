@@ -1,7 +1,8 @@
 from unittest import TestCase
-from src.vision.world_vision import *
-from src.domain.environment.environment import *
+
 from src.domain.color import *
+from src.domain.vision_environment.environment import *
+from src.vision.world_vision import *
 
 cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-28/19h25m04s.jpg'
 obstacle_file = '/home/willvalin/PycharmProjects/system/fig/2018-02-10/obstacles10.jpg'
@@ -13,6 +14,7 @@ white_cube_file = '/home/willvalin/PycharmProjects/system/fig/2018-03-09/15h02m1
 white_cube_file_2 = '/home/willvalin/PycharmProjects/system/fig/2018-03-09/15h01m02s.jpg'
 all_cubes_file = '/home/willvalin/PycharmProjects/system/fig/2018-03-09/15h04m14s.jpg'
 new_def = '/home/willvalin/PycharmProjects/system/fig/2018-03-13/20h54m23s.jpg'
+
 
 class TestEnvironment(TestCase):
     def test_when_creating_environment_then_environment_is_returned(self):

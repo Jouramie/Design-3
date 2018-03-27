@@ -1,4 +1,3 @@
-from unittest.mock import MagicMock
 from unittest import TestCase
 
 from src.domain.environment import Environment

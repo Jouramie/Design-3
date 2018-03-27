@@ -1,6 +1,6 @@
-from src.domain.environment.cube import *
-from src.domain.environment.obstacle import *
-from src.domain.environment.target_zone import *
+from .cube import Cube
+from .obstacle import Obstacle
+from .target_zone import TargetZone
 
 
 class Environment:

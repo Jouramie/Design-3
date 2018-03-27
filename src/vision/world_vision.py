@@ -1,8 +1,14 @@
-import cv2
 import copy
+
+import cv2
 import numpy as np
+
+from src.domain.color import Color
+from src.domain.vision_environment.cube import Cube
+from src.domain.vision_environment.environment import Environment
+from src.domain.vision_environment.obstacle import Obstacle
+from src.domain.vision_environment.target_zone import TargetZone
 from .vision_exception import VisionException
-from src.domain.environment.environment import *
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
@@ -165,7 +171,7 @@ class WorldVision:
         for contour in contours:
             if cv2.arcLength(contour, True) > 3000:
                 x, y, w, h = cv2.boundingRect(contour)
-                crop_img = original_image[y:y + h, x:x + w ]
+                crop_img = original_image[y:y + h, x:x + w]
 
         if crop_img is None:
             raise VisionException('Impossible to crop image.')

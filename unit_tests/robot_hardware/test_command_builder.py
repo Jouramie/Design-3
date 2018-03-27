@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from src.robot_hardware.command import Command
-from src.robot_hardware.command_builder import CommandBuilder
+from src.robot.hardware.command import Command
+from src.robot.hardware.command_builder import CommandBuilder
 
 
 class TestCommandBuilder(TestCase):
