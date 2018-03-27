@@ -4,6 +4,7 @@ class StationModel(object):
         self.passed_time = 0
         self.country = "Country not yet selected"
         self.table = None
+        self.environment = None
         self.robot = None
         self.next_cube_color = None
         self.frame = None

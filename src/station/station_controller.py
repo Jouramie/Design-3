@@ -15,6 +15,7 @@ from src.vision.frameDrawer import FrameDrawer
 from .station_model import StationModel
 from src.config import TABLE_NUMBER
 from src.vision.camera import *
+from src.vision.world_vision import *
 
 
 class StationController(object):
@@ -29,6 +30,7 @@ class StationController(object):
         self.logger = logger
         self.config = config
         self.camera = create_camera(1)
+        self.world_vision = WorldVision()
 
         self.model.world_camera_is_on = True
 
@@ -82,6 +84,7 @@ class StationController(object):
 
     def update(self):
         frame = self.camera.get_frame()
+        self.model.environment = self.world_vision.create_environment(frame)
         self.model.robot = self.robot_detector.detect(frame)
         if self.model.robot is not None:
             robot_center_array = [self.model.robot.center[0], self.model.robot.center[1], 0]
