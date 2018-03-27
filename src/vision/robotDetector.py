@@ -48,3 +48,5 @@ class RobotDetector:
             orientation = robot_info[5]
 
             return Robot((position_x, position_y), orientation)
+        else:
+            return None

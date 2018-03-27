@@ -1,4 +1,5 @@
 import subprocess
+import numpy as np
 import time
 
 import cv2
@@ -27,7 +28,7 @@ class StationController(object):
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(0)
+        self.camera = create_camera(1)
 
         self.model.world_camera_is_on = True
 
@@ -59,7 +60,7 @@ class StationController(object):
         if self.model.projected_path is not None:
             self.frame_drawer.draw_projected_path(frame, self.model.projected_path)
         if self.model.real_path is not None:
-            self.frame_drawer.draw_real_path(frame, self.model.real_path)
+            self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
     def __find_country(self):
         try:
@@ -84,7 +85,7 @@ class StationController(object):
         self.model.robot = self.robot_detector.detect(frame)
         if self.model.robot is not None:
             robot_center_array = [self.model.robot.center[0], self.model.robot.center[1], 0]
-            self.model.real_path.append(robot_center_array)
+            self.model.real_path.append(np.float32(robot_center_array))
         self.__draw_environment(frame)
         self.model.frame = frame
         if not self.model.robot_is_started:

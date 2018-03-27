@@ -12,7 +12,7 @@ from src.vision.cameraError import CameraInitializationError, CameraError
 class Camera:
     def __init__(self, capture_object, log_level=logging.INFO):
         self.capture_object = capture_object
-        self._initialize_log(log_level)
+        #self._initialize_log(log_level)
 
     def take_picture(self):
         is_frame_returned, img = self.capture_object.read()
