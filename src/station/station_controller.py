@@ -27,7 +27,7 @@ class StationController(object):
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(1)
+        self.camera = create_camera(0)
 
         self.model.world_camera_is_on = True
 
@@ -82,6 +82,8 @@ class StationController(object):
     def update(self):
         frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(frame)
+        if self.model.robot is not None:
+            self.model.real_path.append(self.model.robot.center())
         self.__draw_environment(frame)
         self.model.frame = frame
         if not self.model.robot_is_started:

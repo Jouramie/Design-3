@@ -31,9 +31,10 @@ class FrameDrawer:
 
     def draw_real_path(self, frame, points):
         i = 0
-        number_of_points = (len(points) - 1)
+        world_points = self.__projectPoints(points)
+        number_of_points = (len(world_points) - 1)
         while i < number_of_points:
-            cv2.line(frame, points[i], points[i + 1], (255, 0, 0), 3)
+            cv2.line(frame, world_points[i], world_points[i + 1], (255, 0, 0), 3)
             i = i + 1
 
     def draw_projected_path(self, frame, points):

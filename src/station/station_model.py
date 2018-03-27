@@ -14,7 +14,7 @@ class StationModel(object):
         self.world_camera_is_on = False
         self.infrared_signal_asked = False
         self.projected_path = [(55, 100), (210, 40), (160, 150), (230, 180)]
-        self.real_path = [(50, 100), (200, 30), (150, 150), (200, 200)]
+        self.real_path = []
         self._update_functions = []
         self.running = False
 
