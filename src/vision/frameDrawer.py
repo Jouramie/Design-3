@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from src.domain.environment.robot import Robot
+from domain.vision_environment.robot import Robot
 from src.vision.coordinateConverter import CoordinateConverter
 from src.vision.cameraParameters import CameraParameters
 
