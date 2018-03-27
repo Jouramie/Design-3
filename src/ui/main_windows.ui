@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1262</width>
-    <height>675</height>
+    <width>1183</width>
+    <height>722</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="StartButton">
     <property name="geometry">
      <rect>
-      <x>970</x>
-      <y>480</y>
+      <x>1050</x>
+      <y>460</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -30,8 +30,8 @@
    <widget class="QPushButton" name="StopButton">
     <property name="geometry">
      <rect>
-      <x>860</x>
-      <y>480</y>
+      <x>940</x>
+      <y>460</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -43,8 +43,8 @@
    <widget class="QLabel" name="FlagLabel">
     <property name="geometry">
      <rect>
-      <x>860</x>
-      <y>140</y>
+      <x>940</x>
+      <y>120</y>
       <width>171</width>
       <height>21</height>
      </rect>
@@ -61,8 +61,8 @@
      <rect>
       <x>80</x>
       <y>70</y>
-      <width>771</width>
-      <height>521</height>
+      <width>800</width>
+      <height>600</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -75,8 +75,8 @@
    <widget class="QLabel" name="flagPicture">
     <property name="geometry">
      <rect>
-      <x>910</x>
-      <y>180</y>
+      <x>990</x>
+      <y>160</y>
       <width>100</width>
       <height>100</height>
      </rect>
@@ -91,8 +91,8 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>310</y>
+      <x>950</x>
+      <y>290</y>
       <width>141</width>
       <height>20</height>
      </rect>
@@ -104,8 +104,8 @@
    <widget class="QLabel" name="cube_label">
     <property name="geometry">
      <rect>
-      <x>920</x>
-      <y>350</y>
+      <x>1000</x>
+      <y>330</y>
       <width>81</width>
       <height>81</height>
      </rect>
@@ -120,8 +120,8 @@
    <widget class="QLCDNumber" name="lcdNumber">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>30</y>
+      <x>390</x>
+      <y>20</y>
       <width>111</width>
       <height>41</height>
      </rect>
@@ -130,8 +130,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>860</x>
-      <y>80</y>
+      <x>940</x>
+      <y>60</y>
       <width>101</width>
       <height>16</height>
      </rect>
@@ -143,8 +143,8 @@
    <widget class="QLabel" name="CountryName">
     <property name="geometry">
      <rect>
-      <x>860</x>
-      <y>100</y>
+      <x>940</x>
+      <y>80</y>
       <width>171</width>
       <height>21</height>
      </rect>
@@ -174,7 +174,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1262</width>
+     <width>1183</width>
      <height>26</height>
     </rect>
    </property>
