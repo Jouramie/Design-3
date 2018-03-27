@@ -14,7 +14,8 @@ class PathConverter(object):
     __path = []
 
     def __init__(self, log_level=logging.INFO):
-        self.__initialize_log(log_level)
+        #self.__initialize_log(log_level)
+        pass
 
     def convert_path(self, path):
         self.__path = path

@@ -16,6 +16,11 @@ from src.vision.robot_detector import RobotDetector
 from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.world_vision import DummyWorldVision
 from .station_model import StationModel
+from src.config import TABLE_NUMBER
+from src.vision.camera import *
+from src.domain.environment import Environment
+from src.domain.path_calculator.path_calculator import PathCalculator
+from src.domain.path_calculator.path_converter import PathConverter
 
 
 class StationController(object):
@@ -32,10 +37,7 @@ class StationController(object):
         self.world_vision = DummyWorldVision(self.camera)
         self.path_calculator = PathCalculator()
 
-        self.table_camera_config = table_camera_config
-        self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
-        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
-        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
+        self.camera = create_camera(1)
 
         self.model.world_camera_is_on = True
 
