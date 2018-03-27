@@ -31,6 +31,7 @@ class StationController(object):
         self.config = config
         self.camera = create_camera(1)
         self.world_vision = WorldVision()
+        self.environment = self.world_vision.create_environment(self.camera.get_frame())
 
         self.model.world_camera_is_on = True
 
@@ -63,6 +64,15 @@ class StationController(object):
             self.frame_drawer.draw_projected_path(frame, self.model.projected_path)
         if self.model.real_path is not None:
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
+        if self.environment is not None:
+            for cube in self.environment.get_cubes():
+                self.frame_drawer.draw_cube(frame, cube)
+            for obstacle in self.environment.get_obstacles():
+                self.frame_drawer.draw_obstacle(frame, obstacle)
+            target_zone = self.environment.get_target_zone()
+            if target_zone is not None:
+                self.frame_drawer.draw_target_zone(frame, self.environment.get_target_zone())
+
 
     def __find_country(self):
         try:
@@ -84,7 +94,6 @@ class StationController(object):
 
     def update(self):
         frame = self.camera.get_frame()
-        self.model.environment = self.world_vision.create_environment(frame)
         self.model.robot = self.robot_detector.detect(frame)
         if self.model.robot is not None:
             robot_center_array = [self.model.robot.center[0], self.model.robot.center[1], 0]
