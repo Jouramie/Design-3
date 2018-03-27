@@ -9,12 +9,11 @@ from src.station.station_model import StationModel
 
 import cv2
 
-
 class StationView(QMainWindow):
-    def __init__(self, model: StationModel, main_controller: StationController, config: dict):
+    def __init__(self, model: StationModel, station_controller: StationController, config: dict):
         self.__config = config
         self.model = model
-        self.main_controller = main_controller
+        self.station_controller = station_controller
         self.ui = uic.loadUi(Path(self.__config['resources_path']['ui']))
         self.time = QTime(0, 0, 0, 0)
         self.update_timer = QTimer()
@@ -24,10 +23,10 @@ class StationView(QMainWindow):
         super(StationView, self).__init__()
 
     def start_robot(self):
-        self.main_controller.start_robot()
+        self.station_controller.start_robot()
 
     def update(self):
-        self.main_controller.update()
+        self.station_controller.update()
 
         # update ui with model
         self.__update_timer_display()
@@ -46,15 +45,9 @@ class StationView(QMainWindow):
         self.ui.lcdNumber.display(display_time)
 
     def __display_world_camera_image(self):
-        _, frame = self.model.capture.read()
-        resized = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
-        #desired_width = self.ui.videoLabel.width()
-        #desired_height = self.ui.videoLabel.height()
+        resized = cv2.resize(self.model.frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
         image = QtGui.QImage(resized, resized.shape[1], resized.shape[0], resized.shape[1] * resized.shape[2],
                              QtGui.QImage.Format_RGB888)
-
-        #pixmap = QtGui.QPixmap(image).scaled(desired_width, desired_height, Qt.KeepAspectRatio)
-        #pixmap.convertFromImage(image.rgbSwapped())
         pixmap = QtGui.QPixmap()
         pixmap.convertFromImage(image.rgbSwapped())
         self.ui.videoLabel.setPixmap(pixmap)

@@ -16,7 +16,7 @@ class TableManager:
         self.world_calibration_path = ["",
                                        "",
                                        "",
-                                       "../../resources/calibration/world_calibration_4.npy",
+                                       "resources/calibration/world_calibration_4.npy",
                                        "",
                                        ""]
 

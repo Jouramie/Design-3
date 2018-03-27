@@ -6,7 +6,7 @@ class StationModel(object):
         self.table = None
         self.robot = None
         self.next_cube_color = None
-        self.capture = None
+        self.frame = None
         self.country_code = None
         self.robot_is_started = False
         self.robot_is_moving = False

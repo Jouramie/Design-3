@@ -21,8 +21,6 @@ class FrameDrawer:
         cv2.line(frame, tuple(robot_projected_points[2][0]), tuple(robot_projected_points[3][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
 
-        return frame
-
     def __projectPoints(self, points):
         camera_to_world_parameters = self.coordinate_converter.get_camera_to_world().to_parameters()
         camera_to_world_tvec = np.array([camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
@@ -32,19 +30,15 @@ class FrameDrawer:
         return projected_points
 
     def draw_real_path(self, frame, points):
-        i = 0;
+        i = 0
         number_of_points = (len(points) - 1)
         while i < number_of_points:
             cv2.line(frame, points[i], points[i + 1], (255, 0, 0), 3)
             i = i + 1
 
-        return frame
-
     def draw_projected_path(self, frame, points):
-        i = 0;
+        i = 0
         number_of_points = (len(points) - 1)
         while i < number_of_points:
             cv2.line(frame, points[i], points[i + 1], (0, 255, 0), 3)
             i = i + 1
-
-        return frame
