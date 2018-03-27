@@ -70,14 +70,21 @@ class WorldVision:
                 if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
                     yield self.__create_cube(contour, color)
 
-    def __find_black_cubes(self, original_image):
-        image = cv2.medianBlur(original_image, 5)
-        image = cv2.GaussianBlur(image, (5, 5), 0)
+    def __find_black_cubes(self, frame):
+
+        frame_copy = self.__crop_environment(frame)[0]
+        frame_copy = cv2.medianBlur(frame_copy, 5)
+        frame_copy = cv2.GaussianBlur(frame_copy, (5, 5), 0)
         kernel = np.ones((5, 5), np.uint8)
 
-        image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(frame_copy, cv2.COLOR_BGR2GRAY)
         image = cv2.dilate(image, kernel, iterations=1)
         image = cv2.erode(image, kernel, iterations=1)
+
+        h = self.__crop_environment(frame)[1]
+        w = self.__crop_environment(frame)[2]
+
+        cv2.imshow('frame', image)
 
         _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -87,6 +94,8 @@ class WorldVision:
             y = contour[0][0][1]
             if cv2.arcLength(contour, True) > 200:
                 if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
+                    contour[0][0][1] += h
+                    contour[0][0][1] += w
                     yield self.__create_cube(contour, Color.BLACK)
 
     def __find_white_cube(self, original_image) -> [Cube]:
@@ -144,21 +153,20 @@ class WorldVision:
         radius = contour[2]
         return Obstacle(center, radius)
 
-    def __crop_environment(self, filename):
-        original_image = cv2.imread(filename)
+    def __crop_environment(self, frame):
 
-        image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         _, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
         image_with_contours, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         crop_img = None
 
         for contour in contours:
-            if cv2.arcLength(contour, True) > 3000:
+            if cv2.arcLength(contour, True) > 5000:
                 x, y, w, h = cv2.boundingRect(contour)
-                crop_img = original_image[y:y + h, x:x + w]
+                crop_img = frame[y:y + h, x:x + w]
 
         if crop_img is None:
             raise VisionException('Impossible to crop image.')
 
-        return crop_img
+        return crop_img, h, w
