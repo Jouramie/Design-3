@@ -27,7 +27,7 @@ class StationController(object):
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(0)
+        self.camera = create_camera(1)
 
         self.model.world_camera_is_on = True
 
@@ -81,13 +81,14 @@ class StationController(object):
 
     def update(self):
         frame = self.camera.get_frame()
+        self.model.robot = self.robot_detector.detect(frame)
         self.__draw_environment(frame)
         self.model.frame = frame
         if not self.model.robot_is_started:
             return
 
         self.model.passed_time = time.time() - self.model.start_time
-        self.model.robot = self.robot_detector.detect(self.model.capture)
+
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()
