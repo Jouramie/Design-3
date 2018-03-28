@@ -21,6 +21,9 @@ class Robot:
 
         return np.float32([top_left, top_right, bot_right, bot_left]).reshape(-1, 3)
 
+    def get_center_3d(self):
+        return [self.center[0], self.center[1], 0]
+
     def __get_corner(self, offset_x, offset_y):
         orientation_rad = radians(self.orientation)
         center_x = self.center[0]

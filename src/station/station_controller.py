@@ -7,35 +7,29 @@ import cv2
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
-from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
 from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.robot_detector import RobotDetector
 from src.vision.frame_drawer import FrameDrawer
 from .station_model import StationModel
-from src.config import TABLE_NUMBER
 from src.vision.camera import *
 
 
 class StationController(object):
-    def __init__(self, model: StationModel, network: ServerNetworkController, logger, config):
+    def __init__(self, model: StationModel, network: ServerNetworkController,
+                 table_camera_config: TableCameraConfiguration, logger, config):
         self.model = model
         self.countryLoader = CountryLoader(config)
-        self.table = self.set_table(TABLE_NUMBER)
-        self.coord_converter = CoordinateConverter(self.table.world_to_camera)
-        self.robot_detector = RobotDetector(self.table.cam_param, self.coord_converter)
-        self.frame_drawer = FrameDrawer(self.table.cam_param, self.coord_converter)
+        self.table_camera_config = table_camera_config
+        self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
+        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
+        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
         self.network = network
         self.logger = logger
         self.config = config
         self.camera = create_camera(1)
 
         self.model.world_camera_is_on = True
-
-    def set_table(self, table_number) -> TableCameraConfiguration:
-        table_manager = TableCameraConfigurationFactory()
-        table = table_manager.create_table(table_number)
-        return table
 
     def start_robot(self):
         self.model.robot_is_started = True
@@ -78,8 +72,8 @@ class StationController(object):
         frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(frame)
         if self.model.robot is not None:
-            robot_center_array = [self.model.robot.center[0], self.model.robot.center[1], 0]
-            self.model.real_path.append(np.float32(robot_center_array))
+            robot_center_3d = self.model.robot.get_center_3d()
+            self.model.real_path.append(np.float32(robot_center_3d))
         self.__draw_environment(frame)
         self.model.frame = frame
         if not self.model.robot_is_started:
