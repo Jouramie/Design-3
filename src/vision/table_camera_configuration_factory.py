@@ -1,11 +1,11 @@
 import numpy as np
 
 from src.vision.transform import Transform
-from src.vision.table import Table
+from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.camera_parameters import *
 
 
-class TableManager:
+class TableCameraConfigurationFactory:
     def __init__(self):
         self.cam_path = ["",
                          "",
@@ -25,7 +25,7 @@ class TableManager:
             cam_param = create_camera_parameters_from_file(self.cam_path[id-1])
             world_to_camera = Transform.from_matrix(np.load(self.world_calibration_path[id-1]))
 
-            return Table(id, cam_param, world_to_camera)
+            return TableCameraConfiguration(id, cam_param, world_to_camera)
         else:
             raise ValueError("Invalid table number.")
 

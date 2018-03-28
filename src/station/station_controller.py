@@ -7,8 +7,8 @@ import cv2
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
-from src.vision.tableManager import TableManager
-from src.vision.table import Table
+from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
+from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.robot_detector import RobotDetector
 from src.vision.frame_drawer import FrameDrawer
@@ -32,8 +32,8 @@ class StationController(object):
 
         self.model.world_camera_is_on = True
 
-    def set_table(self, table_number) -> Table:
-        table_manager = TableManager()
+    def set_table(self, table_number) -> TableCameraConfiguration:
+        table_manager = TableCameraConfigurationFactory()
         table = table_manager.create_table(table_number)
         return table
 
