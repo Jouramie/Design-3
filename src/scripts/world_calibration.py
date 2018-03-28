@@ -8,8 +8,6 @@ from src.vision.camera_parameters import CameraParameters
 
 if __name__ == '__main__':
 
-    help(cv2.aruco)
-
     with open("config_world_calibration.yml", "r") as stream:
         config = yaml.load(stream)
 
