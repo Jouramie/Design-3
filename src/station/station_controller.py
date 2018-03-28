@@ -19,7 +19,7 @@ class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController,
                  table_camera_config: TableCameraConfiguration, logger, config):
         self.model = model
-        self.countryLoader = CountryLoader(config)
+        self.country_loader = CountryLoader(config)
         self.table_camera_config = table_camera_config
         self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
         self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
@@ -57,7 +57,7 @@ class StationController(object):
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
     def __find_country(self):
-        self.model.country = self.countryLoader.get_country(self.model.country_code)
+        self.model.country = self.country_loader.get_country(self.model.country_code)
 
     def __select_next_cube_color(self):
         stylized_flag = self.model.country.stylized_flag
