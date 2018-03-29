@@ -9,11 +9,11 @@ import time
 
 import yaml
 
-import src.d3_network.client_network_controller as client_network_ctl
+import src.d3_network.client_network_controller as client_network_controller
 import src.d3_network.encoder as encoder
 import src.d3_network.ip_provider as network_scn
-import src.d3_network.server_network_controller as server_network_ctl
-import src.robot.robot_controller as robot_ctl
+import src.d3_network.server_network_controller as server_network_controller
+import src.robot.robot_controller as robot_controller
 from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
 
@@ -62,11 +62,11 @@ def start_system(args: dict) -> None:
 
 def start_robot(config: dict, logger: logging.Logger) -> None:
     scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
-    network = client_network_ctl.ClientNetworkController(logger.getChild("network_controller"),
-                                                         config['network']['port'], encoder.DictionaryEncoder())
+    network = client_network_controller.ClientNetworkController(logger.getChild("network_controller"),
+                                                                config['network']['port'], encoder.DictionaryEncoder())
     try:
         channel = create_channel(config['serial']['port'])
-        robot_ctl.RobotController(logger, scanner, network, channel).start()
+        robot_controller.RobotController(logger, scanner, network, channel).start()
     finally:
         if network._socket is not None:
             network._socket.close()
@@ -75,8 +75,8 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
-    network_ctl = server_network_ctl.ServerNetworkController(logger.getChild("network_controller"),
-                                                             config['network']['port'], encoder.DictionaryEncoder())
+    network_ctl = server_network_controller.ServerNetworkController(logger.getChild("network_controller"),
+                                                                    config['network']['port'], encoder.DictionaryEncoder())
     try:
         app = App(network_ctl, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
