@@ -9,6 +9,7 @@ from src.station.station_model import StationModel
 
 import cv2
 
+
 class StationView(QMainWindow):
     def __init__(self, model: StationModel, station_controller: StationController, config: dict):
         self.__config = config
@@ -17,9 +18,9 @@ class StationView(QMainWindow):
         self.ui = uic.loadUi(Path(self.__config['resources_path']['ui']))
         self.time = QTime(0, 0, 0, 0)
         self.update_timer = QTimer()
-        self.ui.StartButton.clicked.connect(self.start_robot)
         self.update_timer.start(100)
         self.update_timer.timeout.connect(self.update)
+        self.ui.StartButton.clicked.connect(self.start_robot)
         super(StationView, self).__init__()
 
     def start_robot(self):

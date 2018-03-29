@@ -1,10 +1,13 @@
+from src.domain.vision_environment.robot import Robot
+
+
 class StationModel(object):
     def __init__(self):
         self.start_time = 0
         self.passed_time = 0
         self.country = "Country not yet selected"
         self.table = None
-        self.robot = None
+        self.robot: Robot = None
         self.next_cube_color = None
         self.frame = None
         self.country_code = None
