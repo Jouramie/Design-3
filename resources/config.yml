@@ -11,10 +11,25 @@ robot:
     port: *port
 
 station:
+  table_number: 4
   update_robot: false
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
     country_flag: "resources/countries/Flag_{country}.gif"
     ui: "src/ui/main_windows.ui"
+    camera_calibration:
+      - "resources/calibration/table1_2018-03-21.yml"
+      - "resources/calibration/table2_2018-03-21.yml"
+      - "resources/calibration/table3_2018-03-21.yml"
+      - "resources/calibration/table4_2018-03-01.yml"
+      - "resources/calibration/table5_2018-03-21.yml"
+      - "resources/calibration/table6_2018-03-21.yml"
+    world_calibration:
+      - ""
+      - ""
+      - ""
+      - "resources/calibration/world_calibration_4.npy"
+      - ""
+      - ""
   network:
     port: *port

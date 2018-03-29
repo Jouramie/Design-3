@@ -15,6 +15,7 @@ import src.d3_network.ip_provider as network_scn
 import src.d3_network.server_network_controller as server_network_ctl
 import src.robot.robot_controller as robot_ctl
 from src.ui.main_app import App
+from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
 
 
 def main() -> None:
@@ -73,8 +74,11 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 def start_station(config: dict, logger: logging.Logger) -> None:
     network_ctl = server_network_ctl.ServerNetworkController(logger.getChild("network_controller"),
                                                              config['network']['port'], encoder.DictionaryEncoder())
+    table_camera_config_factory = TableCameraConfigurationFactory(config['resources_path']['camera_calibration'],
+                                                                  config['resources_path']['world_calibration'])
+    table_camera_config = table_camera_config_factory.create(config['table_number'])
     try:
-        app = App(network_ctl, logger.getChild("main_controller"), config)
+        app = App(network_ctl, table_camera_config, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
     finally:
         if network_ctl._server is not None:

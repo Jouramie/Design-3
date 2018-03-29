@@ -1,0 +1,5 @@
+image_path : /home/jgilbert/Pictures/vision/2018-02-19/table4Robot/4.jpg
+camera_calibration : ../../resources/calibration/table4_2018-03-01.yml
+id : 25
+size : 16.35
+output_file : ../../resources/calibration/new_world_calibration_4.npy
