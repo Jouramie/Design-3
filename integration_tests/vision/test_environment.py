@@ -3,12 +3,13 @@ from src.vision.world_vision import *
 from src.domain.environment.environment import *
 from src.domain.color import *
 
-
+demo_file = "/home/willvalin/PycharmProjects/system/fig/29-03-2018/table29-03-2018.jpg"
 
 class TestEnvironment(TestCase):
     def test_when_creating_environment_then_environment_is_returned(self):
         world_vision = WorldVision()
-        environment, image = world_vision.create_environment(demo_file)
+        demo_frame = cv2.imread(demo_file)
+        environment, image = world_vision.create_environment(demo_frame)
         self.assertIsInstance(environment, Environment, 'Result contains an environment object')
 
     def test_when_creating_environment_then_image_is_returned(self):
