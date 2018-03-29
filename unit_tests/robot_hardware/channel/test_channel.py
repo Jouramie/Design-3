@@ -34,7 +34,7 @@ class TestChannel(TestCase):
         serial.write = Mock()
         channel = Channel(serial)
 
-        channel.write(self.message)
+        channel._send_command(self.message)
 
         serial.write.assert_called_once()
 
@@ -43,6 +43,6 @@ class TestChannel(TestCase):
         serial.write = Mock()
         channel = Channel(serial)
 
-        channel.write(self.message)
+        channel._send_command(self.message)
 
         serial.write.assert_called_once_with(self.expected_message)

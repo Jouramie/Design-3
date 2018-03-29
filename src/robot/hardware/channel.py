@@ -14,7 +14,7 @@ class Channel:
         else:
             raise ChannelException('Serial connection not opened')
 
-    def write(self, message: bytes):
+    def _send_command(self, message: bytes):
         message = bytearray(message)
         total = 0
         for h in message:
