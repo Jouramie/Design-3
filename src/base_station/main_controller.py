@@ -2,7 +2,7 @@ import logging
 import os
 
 from src.config import MAIN_CONTROLLER_LOG_DIR, MAIN_CONTROLLER_LOG_FILE
-from src.domain.environment import Environment
+from src.domain.path_environment import PathEnvironment
 from src.domain.path_calculator.path_calculator import PathCalculator
 
 
@@ -13,7 +13,7 @@ class MainController(object):
 
     def __init__(self, log_level=logging.INFO):
         self.__initialize_log(log_level)
-        self.__environment = Environment()
+        self.__environment = PathEnvironment()
         self.__path_calculator = PathCalculator()
 
     def create_environment(self, obstacles_point):

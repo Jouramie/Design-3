@@ -1,16 +1,20 @@
-from logging import Logger
 import subprocess
+import time
+from logging import Logger
 
 import numpy as np
 
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
+from src.domain.color import Color
 from src.domain.country_loader import CountryLoader
-from src.vision.camera import *
+from src.domain.path_calculator.path_calculator import PathCalculator
+from src.vision.camera import create_camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
 from src.vision.table_camera_configuration import TableCameraConfiguration
+from src.vision.world_vision import DummyWorldVision
 from .station_model import StationModel
 
 
@@ -18,15 +22,20 @@ class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController,
                  table_camera_config: TableCameraConfiguration, logger: Logger, config: dict):
         self.model = model
+        self.logger = logger
+        self.config = config
+        self.network = network
+
+        self.camera = create_camera(config["camera_id"])
+
         self.country_loader = CountryLoader(config)
+        self.world_vision = DummyWorldVision(self.camera)
+        self.path_calculator = PathCalculator()
+
         self.table_camera_config = table_camera_config
         self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
         self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
         self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
-        self.network = network
-        self.logger = logger
-        self.config = config
-        self.camera = create_camera(config["camera_id"])
 
         self.model.world_camera_is_on = True
 
@@ -49,31 +58,35 @@ class StationController(object):
 
     def __draw_environment(self, frame):
         if self.model.robot is not None:
-            self.logger.info("Robot " + str(self.model.robot))
+            # self.logger.info("Robot " + str(self.model.robot))
             self.frame_drawer.draw_robot(frame, self.model.robot)
+
         if self.model.planned_path is not None and self.model.planned_path:
-            self.logger.info("Planned path " + str(self.model.planned_path))
+            # self.logger.info("Planned path " + str(self.model.planned_path))
             self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
+
         if self.model.real_path is not None and self.model.real_path:
-            self.logger.info("Real path " + str(self.model.real_path))
+            # self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
+
+        if self.model.environment is not None:
+            pass  # TODO draw environment
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
 
     def __select_next_cube_color(self):
-        stylized_flag = self.model.country.stylized_flag
-        cubes = stylized_flag.get_cube_list()
-        for cube in cubes:
-            color_name = cube.get_colour_name()
-            if color_name != "TRANSPARENT":
-                self.model.next_cube_color = color_name
+        # TODO pas retourner tout le temps le premier cube de couleur de la liste
+        for color in self.model.country.stylized_flag.colors:
+            if color is not Color.TRANSPARENT:
+                self.model.next_cube_color = color
                 break
 
     def update(self):
-        self.logger.info("StationController.update()")
+        # self.logger.info("StationController.update()")
         self.model.frame = frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(frame)
+        self.model.environment = self.world_vision.create_environment()
 
         if self.model.robot is not None:
             robot_center_3d = self.model.robot.get_center_3d()
@@ -98,6 +111,7 @@ class StationController(object):
                 self.model.country_code = country_received
                 self.__find_country()
                 self.__select_next_cube_color()
+                self.model.environment.find_cube(self.model.next_cube_color)
             return
 
         """

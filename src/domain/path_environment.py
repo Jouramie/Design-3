@@ -1,12 +1,12 @@
 import logging
 import os
 
-from .environment_error import EnvironmentDataError
+from .path_environment_error import EnvironmentDataError
 from .path_calculator.grid import Grid
 from ..config import ENVIRONMENT_LOG_DIR, ENVIRONMENT_LOG_FILE
 
 
-class Environment(object):
+class PathEnvironment(object):
     DEFAULT_SIZE = 5
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
