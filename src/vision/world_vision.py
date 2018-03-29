@@ -26,9 +26,6 @@ class WorldVision:
         cubes = []
         obstacles = []
 
-        cv2.imshow("frame", frame)
-        cv2.waitKey(0)
-
         for cube in self.__find_color_cubes(frame, Color.BLUE):
             cubes.append(cube)
 
@@ -74,20 +71,13 @@ class WorldVision:
                     yield self.__create_cube(contour, color)
 
     def __find_black_cubes(self, frame):
-
-        frame_copy = self.__crop_environment(frame)[0]
-        frame_copy = cv2.medianBlur(frame_copy, 5)
-        frame_copy = cv2.GaussianBlur(frame_copy, (5, 5), 0)
+        cropped_frame = self.__crop_environment(frame)
+        frame_copy = cropped_frame[0]
+        h = cropped_frame[1]
+        w = cropped_frame[2]
         kernel = np.ones((5, 5), np.uint8)
 
         image = cv2.cvtColor(frame_copy, cv2.COLOR_BGR2GRAY)
-        image = cv2.dilate(image, kernel, iterations=1)
-        image = cv2.erode(image, kernel, iterations=1)
-
-        h = self.__crop_environment(frame)[1]
-        w = self.__crop_environment(frame)[2]
-
-        #cv2.imshow('frame', image)
 
         _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -162,14 +152,9 @@ class WorldVision:
         _, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
         image_with_contours, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        crop_img = None
-
         for contour in contours:
-            if cv2.arcLength(contour, True) > 5000:
+            if cv2.arcLength(contour, True) > 4000:
                 x, y, w, h = cv2.boundingRect(contour)
-                crop_img = frame[y:y + h, x:x]
-
-        if crop_img is None:
-            raise VisionException('Impossible to crop image.')
+                crop_img = frame[y:y + h, x:x + w]
 
         return crop_img, h, w
