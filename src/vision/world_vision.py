@@ -20,6 +20,9 @@ class WorldVision:
         cubes = []
         obstacles = []
 
+        cv2.imshow("frame", frame)
+        cv2.waitKey(0)
+
         for cube in self.__find_color_cubes(frame, Color.BLUE):
             cubes.append(cube)
 
@@ -61,7 +64,7 @@ class WorldVision:
             x = contour[0][0][0]
             y = contour[0][0][1]
             if 400 > cv2.arcLength(contour, True) > 200:
-                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
+                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x  and (158 < y < 1053)) or ((1115 < x < 1481) and (890 < y < 1053)):
                     yield self.__create_cube(contour, color)
 
     def __find_black_cubes(self, frame):
@@ -78,7 +81,7 @@ class WorldVision:
         h = self.__crop_environment(frame)[1]
         w = self.__crop_environment(frame)[2]
 
-        cv2.imshow('frame', image)
+        #cv2.imshow('frame', image)
 
         _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -86,8 +89,8 @@ class WorldVision:
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if cv2.arcLength(contour, True) > 200:
-                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
+            if 400 > cv2.arcLength(contour, True) > 200:
+                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x and (158 < y < 1053)) or ((1115 < x < 1481) and (890 < y < 1053)):
                     contour[0][0][1] += h
                     contour[0][0][1] += w
                     yield self.__create_cube(contour, Color.BLACK)
@@ -105,7 +108,7 @@ class WorldVision:
             x = contour[0][0][0]
             y = contour[0][0][1]
             if 400 > cv2.arcLength(contour, True) > 100:
-                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
+                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x  and (158 < y < 1053)) or ((1115 < x < 1481) and (890 < y < 1053)):
                     yield self.__create_cube(contour, Color.WHITE)
 
     def __create_cube(self, contour, color: Color) -> Cube:
@@ -158,7 +161,7 @@ class WorldVision:
         for contour in contours:
             if cv2.arcLength(contour, True) > 5000:
                 x, y, w, h = cv2.boundingRect(contour)
-                crop_img = frame[y:y + h, x:x + w]
+                crop_img = frame[y:y + h, x:x]
 
         if crop_img is None:
             raise VisionException('Impossible to crop image.')

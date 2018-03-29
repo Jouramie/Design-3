@@ -89,3 +89,7 @@ def create_camera(camera_id):
         raise CameraInitializationError('Camera could not be set properly')
 
     return Camera(capture_object)
+
+if __name__ == '__main__':
+    camera = create_camera(2)
+    camera.take_picture()
