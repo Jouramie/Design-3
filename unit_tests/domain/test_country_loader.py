@@ -1,9 +1,13 @@
 from unittest import TestCase
 from src.domain.country_loader import CountryLoader
+from src.domain.stylized_flag import StylizedFlag
+from src.domain.color import Color
 
 REAL_CONFIG = {'resources_path': {'countries_list': "resources/countries/A-Liste_UTF-16.txt",
                                   'country_flag': "resources/countries/Flag_{country}.gif"}}
 EXPECTED_COUNTRY_COUNT = 197
+EXPECTED_43_STYLIZED_FLAG = StylizedFlag(
+    [Color.YELLOW, Color.BLUE, Color.RED, Color.BLUE, Color.RED, Color.BLUE, None, None, None])
 
 
 class TestCountryLoader(TestCase):
@@ -16,6 +20,13 @@ class TestCountryLoader(TestCase):
         country_loader = CountryLoader(REAL_CONFIG)
 
         country = country_loader.get_country(34)
+
         self.assertEqual('Canada', country.name)
         self.assertEqual(34, country.code)
-        # TODO tester le stylized_flag
+
+    def test_given_country_code_43_when_get_country_then_return_expected_stylized_flag(self):
+        country_loader = CountryLoader(REAL_CONFIG)
+
+        country = country_loader.get_country(43)
+
+        self.assertTrue(EXPECTED_43_STYLIZED_FLAG.colors == country.stylized_flag.colors)

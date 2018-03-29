@@ -32,7 +32,7 @@ class CountryLoader(object):
 
         pil_gif = Image.open(Path(image_path))
         rgb_im = pil_gif.convert('RGB')
-        stylized_flag = StylizedFlag()
+        colors = []
 
         pixel_position_x = 16
         pixel_position_y = 16
@@ -43,13 +43,13 @@ class CountryLoader(object):
 
                 color = Color.get_from_rgb(rgb)
 
-                stylized_flag.add_color(color)
+                colors.append(color)
                 pixel_position_x = pixel_position_x + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
 
             pixel_position_x = 16
             pixel_position_y = pixel_position_y + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
 
-        return stylized_flag
+        return StylizedFlag(colors)
 
     def get_country(self, country_code: int) -> Country:
         return self._country_dict[country_code]

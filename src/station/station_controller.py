@@ -74,6 +74,7 @@ class StationController(object):
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
+        self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.colors))
 
     def __select_next_cube_color(self):
         # TODO pas retourner tout le temps le premier cube de couleur de la liste
