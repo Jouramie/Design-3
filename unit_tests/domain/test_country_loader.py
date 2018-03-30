@@ -7,7 +7,8 @@ REAL_CONFIG = {'resources_path': {'countries_list': "resources/countries/A-Liste
                                   'country_flag': "resources/countries/Flag_{country}.gif"}}
 EXPECTED_COUNTRY_COUNT = 197
 EXPECTED_43_STYLIZED_FLAG = StylizedFlag(
-    [Color.YELLOW, Color.BLUE, Color.RED, Color.BLUE, Color.RED, Color.BLUE, None, None, None])
+    [Color.YELLOW, Color.BLUE, Color.RED, Color.BLUE, Color.RED, Color.BLUE, Color.TRANSPARENT, Color.TRANSPARENT,
+     Color.TRANSPARENT])
 
 
 class TestCountryLoader(TestCase):

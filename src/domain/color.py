@@ -13,7 +13,7 @@ class Color(Enum):
 
     SKY_BLUE = ((235, 206, 135), None, None)
     PINK = ((147, 20, 255), None, None)
-    TRANSPARENT = ((250, 240, 230), None, None)
+    TRANSPARENT = ((230, 240, 250), None, None)
 
     def __init__(self, bgr: tuple, lower_bound: np.ndarray, upper_bound: np.ndarray):
         self.bgr = bgr
