@@ -10,48 +10,68 @@ from src.domain.vision_environment.obstacle import Obstacle
 from src.domain.vision_environment.target_zone import TargetZone
 from .vision_exception import VisionException
 
+from logging import Logger
+
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
 THICKNESS = 2
 
 
 class WorldVision:
-    def __init__(self):
-        pass
+    def __init__(self, logger: Logger, config: dict):
+        self.logger = logger
+        self.config = config
 
     def create_environment(self, frame):
-        #cropped_image = self.__crop_environment(image_location)
-        #cropped_image_copy = copy.copy(cropped_image)
+        cropped_image = self.__crop_environment(frame)
+        # cropped_image_copy = copy.copy(cropped_image)
 
         cubes = []
         obstacles = []
 
-        for cube in self.__find_color_cubes(frame, Color.BLUE):
+        for cube in self.__find_color_cubes(cropped_image, Color.BLUE):
             cubes.append(cube)
 
-        for cube in self.__find_color_cubes(frame, Color.GREEN):
+        for cube in self.__find_color_cubes(cropped_image, Color.GREEN):
             cubes.append(cube)
 
-        for cube in self.__find_color_cubes(frame, Color.RED):
+        for cube in self.__find_color_cubes(cropped_image, Color.RED):
             cubes.append(cube)
 
-        for cube in self.__find_color_cubes(frame, Color.YELLOW):
+        for cube in self.__find_color_cubes(cropped_image, Color.YELLOW):
             cubes.append(cube)
 
-        for cube in self.__find_black_cubes(frame):
+        for cube in self.__find_black_cubes(cropped_image):
             cubes.append(cube)
 
-        for cube in self.__find_white_cube(frame):
+        for cube in self.__find_white_cube(cropped_image):
             cubes.append(cube)
 
-        target_zone = self.__find_target_zone(frame)
+        target_zone = self.__find_target_zone(cropped_image)
 
-        for obstacle in self.__find_obstacles(frame):
+        for obstacle in self.__find_obstacles(cropped_image):
             obstacles.append(obstacle)
 
+        for cube in cubes:
+            cube.center = (cube.center[0], cube.center[1] + 210)
+            new_corners = []
+            for corner in cube.corners:
+                new_corners.append((corner[0], corner[1] + 210))
+            cube.corners = new_corners
+
+        if target_zone is not None:
+            target_zone.center = (target_zone.center[0], target_zone.center[1] + 210)
+            new_corners = []
+            for corner in target_zone.corners:
+                new_corners.append((corner[0], corner[1] + 210))
+            target_zone.corners = new_corners
+
+        for obstacle in obstacles:
+            obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + 210))
+            print(str(obstacle.center))
+            print(str(obstacle.radius))
+
         return Environment(cubes, obstacles, target_zone)
-
-
 
     def __find_color_cubes(self, original_image, color: Color):
         image = cv2.medianBlur(original_image, 5)
@@ -67,17 +87,18 @@ class WorldVision:
             x = contour[0][0][0]
             y = contour[0][0][1]
             if 400 > cv2.arcLength(contour, True) > 200:
-                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x  and (158 < y < 1053)) or ((1115 < x < 1481) and (890 < y < 1053)):
+                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x and (158 < y < 1053)) or (
+                        (1115 < x < 1481) and (890 < y < 1053)):
                     yield self.__create_cube(contour, color)
 
     def __find_black_cubes(self, frame):
-        cropped_frame = self.__crop_environment(frame)
-        frame_copy = cropped_frame[0]
-        h = cropped_frame[1]
-        w = cropped_frame[2]
+        #cropped_frame = self.__crop_environment(frame)
+        #frame_copy = cropped_frame[0]
+        #h = cropped_frame[1]
+        #w = cropped_frame[2]
         kernel = np.ones((5, 5), np.uint8)
 
-        image = cv2.cvtColor(frame_copy, cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -86,9 +107,10 @@ class WorldVision:
             x = contour[0][0][0]
             y = contour[0][0][1]
             if 400 > cv2.arcLength(contour, True) > 200:
-                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x and (158 < y < 1053)) or ((1115 < x < 1481) and (890 < y < 1053)):
-                    contour[0][0][1] += h
-                    contour[0][0][1] += w
+                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x and (158 < y < 1053)) or (
+                        (1115 < x < 1481) and (890 < y < 1053)):
+                    #contour[0][0][1] += h
+                    #contour[0][0][1] += w
                     yield self.__create_cube(contour, Color.BLACK)
 
     def __find_white_cube(self, original_image) -> [Cube]:
@@ -104,7 +126,8 @@ class WorldVision:
             x = contour[0][0][0]
             y = contour[0][0][1]
             if 400 > cv2.arcLength(contour, True) > 100:
-                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x  and (158 < y < 1053)) or ((1115 < x < 1481) and (890 < y < 1053)):
+                if ((1481 > x > 1115) and (313 > y > 158)) or (1481 < x and (158 < y < 1053)) or (
+                        (1115 < x < 1481) and (890 < y < 1053)):
                     yield self.__create_cube(contour, Color.WHITE)
 
     def __create_cube(self, contour, color: Color) -> Cube:
@@ -115,7 +138,7 @@ class WorldVision:
     def __find_target_zone(self, original_image) -> TargetZone:
         hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
 
-        mask = cv2.inRange(hsv_image, Color.GREEN.lower_bound, Color.GREEN.upper_bound)
+        mask = cv2.inRange(hsv_image, Color.TARGET_ZONE_GREEN.lower_bound, Color.TARGET_ZONE_GREEN.upper_bound)
 
         img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
@@ -147,14 +170,10 @@ class WorldVision:
         return Obstacle(center, radius)
 
     def __crop_environment(self, frame):
+        x, y, w, h = (0, 200, 1600, 800)
+        crop_img = frame[y:y + h, x:x + w]
 
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        _, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
-        image_with_contours, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #cv2.imshow('dsaf', crop_img)
+        #cv2.waitKey(0)
 
-        for contour in contours:
-            if cv2.arcLength(contour, True) > 4000:
-                x, y, w, h = cv2.boundingRect(contour)
-                crop_img = frame[y:y + h, x:x + w]
-
-        return crop_img, h, w
+        return crop_img

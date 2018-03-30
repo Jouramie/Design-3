@@ -28,8 +28,8 @@ class StationController(object):
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(0)
-        self.world_vision = WorldVision()
+        self.camera = create_camera(2)
+        self.world_vision = WorldVision(logger, config)
         self.environment = self.world_vision.create_environment(self.camera.get_frame())
 
         self.model.world_camera_is_on = True
