@@ -1,23 +1,22 @@
+from logging import Logger
 import subprocess
-import numpy as np
-import time
 
-import cv2
+import numpy as np
 
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
-from src.vision.table_camera_configuration import TableCameraConfiguration
-from src.vision.coordinate_converter import CoordinateConverter
-from src.vision.robot_detector import RobotDetector
-from src.vision.frame_drawer import FrameDrawer
-from .station_model import StationModel
 from src.vision.camera import *
+from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.frame_drawer import FrameDrawer
+from src.vision.robot_detector import RobotDetector
+from src.vision.table_camera_configuration import TableCameraConfiguration
+from .station_model import StationModel
 
 
 class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController,
-                 table_camera_config: TableCameraConfiguration, logger, config):
+                 table_camera_config: TableCameraConfiguration, logger: Logger, config: dict):
         self.model = model
         self.country_loader = CountryLoader(config)
         self.table_camera_config = table_camera_config
@@ -27,7 +26,7 @@ class StationController(object):
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(1)
+        self.camera = create_camera(config["camera_id"])
 
         self.model.world_camera_is_on = True
 
@@ -50,10 +49,13 @@ class StationController(object):
 
     def __draw_environment(self, frame):
         if self.model.robot is not None:
+            self.logger.info("Robot " + str(self.model.robot))
             self.frame_drawer.draw_robot(frame, self.model.robot)
-        if self.model.planned_path is not None:
+        if self.model.planned_path is not None and self.model.planned_path:
+            self.logger.info("Planned path " + str(self.model.planned_path))
             self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
-        if self.model.real_path is not None:
+        if self.model.real_path is not None and self.model.real_path:
+            self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
     def __find_country(self):
@@ -69,18 +71,20 @@ class StationController(object):
                 break
 
     def update(self):
-        frame = self.camera.get_frame()
+        self.logger.info("StationController.update()")
+        self.model.frame = frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(frame)
+
         if self.model.robot is not None:
             robot_center_3d = self.model.robot.get_center_3d()
             self.model.real_path.append(np.float32(robot_center_3d))
+
         self.__draw_environment(frame)
-        self.model.frame = frame
+
         if not self.model.robot_is_started:
             return
 
         self.model.passed_time = time.time() - self.model.start_time
-
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()

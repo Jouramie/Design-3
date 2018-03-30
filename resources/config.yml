@@ -12,6 +12,7 @@ robot:
 
 station:
   table_number: 4
+  camera_id: 0
   update_robot: false
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
