@@ -11,7 +11,7 @@ from src.vision.cameraError import CameraInitializationError, CameraError
 class Camera:
     def __init__(self, capture_object, log_level=logging.INFO):
         self.capture_object = capture_object
-        self._initialize_log(log_level)
+        #self._initialize_log(log_level)
 
     def take_picture(self):
         is_frame_returned, img = self.capture_object.read()
@@ -39,6 +39,34 @@ class Camera:
             else:
                 break
 
+    def get_frame(self):
+        if self.capture_object.isOpened():
+            is_frame_returned = False
+            while not is_frame_returned:
+                is_frame_returned, frame = self.capture_object.read()
+            return frame
+        else:
+            message = 'Camera is not opened'
+            logging.info(message)
+            raise CameraError(message)
+
+    def get_fps(self):
+        if self.capture_object.isOpened():
+            fps = self.capture_object.get(cv2.CAP_PROP_FPS)
+            return fps
+        else:
+            message = 'Camera is not opened'
+            logging.info(message)
+            raise CameraError(message)
+
+    def release(self):
+        if self.capture_object.isOpened():
+            self.capture_object.release()
+        else:
+            message = 'Camera is not opened'
+            logging.info(message)
+            raise CameraError(message)
+
     def _initialize_log(self, log_level):
         if not os.path.exists(WORLD_CAM_LOG_DIR):
             os.makedirs(WORLD_CAM_LOG_DIR)
@@ -54,8 +82,6 @@ def create_camera(camera_id):
     capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
 
     if capture_object.isOpened():
-        for i in range(15):
-            temp_is_frame_returned, temp_img = capture_object.read()
         logging.info('World cam initialized')
     else:
         logging.info('Camera could not be set properly')

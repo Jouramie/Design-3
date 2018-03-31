@@ -14,6 +14,7 @@ class ServerNetworkController(NetworkController):
         self._server = socket(AF_INET, SOCK_STREAM)
 
     def host_network(self) -> None:
+        self._logger.info("Creating server on port " + str(self._port))
         self._server.bind(('', self._port))
 
         while self._socket is None:
