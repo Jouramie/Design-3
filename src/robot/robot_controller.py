@@ -2,7 +2,7 @@ import time
 from logging import Logger
 
 from .hardware.channel_exception import ChannelException
-from .hardware.command import CommandFromStm
+from .hardware.command import CommandFromStm, CommandsToStm
 from ..d3_network.client_network_controller import ClientNetworkController
 from ..d3_network.ip_provider import IpProvider
 from .hardware.channel import Channel
@@ -35,6 +35,15 @@ class RobotController(object):
                 self._logger.info(str(e))
                 msg = -1
         return msg
+
+    def send_grab_cube(self) -> None:
+        self._channel.send_command(CommandsToStm.GRAB_CUBE.value)
+
+    def send_drop_cube(self) -> None:
+        self._channel.send_command(CommandsToStm.DROP_CUBE.value)
+
+    def ask_if_can_grab_cube(self) -> None:
+        self._channel.send_command(CommandsToStm.CAN_GRAB_CUBE.value)
 
     def _main_loop(self):
         time.sleep(2)
