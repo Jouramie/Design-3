@@ -9,6 +9,9 @@ robot:
   network:
     host_ip: "127.0.0.1"
     port: *port
+  serial:
+    port: "/dev/ttyUSB0"
+
 
 station:
   table_number: 4
