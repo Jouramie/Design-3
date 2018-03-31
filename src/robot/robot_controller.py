@@ -1,6 +1,8 @@
 import time
 from logging import Logger
 
+from .hardware.channel_exception import ChannelException
+from .hardware.command import CommandFromStm
 from ..d3_network.client_network_controller import ClientNetworkController
 from ..d3_network.ip_provider import IpProvider
 from .hardware.channel import Channel
@@ -23,6 +25,16 @@ class RobotController(object):
 
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
         self._main_loop()
+
+    def receive_country_code(self):
+        msg = None
+        while msg is None:
+            try:
+                msg = self._channel.receive_message()
+            except ChannelException as e:
+                self._logger.info(str(e))
+                msg = -1
+        return msg
 
     def _main_loop(self):
         time.sleep(2)

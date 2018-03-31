@@ -3,46 +3,64 @@ from unittest.mock import Mock
 
 from src.robot.hardware.channel import Channel
 from src.robot.hardware.channel_exception import ChannelException
+from src.robot.hardware.command import CommandsToStm
 
 
 class TestChannel(TestCase):
 
     def setUp(self):
+        self.serial = Mock()
         self.message = b'\x42\x30'
         self.expected_message = bytearray(b'\x42\x30\x8e')
+        self.other_message = b'\x41\x30'
+        self.other_expected_message = bytearray(b'\x41\x30\x8f')
+        self.send_again_with_checksum = bytearray(b'\x46\x41\x79')
 
     def test_when_listen_then_calls_readline(self):
-        serial = Mock()
-        serial.readline = Mock(return_value=self.message)
-        channel = Channel(serial)
+        self.serial.readline = Mock(return_value=self.message)
+        channel = Channel(self.serial)
 
-        channel.listen()
+        channel.receive_message()
 
-        serial.readline.assert_called_once()
+        self.serial.readline.assert_called_once()
 
     def test_when_closed_listen_raises_exception(self):
-        serial = Mock()
-        serial.isOpen = Mock(return_value=False)
-        channel = Channel(serial)
+        self.serial.isOpen = Mock(return_value=False)
+        channel = Channel(self.serial)
 
-        channel.listen()
+        channel.receive_message()
 
         self.assertRaises(ChannelException)
 
     def test_when_write_then_calls_write_on_port(self):
-        serial = Mock()
-        serial.write = Mock()
-        channel = Channel(serial)
+        self.serial.write = Mock()
+        channel = Channel(self.serial)
 
-        channel._send_command(self.message)
+        channel.send_command(self.message)
 
-        serial.write.assert_called_once()
+        self.serial.write.assert_called_once()
 
-    def test_when_write_then_checksum_added(self):
-        serial = Mock()
-        serial.write = Mock()
-        channel = Channel(serial)
+    def test_given_a_message_when_write_then_checksum_added(self):
+        self.serial.write = Mock()
+        channel = Channel(self.serial)
 
-        channel._send_command(self.message)
+        channel.send_command(self.message)
 
-        serial.write.assert_called_once_with(self.expected_message)
+        self.serial.write.assert_called_once_with(self.expected_message)
+
+    def test_given_another_message_when_write_then_correct_checksum_added(self):
+        self.serial.write = Mock()
+        channel = Channel(self.serial)
+
+        channel.send_command(self.other_message)
+
+        self.serial.write.assert_called_once_with(self.other_expected_message)
+
+
+    def test_when_ask_again_then_calls_write_on_port_with_corresponding_mesage(self):
+        self.serial.write = Mock()
+        channel = Channel(self.serial)
+
+        channel.ask_repeat()
+
+        self.serial.write.assert_called_once_with(self.send_again_with_checksum)

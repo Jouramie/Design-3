@@ -1,5 +1,6 @@
 import serial
 
+from .command import CommandsToStm
 from .channel_exception import ChannelException
 
 
@@ -8,20 +9,25 @@ class Channel:
     def __init__(self, serial):
         self.serial = serial
 
-    def listen(self):
+    def receive_message(self):
         if self.serial.is_open:
             return str(self.serial.readline())
         else:
             raise ChannelException('Serial connection not opened')
 
-    def _send_command(self, message: bytes):
+    def send_command(self, message: bytes):
         message = bytearray(message)
-        total = 0
-        for h in message:
-            total += h
-        checksum = 0x100-total
-        message.append(checksum)
+        message.append(self.calculate_checksum(message))
         self.serial.write(message)
+
+    def ask_repeat(self):
+        self.send_command(CommandsToStm.SEND_AGAIN.value)
+
+    @staticmethod
+    def calculate_checksum(message: bytes) -> int:
+        message = bytearray(message)
+        checksum = (0x100 - message[0] - message[1]) & 0x0FF
+        return checksum
 
 def create_channel(port: str):
     ser = serial.Serial()
