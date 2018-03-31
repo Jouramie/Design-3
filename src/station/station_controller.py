@@ -7,38 +7,32 @@ import cv2
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
-from src.vision.tableManager import TableManager
-from src.vision.table import Table
-from src.vision.coordinateConverter import CoordinateConverter
-from src.vision.robotDetector import RobotDetector
-from src.vision.frameDrawer import FrameDrawer
+from src.vision.table_camera_configuration import TableCameraConfiguration
+from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.robot_detector import RobotDetector
+from src.vision.frame_drawer import FrameDrawer
 from .station_model import StationModel
-from src.config import TABLE_NUMBER
 from src.vision.camera import *
 from src.vision.world_vision import *
 
 
 class StationController(object):
-    def __init__(self, model: StationModel, network: ServerNetworkController, logger, config):
+    def __init__(self, model: StationModel, network: ServerNetworkController,
+                 table_camera_config: TableCameraConfiguration, logger, config):
         self.model = model
-        self.countryLoader = CountryLoader(config)
-        self.table = self.set_table(TABLE_NUMBER)
-        self.coord_converter = CoordinateConverter(self.table.world_to_camera)
-        self.robot_detector = RobotDetector(self.table.camParam, self.coord_converter)
-        self.frame_drawer = FrameDrawer(self.table.camParam, self.coord_converter)
+        self.country_loader = CountryLoader(config)
+        self.table_camera_config = table_camera_config
+        self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
+        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
+        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(1)
-        self.world_vision = WorldVision()
+        self.camera = create_camera(2)
+        self.world_vision = WorldVision(logger, config)
         self.environment = self.world_vision.create_environment(self.camera.get_frame())
 
         self.model.world_camera_is_on = True
-
-    def set_table(self, table_number) -> Table:
-        table_manager = TableManager()
-        table = table_manager.create_table(table_number)
-        return table
 
     def start_robot(self):
         self.model.robot_is_started = True
@@ -59,9 +53,9 @@ class StationController(object):
 
     def __draw_environment(self, frame):
         if self.model.robot is not None:
-            self.frame_drawer.drawRobot(frame, self.model.robot)
-        if self.model.projected_path is not None:
-            self.frame_drawer.draw_projected_path(frame, self.model.projected_path)
+            self.frame_drawer.draw_robot(frame, self.model.robot)
+        if self.model.planned_path is not None:
+            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
         if self.model.real_path is not None:
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
         if self.environment is not None:
@@ -75,16 +69,10 @@ class StationController(object):
 
 
     def __find_country(self):
-        try:
-            countries = self.countryLoader.get_country_list()
-            selected_country = countries[self.model.country_code]
-            self.model.country = selected_country
-
-        except FileNotFoundError:
-            print("This countries doesn't exists")
+        self.model.country = self.country_loader.get_country(self.model.country_code)
 
     def __select_next_cube_color(self):
-        stylized_flag = self.model.country.get_stylized_flag()
+        stylized_flag = self.model.country.stylized_flag
         cubes = stylized_flag.get_cube_list()
         for cube in cubes:
             color_name = cube.get_colour_name()
@@ -96,8 +84,8 @@ class StationController(object):
         frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(frame)
         if self.model.robot is not None:
-            robot_center_array = [self.model.robot.center[0], self.model.robot.center[1], 0]
-            self.model.real_path.append(np.float32(robot_center_array))
+            robot_center_3d = self.model.robot.get_center_3d()
+            self.model.real_path.append(np.float32(robot_center_3d))
         self.__draw_environment(frame)
         self.model.frame = frame
         if not self.model.robot_is_started:

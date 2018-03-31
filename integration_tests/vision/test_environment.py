@@ -1,7 +1,9 @@
 from unittest import TestCase
-from src.vision.world_vision import *
-from src.domain.environment.environment import *
+
 from src.domain.color import *
+from src.domain.vision_environment.environment import *
+from src.vision.world_vision import *
+
 
 demo_file = "/home/willvalin/PycharmProjects/system/fig/29-03-2018/table29-03-2018.jpg"
 

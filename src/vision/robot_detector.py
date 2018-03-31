@@ -2,17 +2,17 @@ import cv2
 import cv2.aruco as aruco
 import numpy as np
 
-from src.domain.environment.robot import Robot
+from domain.vision_environment.robot import Robot
 from src.vision.transform import Transform
-from src.vision.coordinateConverter import CoordinateConverter
-from src.vision.cameraParameters import CameraParameters
+from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.camera_parameters import CameraParameters
 
 
 class RobotDetector:
 
     def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter):
-        self.camParam = cam_param
-        self.coordinateConverter = coordinate_converter
+        self.cam_param = cam_param
+        self.coordinate_converter = coordinate_converter
         self.success = False
         self.marker_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
         self.parameters = aruco.DetectorParameters_create()
@@ -26,12 +26,12 @@ class RobotDetector:
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
-                                                              cameraMatrix=self.camParam.CameraMatrix,
-                                                              distCoeff=self.camParam.Distorsion)
+                                                              cameraMatrix=self.cam_param.camera_matrix,
+                                                              distCoeff=self.cam_param.distortion)
 
         self.success, rotation, translation = aruco.estimatePoseBoard(corners, ids, self.board,
-                                                                      self.camParam.CameraMatrix,
-                                                                      self.camParam.Distorsion)
+                                                                      self.cam_param.camera_matrix,
+                                                                      self.cam_param.distortion)
 
         if self.success:
             rvec = rotation.copy()
@@ -40,7 +40,7 @@ class RobotDetector:
             camera_to_robot = Transform.from_parameters(np.asscalar(tvec[0]), np.asscalar(tvec[1]),
                                                         np.asscalar(tvec[2]), np.asscalar(rvec[0]),
                                                         np.asscalar(rvec[1]), np.asscalar(rvec[2]))
-            world_to_robot = self.coordinateConverter.world_from_camera(camera_to_robot)
+            world_to_robot = self.coordinate_converter.world_from_camera(camera_to_robot)
 
             robot_info = world_to_robot.to_parameters(True)
             position_x = robot_info[0]

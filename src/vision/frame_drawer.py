@@ -1,18 +1,19 @@
 import cv2
 import numpy as np
 
-from src.domain.environment.robot import Robot
-from src.vision.coordinateConverter import CoordinateConverter
-from src.vision.cameraParameters import CameraParameters
-from src.domain.environment.environment import *
+from domain.vision_environment.robot import Robot
+from src.domain.color import Color
+from src.domain.vision_environment.environment import Cube, TargetZone, Obstacle
+from src.vision.camera_parameters import CameraParameters
+from src.vision.coordinate_converter import CoordinateConverter
 
 
 class FrameDrawer:
     def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter):
-        self.camParam = cam_param
-        self.coordinateConverter = coordinate_converter
+        self.cam_param = cam_param
+        self.coordinate_converter = coordinate_converter
 
-    def drawRobot(self, frame, robot: Robot):
+    def draw_robot(self, frame, robot: Robot):
         robot_corners = robot.get_corners()
 
         robot_projected_points = self.__projectPoints(robot_corners)
@@ -23,10 +24,13 @@ class FrameDrawer:
         cv2.line(frame, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
 
     def __projectPoints(self, points):
-        camera_to_world_parameters = self.coordinateConverter.get_camera_to_world().to_parameters()
-        camera_to_world_tvec = np.array([camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
-        camera_to_world_rvec = np.array([camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
-        projected_points, jac = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec, self.camParam.CameraMatrix, self.camParam.Distorsion)
+        camera_to_world_parameters = self.coordinate_converter.get_camera_to_world().to_parameters()
+        camera_to_world_tvec = np.array(
+            [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
+        camera_to_world_rvec = np.array(
+            [camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
+        projected_points, jac = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec,
+                                                  self.cam_param.camera_matrix, self.cam_param.distortion)
 
         return projected_points
 
@@ -39,7 +43,7 @@ class FrameDrawer:
                 cv2.line(frame, tuple(world_points[i][0]), tuple(world_points[i + 1][0]), (255, 0, 0), 3)
                 i = i + 1
 
-    def draw_projected_path(self, frame, points):
+    def draw_planned_path(self, frame, points):
         i = 0
         number_of_points = (len(points) - 1)
         while i < number_of_points:

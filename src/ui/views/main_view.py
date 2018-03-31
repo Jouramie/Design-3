@@ -45,8 +45,9 @@ class StationView(QMainWindow):
         self.ui.lcdNumber.display(display_time)
 
     def __display_world_camera_image(self):
-        resized = cv2.resize(self.model.frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
-        image = QtGui.QImage(resized, resized.shape[1], resized.shape[0], resized.shape[1] * resized.shape[2],
+        resized_image = cv2.resize(self.model.frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
+        image = QtGui.QImage(resized_image, resized_image.shape[1], resized_image.shape[0],
+                             resized_image.shape[1] * resized_image.shape[2],
                              QtGui.QImage.Format_RGB888)
         pixmap = QtGui.QPixmap()
         pixmap.convertFromImage(image.rgbSwapped())
@@ -54,7 +55,7 @@ class StationView(QMainWindow):
 
     def __display_flag(self):
         image_path: Path = Path(self.__config['resources_path']['country_flag']
-                                .format(country=self.model.country.get_country_name()))
+                                .format(country=self.model.country.name))
 
         flag_pixmap = QtGui.QPixmap(str(image_path))
         self.ui.flagPicture.setPixmap(flag_pixmap)
@@ -62,7 +63,7 @@ class StationView(QMainWindow):
         self.ui.flagPicture.show()
 
     def __display_country_name(self):
-        self.ui.CountryName.setText(self.model.country.get_country_name())
+        self.ui.CountryName.setText(self.model.country.name)
 
     def __display_next_cube_color(self):
         self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube_color + ';')
