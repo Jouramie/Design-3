@@ -2,6 +2,6 @@ numpy
 PyYAML
 PyQt5
 pytest
-opencv-python
+opencv-contrib-python
 pyserial
 Pillow

@@ -16,6 +16,7 @@ import src.d3_network.server_network_controller as server_network_controller
 import src.robot.robot_controller as robot_controller
 from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
+from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
 
 
 def main() -> None:
@@ -75,16 +76,19 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
-    network_ctl = server_network_controller.ServerNetworkController(logger.getChild("network_controller"),
+    network_controller = server_network_controller.ServerNetworkController(logger.getChild("network_controller"),
                                                                     config['network']['port'], encoder.DictionaryEncoder())
+    table_camera_config_factory = TableCameraConfigurationFactory(config['resources_path']['camera_calibration'],
+                                                                  config['resources_path']['world_calibration'])
+    table_camera_config = table_camera_config_factory.create(config['table_number'])
     try:
-        app = App(network_ctl, logger.getChild("main_controller"), config)
+        app = App(network_controller, table_camera_config, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
     finally:
-        if network_ctl._server is not None:
-            network_ctl._server.close()
-        if network_ctl._socket is not None:
-            network_ctl._socket.close()
+        if network_controller._server is not None:
+            network_controller._server.close()
+        if network_controller._socket is not None:
+            network_controller._socket.close()
 
 """
     network_ctl.host_network()
