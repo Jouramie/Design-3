@@ -81,4 +81,3 @@ class TestRobotController(TestCase):
         ctrl.ask_if_can_grab_cube()
 
         channel.send_command.assert_called_once_with(CommandsToStm.CAN_GRAB_CUBE.value)
-

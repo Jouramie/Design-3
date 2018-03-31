@@ -26,15 +26,18 @@ class RobotController(object):
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
         self._main_loop()
 
-    def receive_country_code(self):
+    def receive_country_code(self) -> int:
+        return self._receive_command().get_country_code()
+
+    def receive_final_signal(self):
+        # Faut envoyer au timer d'arreter
+        return self._receive_command()
+
+    def _receive_command(self):
         msg = None
         while msg is None:
-            try:
-                msg = self._channel.receive_message()
-            except ChannelException as e:
-                self._logger.info(str(e))
-                msg = -1
-        return msg
+            msg = self._channel.receive_message()
+        return CommandFromStm(bytearray(msg))
 
     def send_grab_cube(self) -> None:
         self._channel.send_command(CommandsToStm.GRAB_CUBE.value)
@@ -55,4 +58,3 @@ class RobotController(object):
         self.send_drop_cube()
 
         time.sleep(1000)
-
