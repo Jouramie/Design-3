@@ -26,7 +26,7 @@ class Channel:
     @staticmethod
     def calculate_checksum(message: bytes) -> int:
         message = bytearray(message)
-        checksum = (0x100 - message[0] - message[1]) & 0x0FF
+        checksum = (0x100 - message[0] - message[1] - message[2]) & 0x0FF
         return checksum
 
 def create_channel(port: str):

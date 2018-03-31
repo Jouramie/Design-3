@@ -10,11 +10,13 @@ class TestChannel(TestCase):
 
     def setUp(self):
         self.serial = Mock()
-        self.message = b'\x42\x30'
-        self.expected_message = bytearray(b'\x42\x30\x8e')
-        self.other_message = b'\x41\x30'
-        self.other_expected_message = bytearray(b'\x41\x30\x8f')
-        self.send_again_with_checksum = bytearray(b'\x46\x41\x79')
+        self.message = b'\x42\x30\x00'
+        self.expected_message = bytearray(b'\x42\x30\x00\x8e')
+        self.other_message = b'\x41\x30\x00'
+        self.other_expected_message = bytearray(b'\x41\x30\x00\x8f')
+        self.send_again_with_checksum = bytearray(b'\x46\x41\x12\x67')
+        self.send_drop_cube = bytearray(b'\xdc\x12\x23')
+        self.drop_cube_checksum = 0xef
 
     def test_when_listen_then_calls_readline(self):
         self.serial.readline = Mock(return_value=self.message)
@@ -64,3 +66,9 @@ class TestChannel(TestCase):
         channel.ask_repeat()
 
         self.serial.write.assert_called_once_with(self.send_again_with_checksum)
+
+    def test_when_calculate_checksum_right_checksum_returned(self):
+        self.serial.write = Mock()
+        channel = Channel(self.serial)
+
+        self.assertEqual(self.drop_cube_checksum, channel.calculate_checksum(self.send_drop_cube))
