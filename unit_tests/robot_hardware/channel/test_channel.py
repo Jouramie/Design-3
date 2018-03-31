@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 from src.robot.hardware.channel import Channel
 from src.robot.hardware.channel_exception import ChannelException
-from src.robot.hardware.command import CommandsToStm
 
 
 class TestChannel(TestCase):
