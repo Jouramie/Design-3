@@ -5,19 +5,22 @@ from ..color import Color
 
 
 class VisionEnvironment:
-    def __init__(self, cube_list: [Cube], obstacle_list: [Obstacle], target_zone: TargetZone):
-        self.__cube_list = cube_list
-        self.__obstacle_list = obstacle_list
-        self.__target_zone = target_zone
-
-    def get_cubes(self) -> [Cube]:
-        return self.__cube_list
-
-    def get_obstacles(self) -> [Obstacle]:
-        return self.__obstacle_list
-
-    def get_target_zone(self) -> TargetZone:
-        return self.__target_zone
+    def __init__(self, cubes: [Cube], obstacles: [Obstacle], target_zone: TargetZone):
+        self.cubes = cubes
+        self.obstacles = obstacles
+        self.target_zone = target_zone
 
     def find_cube(self, color: Color) -> Cube:
-        pass  # TODO
+        """Return a cube matching the color in parameter
+
+        :param color: The desired color
+        :return: A cube of the desired color
+        """
+        for cube in self.cubes:
+            if cube.color == color:
+                # TODO remove cube from environment?
+                return cube
+
+    def __str__(self):
+        return "Cubes: {} \nObstacles: {} \nTarget: {}".format(str(self.cubes), str(self.obstacles),
+                                                               str(self.target_zone))

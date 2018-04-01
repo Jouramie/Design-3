@@ -16,6 +16,7 @@ from src.vision.robot_detector import RobotDetector
 from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.world_vision import DummyWorldVision
 from .station_model import StationModel
+from src.domain.navigation_environment import NavigationEnvironment
 
 
 class StationController(object):
@@ -31,6 +32,8 @@ class StationController(object):
         self.country_loader = CountryLoader(config)
         self.world_vision = DummyWorldVision(self.camera)
         self.path_calculator = PathCalculator()
+        self.navigation_environment = NavigationEnvironment()
+        self.navigation_environment.create_grid(config['navigation']['grid_width'], config['navigation']['grid_height'])
 
         self.table_camera_config = table_camera_config
         self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
@@ -46,7 +49,8 @@ class StationController(object):
         if self.config['update_robot']:
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
-        # TODO create navigation_environment
+        self.model.environment = self.world_vision.create_environment()
+        # TODO add obstacles to grid
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
@@ -74,11 +78,17 @@ class StationController(object):
         if self.model.environment is not None:
             pass  # TODO draw environment
 
+        # TODO draw navigation grid
+
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
         self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.colors))
 
-    def __select_next_cube_color(self):
+    def __select_next_cube_color(self) -> None:
+        """Choose the next color to be placed in the flag
+
+        """
+
         # TODO pas retourner tout le temps le premier cube de couleur de la liste
         for color in self.model.country.stylized_flag.colors:
             if color is not Color.TRANSPARENT:
@@ -89,7 +99,6 @@ class StationController(object):
         # self.logger.info("StationController.update()")
         self.model.frame = frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(frame)
-        self.model.environment = self.world_vision.create_environment()
 
         if self.model.robot is not None:
             robot_center_3d = self.model.robot.get_center_3d()
@@ -114,7 +123,7 @@ class StationController(object):
                 self.model.country_code = country_received
                 self.__find_country()
                 self.__select_next_cube_color()
-                self.model.environment.find_cube(self.model.next_cube_color)
+                target_cube = self.model.environment.find_cube(self.model.next_cube_color)
                 # TODO find path to cube using path finding
             return
 

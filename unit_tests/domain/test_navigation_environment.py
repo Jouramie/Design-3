@@ -7,7 +7,7 @@ SOME_VALUE_1 = 1
 SOME_VALUE_2 = 2
 
 
-class TestPathCalculator(TestCase):
+class TestNavigationEnvironment(TestCase):
     def test_when_adding_invalid_obstacle_then_return_false(self):
         environment = NavigationEnvironment()
         environment.create_grid()
