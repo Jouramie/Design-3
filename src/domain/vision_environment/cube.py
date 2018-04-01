@@ -9,3 +9,6 @@ class Cube:
 
     def get_corner(self, index):
         return self.corners[index]
+
+    def __str__(self):
+        return "Center: {} Color: {}".format(str(self.center), self.color.name)
