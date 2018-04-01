@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
 from src.robot import robot_controller
-from src.robot.hardware.command.command_to_stm import CommandBuilder
+from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
 from src.robot.hardware.command.not_a_country_command_exception import NotACountryCommandException
 from src.robot.hardware.command.stm_command_definition import commands_to_stm
 
@@ -100,6 +100,6 @@ class TestRobotController(TestCase):
         channel.send_command= Mock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command(CommandBuilder().move(commands_to_stm.Target.WHEELS, 5, commands_to_stm.Direction.FORWARD))
+        ctrl.send_movement_command(StmCommandBuilder().forward(5))
 
         channel.send_command.assert_called_once_with(bytearray(b'\x33\x05\xff'))
