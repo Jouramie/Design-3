@@ -14,7 +14,7 @@ class PathCalculator(object):
         self.__last_node = 0
         self.__current_node = 0
 
-    def calculate_path(self, starting_point, ending_point, grid):
+    def calculate_path(self, starting_point: tuple, ending_point: tuple, grid):
         self.__set_grid(grid)
         self.__path.clear()
         self.__set_neighbor_step_value(ending_point)

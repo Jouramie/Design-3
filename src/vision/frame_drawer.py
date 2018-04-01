@@ -16,28 +16,29 @@ class FrameDrawer:
     def draw_robot(self, frame, robot: Robot):
         robot_corners = robot.get_corners()
 
-        robot_projected_points = self.__projectPoints(robot_corners)
+        robot_projected_points = self.__project_points(robot_corners)
 
         cv2.line(frame, tuple(robot_projected_points[0][0]), tuple(robot_projected_points[1][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[1][0]), tuple(robot_projected_points[2][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[2][0]), tuple(robot_projected_points[3][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
 
-    def __projectPoints(self, points):
+    def __project_points(self, points):
         camera_to_world_parameters = self.coordinate_converter.get_camera_to_world().to_parameters()
         camera_to_world_tvec = np.array(
             [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
         camera_to_world_rvec = np.array(
             [camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
-        projected_points, jac = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec,
-                                                  self.cam_param.camera_matrix, self.cam_param.distortion)
+        print(points)
+        projected_points, _ = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec,
+                                                self.cam_param.camera_matrix, self.cam_param.distortion)
 
         return projected_points
 
     def draw_real_path(self, frame, points):
         i = 0
         if len(points) != 0:
-            world_points = self.__projectPoints(points)
+            world_points = self.__project_points(points)
             number_of_points = (len(world_points) - 1)
             while i < number_of_points:
                 cv2.line(frame, tuple(world_points[i][0]), tuple(world_points[i + 1][0]), (255, 0, 0), 3)
@@ -57,4 +58,13 @@ class FrameDrawer:
         cv2.rectangle(frame, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=3)
 
     def draw_obstacle(self, frame, obstacle: Obstacle) -> None:
-        cv2.circle(frame, obstacle.center, obstacle.radius, Color.PINK.bgr, thickness=3, lineType=cv2.LINE_AA)
+        cv2.circle(frame, (int(obstacle.center[0]), int(obstacle.center[1])), int(obstacle.radius), Color.PINK.bgr,
+                   thickness=3, lineType=cv2.LINE_AA)
+
+    def draw_transformed_obstacle(self, frame, point: tuple) -> None:
+        pos = np.array([(point[0], point[1], 0.0)], 'float32')
+        projected_pos = self.__project_points(pos)
+        print('projected_pos = {}'.format(projected_pos))
+
+        cv2.circle(frame, tuple(projected_pos[0][0]), int(52), Color.PINK.bgr,
+                   thickness=3, lineType=cv2.LINE_AA)

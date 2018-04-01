@@ -65,13 +65,15 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
     network = client_network_controller.ClientNetworkController(logger.getChild("network_controller"),
                                                                 config['network']['port'], encoder.DictionaryEncoder())
+
+    channel = None
     try:
         channel = create_channel(config['serial']['port'])
         robot_controller.RobotController(logger, scanner, network, channel).start()
     finally:
         if network._socket is not None:
             network._socket.close()
-        if channel.serial.isOpen:
+        if channel is not None and channel.serial.isOpen:
             channel.serial.close()
 
 

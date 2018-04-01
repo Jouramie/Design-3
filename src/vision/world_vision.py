@@ -20,7 +20,7 @@ class DummyWorldVision:
         self.camera = camera
 
     def create_environment(self) -> VisionEnvironment:
-        return VisionEnvironment([], [Obstacle((956.5, 126.5), 53.4), Obstacle((667.5, 593.5), 52.8)], TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
+        return VisionEnvironment([], [Obstacle((1043.5, 412.5), 52.9)], TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
 
 
 class WorldVision:
@@ -177,5 +177,5 @@ if __name__ == "__main__":
     cam = create_camera(1)
     frame = cam.take_picture()
     vision = WorldVision()
-    env, _ = vision.create_environment(frame)
+    env = vision.create_environment(frame)
     print(env)

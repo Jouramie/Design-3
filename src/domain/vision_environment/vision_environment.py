@@ -22,5 +22,5 @@ class VisionEnvironment:
                 return cube
 
     def __str__(self):
-        return "Cubes: {} \nObstacles: {} \nTarget: {}".format(str(self.cubes), str(self.obstacles),
+        return "Cubes: {} \nObstacles: {} \nTarget: {}".format('', ', '.join(str(o) for o in self.obstacles),
                                                                str(self.target_zone))

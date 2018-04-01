@@ -139,11 +139,11 @@ class Transform:
         r = matrix - matrix.T
         t = np.trace(matrix)
         if t >= 3. - 1e-12:
-            w = (0.5 - ((t-3.)/12.)) * r
+            w = (0.5 - ((t - 3.) / 12.)) * r
             x, y, z = w[2, 1], w[0, 2], w[1, 0]
         elif t > -1. + 1e-12:
             theta = math.acos((t - 1.) / 2.)
-            w = (theta/(2.*math.sin(theta))) * r
+            w = (theta / (2. * math.sin(theta))) * r
             x, y, z = w[2, 1], w[0, 2], w[1, 0]
         else:
             diag = np.diag(matrix)
@@ -153,9 +153,9 @@ class Transform:
             s = np.sqrt(diag[a] - diag[b] - diag[c] + 1)
             v = np.zeros(diag.shape)
             # unit quaternion (w, v)
-            v[a] = s/2.
-            v[b] = (1./(2.*s)) * (matrix[b, a] + matrix[a, b])
-            v[c] = (1./(2.*s)) * (matrix[c, a] + matrix[a, c])
-            v = math.pi * (v/np.linalg.norm(v))
+            v[a] = s / 2.
+            v[b] = (1. / (2. * s)) * (matrix[b, a] + matrix[a, b])
+            v[c] = (1. / (2. * s)) * (matrix[c, a] + matrix[a, c])
+            v = math.pi * (v / np.linalg.norm(v))
             x, y, z = v[0], v[1], v[2]
         return x, y, z

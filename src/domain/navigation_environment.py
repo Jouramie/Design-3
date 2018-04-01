@@ -30,7 +30,11 @@ class NavigationEnvironment(object):
         try:
             for point in obstacles_point:
                 self.__validate_point_in_grid(point)
-                self.__add_obstacle(point)
+
+                for x in range(-7, 7):
+                    for y in range(-7, 7):
+                        self.__add_obstacle((point[0] + x, point[1] + y))
+
         except NavigationEnvironmentDataError as err:
             logging.info(str(err))
             return False

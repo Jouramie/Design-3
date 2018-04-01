@@ -2,8 +2,10 @@ import subprocess
 import time
 from logging import Logger
 
+import cv2
 import numpy as np
 
+from domain.path_calculator.path_converter import PathConverter
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.color import Color
@@ -17,6 +19,9 @@ from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.world_vision import DummyWorldVision
 from .station_model import StationModel
 from src.domain.navigation_environment import NavigationEnvironment
+from src.vision.transform import Transform
+from src.domain.vision_environment.obstacle import Obstacle
+import operator
 
 
 class StationController(object):
@@ -32,13 +37,16 @@ class StationController(object):
         self.country_loader = CountryLoader(config)
         self.world_vision = DummyWorldVision(self.camera)
         self.path_calculator = PathCalculator()
+        self.path_converter = PathConverter()
         self.navigation_environment = NavigationEnvironment()
         self.navigation_environment.create_grid(config['navigation']['grid_width'], config['navigation']['grid_height'])
 
         self.table_camera_config = table_camera_config
-        self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
-        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
-        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
+        self.coordinate_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
+        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coordinate_converter)
+        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coordinate_converter)
+
+        self.obstacle_pos = []
 
         self.model.world_camera_is_on = True
 
@@ -50,15 +58,44 @@ class StationController(object):
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
         self.model.vision_environment = self.world_vision.create_environment()
-        # TODO add obstacles to grid
+
+        for obstacle in self.model.vision_environment.obstacles:
+            object_points = np.array([(0, 0, 41), (6.3, 0, 41), (-6.3, 0, 41), (0, 6.3, 41), (0, -6.3, 41)], 'float32')
+
+            image_points = np.array([obstacle.center, (obstacle.center[0] + obstacle.radius, obstacle.center[1]),
+                                     (obstacle.center[0] - obstacle.radius, obstacle.center[1]),
+                                     (obstacle.center[0], obstacle.center[1] + obstacle.radius),
+                                     (obstacle.center[0], obstacle.center[1] - obstacle.radius)])
+
+            retval, rvec, tvec = cv2.solvePnP(object_points, image_points,
+                                              self.table_camera_config.cam_param.camera_matrix,
+                                              self.table_camera_config.cam_param.distortion)
+            print(retval)
+
+            camera_to_obstacle = Transform.from_parameters(np.asscalar(tvec[0]), np.asscalar(tvec[1]),
+                                                           np.asscalar(tvec[2]), np.asscalar(rvec[0]),
+                                                           np.asscalar(rvec[1]), np.asscalar(rvec[2]))
+            world_to_obstacle = self.coordinate_converter.world_from_camera(camera_to_obstacle)
+
+            robot_info = world_to_obstacle.to_parameters(True)
+            obstacle_pos = (robot_info[0], robot_info[1])
+
+            self.obstacle_pos.append(obstacle_pos)
+
+            print("Position de l'obstacle = {}".format(str(obstacle_pos)))
+            self.navigation_environment.add_obstacles(obstacle_pos)
+            # TODO add obstacles to grid
+
+        path = self.path_calculator.calculate_path((0, 0), (200, 0), self.navigation_environment.get_grid())
+        _, self.model.planned_path = self.path_converter.convert_path(self.path_calculator.get_calculated_path())
 
         self.logger.info("Waiting for robot to connect.")
-        self.network.host_network()
-        self.network.send_start_command()
+        # self.network.host_network()
+        # self.network.send_start_command()
 
     def __check_infrared_signal(self):
         try:
-            return self.network.check_infrared_signal()
+            return 42  # self.network.check_infrared_signal()
         except MessageNotReceivedYet:
             return None
 
@@ -81,6 +118,10 @@ class StationController(object):
                 self.frame_drawer.draw_obstacle(frame, obstacle)
 
             pass  # TODO draw environment
+
+        for obstacle_pos in self.obstacle_pos:
+            print(obstacle_pos)
+            self.frame_drawer.draw_transformed_obstacle(frame, obstacle_pos)
 
         # TODO draw navigation grid
 
@@ -116,7 +157,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if not self.model.infrared_signal_asked:
-            self.network.ask_infrared_signal()
+            # self.network.ask_infrared_signal()
             self.model.infrared_signal_asked = True
             return
 

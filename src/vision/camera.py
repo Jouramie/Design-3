@@ -5,7 +5,7 @@ import time
 import cv2
 
 from src.config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE, ORIGINAL_IMAGE_WIDTH, ORIGINAL_IMAGE_HEIGHT
-from src.vision.cameraError import CameraInitializationError, CameraError
+from src.vision.camera_error import CameraInitializationError, CameraError
 
 
 class Camera:
