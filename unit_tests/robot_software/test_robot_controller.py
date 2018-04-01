@@ -41,7 +41,7 @@ class TestRobotController(TestCase):
     def test_when_receive_country_code_then_return_country_code(self, time):
         network_ctrl = MagicMock()
         channel = Mock()
-        channel.receive_message = Mock(return_value=43)
+        channel.receive_message = Mock(return_value=bytearray(b'\xb0\x43\x0d'))
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.receive_country_code()

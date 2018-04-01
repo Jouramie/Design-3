@@ -2,7 +2,7 @@ import time
 from logging import Logger
 
 from .hardware.command.command import CommandFromStm
-from .hardware.command.stm_command import  CommandsToStm
+from .hardware.command.stm_command import CommandsToStm, CommandsFromStm
 from ..d3_network.client_network_controller import ClientNetworkController
 from ..d3_network.ip_provider import IpProvider
 from .hardware.channel import Channel
@@ -27,17 +27,21 @@ class RobotController(object):
         self._main_loop()
 
     def receive_country_code(self) -> int:
-        return self._receive_command().get_country_code()
+        return self._receive_command(CommandsFromStm.PAYS).get_country_code()
 
-    def receive_final_signal(self):
-        # Faut envoyer au timer d'arreter
-        return self._receive_command()
+    def receive_final_signal(self) -> CommandFromStm:
+        return self._receive_command(CommandsFromStm.FIN_TACHE)
 
-    def _receive_command(self):
+    def _receive_command(self, target: CommandsFromStm):
         msg = None
         while msg is None:
             msg = self._channel.receive_message()
-        return CommandFromStm(bytearray(msg))
+
+        command = CommandFromStm(bytearray(msg))
+        if command.target == target.value:
+            return command
+        else:
+            self._receive_command(target)
 
     def send_grab_cube(self) -> None:
         self._channel.send_command(CommandsToStm.GRAB_CUBE.value)
