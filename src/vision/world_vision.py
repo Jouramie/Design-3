@@ -23,7 +23,9 @@ class WorldVision:
         self.config = config
 
     def create_environment(self, frame, table):
-        cropped_image = self.__crop_environment(frame, table)
+        options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 4: TableCrop.TABLE4}
+        table_crop = options[table]
+        cropped_image = self.__crop_environment(frame, table_crop)
 
         cubes = []
         obstacles = []
@@ -40,7 +42,7 @@ class WorldVision:
         for cube in cubes:
             if cube.color == Color.RED:
                 break
-            else :
+            else:
                 for cube in self.__find_color_cubes(cropped_image, Color.RED2):
                     cubes.append(cube)
 
@@ -64,21 +66,21 @@ class WorldVision:
             obstacles.append(obstacle)
 
         for cube in cubes:
-            cube.center = (cube.center[0], cube.center[1] + 210)
+            cube.center = (cube.center[0], cube.center[1] + table_crop.y_crop_top)
             new_corners = []
             for corner in cube.corners:
-                new_corners.append((corner[0], corner[1] + 210))
+                new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
 
         if target_zone is not None:
-            target_zone.center = (target_zone.center[0], target_zone.center[1] + 210)
+            target_zone.center = (target_zone.center[0], target_zone.center[1] + table_crop.y_crop_top)
             new_corners = []
             for corner in target_zone.corners:
-                new_corners.append((corner[0], corner[1] + 210))
+                new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             target_zone.corners = new_corners
 
         for obstacle in obstacles:
-            obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + 210))
+            obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + table_crop.y_crop_top))
             print(str(obstacle.center))
             print(str(obstacle.radius))
 
@@ -178,9 +180,7 @@ class WorldVision:
         radius = contour[2]
         return Obstacle(center, radius)
 
-    def __crop_environment(self, frame, table):
-        options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 4: TableCrop.TABLE4}
-        table_crop = options[table]
+    def __crop_environment(self, frame, table_crop):
         x = 0
         w = 1600 - table_crop.x_crop
         y = table_crop.y_crop_top
