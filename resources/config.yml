@@ -10,7 +10,7 @@ robot:
     host_ip: "127.0.0.1"
     port: *port
   serial:
-    port: "/dev/ttyACM0"
+    port: "/dev/ttyUSB0"
 
 
 station:
