@@ -29,7 +29,6 @@ class FrameDrawer:
             [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
         camera_to_world_rvec = np.array(
             [camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
-        print(points)
         projected_points, _ = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec,
                                                 self.cam_param.camera_matrix, self.cam_param.distortion)
 
@@ -45,11 +44,12 @@ class FrameDrawer:
                 i = i + 1
 
     def draw_planned_path(self, frame, points):
-        i = 0
-        number_of_points = (len(points) - 1)
-        while i < number_of_points:
-            cv2.line(frame, points[i], points[i + 1], (0, 255, 0), 3)
-            i = i + 1
+        for point in points:
+            np_points = np.array([(point[0][0], point[0][1], 0), (point[1][0], point[1][1], 0)], 'float32')
+            projected_points = self.__project_points(np_points)
+
+            # TODO mettre la couleur dans l'enum de couleur
+            cv2.line(frame, tuple(projected_points[0][0]), tuple(projected_points[1][0]), (0, 255, 0), 3)
 
     def draw_cube(self, frame, cube: Cube) -> None:
         cv2.rectangle(frame, cube.get_corner(0), cube.get_corner(1), cube.color.bgr, thickness=3)
@@ -64,7 +64,6 @@ class FrameDrawer:
     def draw_transformed_obstacle(self, frame, point: tuple) -> None:
         pos = np.array([(point[0], point[1], 0.0)], 'float32')
         projected_pos = self.__project_points(pos)
-        print('projected_pos = {}'.format(projected_pos))
 
         cv2.circle(frame, tuple(projected_pos[0][0]), int(52), Color.PINK.bgr,
                    thickness=3, lineType=cv2.LINE_AA)

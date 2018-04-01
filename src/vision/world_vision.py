@@ -1,15 +1,13 @@
-import copy
-
 import cv2
 import numpy as np
 
 from src.domain.color import Color
 from src.domain.vision_environment.cube import Cube
-from src.domain.vision_environment.vision_environment import VisionEnvironment
 from src.domain.vision_environment.obstacle import Obstacle
 from src.domain.vision_environment.target_zone import TargetZone
+from src.domain.vision_environment.vision_environment import VisionEnvironment
 from src.vision.vision_exception import VisionException
-from typing import Any
+
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
 THICKNESS = 2
@@ -20,7 +18,8 @@ class DummyWorldVision:
         self.camera = camera
 
     def create_environment(self) -> VisionEnvironment:
-        return VisionEnvironment([], [Obstacle((1043.5, 412.5), 52.9)], TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
+        return VisionEnvironment([], [Obstacle((1043.5, 850.0), 52.9)],
+                                 TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
 
 
 class WorldVision:
@@ -28,8 +27,8 @@ class WorldVision:
         pass
 
     def create_environment(self, frame):
-        #cropped_image = self.__crop_environment(image_location)
-        #cropped_image_copy = copy.copy(cropped_image)
+        # cropped_image = self.__crop_environment(image_location)
+        # cropped_image_copy = copy.copy(cropped_image)
 
         cubes = []
         obstacles = []
@@ -58,8 +57,6 @@ class WorldVision:
             obstacles.append(obstacle)
 
         return VisionEnvironment(cubes, obstacles, target_zone)
-
-
 
     def __find_color_cubes(self, original_image, color: Color):
         image = cv2.medianBlur(original_image, 5)
@@ -174,6 +171,7 @@ class WorldVision:
 
 if __name__ == "__main__":
     from src.vision.camera import create_camera
+
     cam = create_camera(1)
     frame = cam.take_picture()
     vision = WorldVision()
