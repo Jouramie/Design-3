@@ -50,15 +50,10 @@ class WorldVision:
             cubes.append(cube)
 
         for cube in self.__find_color_cubes(cropped_image, Color.WHITE):
-            print(cube)
             cubes.append(cube)
 
         for cube in self.__find_color_cubes(cropped_image, Color.BLACK):
-            print(cube)
             cubes.append(cube)
-
-        #for cube in self.__find_white_cube(cropped_image):
-         #   cubes.append(cube)
 
         target_zone = self.__find_target_zone(cropped_image)
 
@@ -72,6 +67,8 @@ class WorldVision:
                 new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
 
+        #self.__cube_list_validation(cubes)
+
         if target_zone is not None:
             target_zone.center = (target_zone.center[0], target_zone.center[1] + table_crop.y_crop_top)
             new_corners = []
@@ -81,8 +78,6 @@ class WorldVision:
 
         for obstacle in obstacles:
             obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + table_crop.y_crop_top))
-            print(str(obstacle.center))
-            print(str(obstacle.radius))
 
         return Environment(cubes, obstacles, target_zone)
 
@@ -107,25 +102,6 @@ class WorldVision:
                         ((0.74*width < x < 0.96*width) and (0.91*height < y < height))):
                     yield self.__create_cube(contour, color)
 
-    def __find_white_cube(self, frame) -> [Cube]:
-        kernel = np.ones((5, 5), np.uint8)
-
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
-        image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-        height, width, __ = frame.shape
-
-        for contour in contours:
-            x = contour[0][0][0]
-            y = contour[0][0][1]
-            if 300 > cv2.arcLength(contour, True) > 120 and cv2.contourArea(contour) < 300:
-                if ((0.74 * width < x < 0.95 * width) and (y < 0.10 * height) or (
-                        (0.95 * width < x < width) and (0.1*height < y < 0.9*height))
-                        or ((0.74 * width < x < 0.96 * width) and (0.91 * height < y < height))):
-                    yield self.__create_cube(contour, Color.WHITE)
-
     def __create_cube(self, contour, color: Color) -> Cube:
         x, y, w, h = cv2.boundingRect(contour)
         center = (x + w / 2, y + h / 2)
@@ -140,7 +116,7 @@ class WorldVision:
 
         for shape in contours:
             x = shape[0][0][0]
-            if cv2.arcLength(shape, True) > 3000 and x > 50:
+            if cv2.arcLength(shape, True) > 2000 and x > 50:
                 return self.__create_target_zone(shape)
             else:
                 break
@@ -169,7 +145,7 @@ class WorldVision:
 
         im = cv2.GaussianBlur(im, (5, 5), 0)
 
-        contours = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=50, maxRadius=80)
+        contours = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=50, maxRadius=60)
 
         if contours is not None:
             for contour in contours[0]:
@@ -189,3 +165,19 @@ class WorldVision:
         crop_img = frame[y:y + h, x:x + w]
 
         return crop_img
+
+    def __cube_list_validation(self, cubes: [Cube]):
+        range = 10
+        for cube in cubes:
+            print(cube)
+            for another_cube in cubes:
+                if cube != another_cube:
+                    if (abs(cube.x - another_cube.x) < range) or (abs(cube.y - another_cube.y) < range):
+                        cubes.remove(another_cube)
+            for another_cube in cubes:
+                if cube != another_cube:
+                    if (abs(cube.x - another_cube.x) <= range) or (abs(cube.y - another_cube.y) <= range):
+                        if (((another_cube.get_color == Color.RED) or (another_cube.get_color == Color.RED2)) and
+                                ((cube.get_color == Color.RED) or (cube.get_color == Color.RED2))):
+                            cubes.remove(another_cube)
+        return cubes
