@@ -2,8 +2,9 @@ from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
 from src.robot import robot_controller
+from src.robot.hardware.command.command_to_stm import CommandBuilder
 from src.robot.hardware.command.not_a_country_command_exception import NotACountryCommandException
-from src.robot.hardware.command.stm_command import CommandsToStm
+from src.robot.hardware.command.stm_command_definition import commands_to_stm
 
 
 class TestRobotController(TestCase):
@@ -68,7 +69,7 @@ class TestRobotController(TestCase):
 
         ctrl.send_grab_cube()
 
-        channel.send_command.assert_called_once_with(CommandsToStm.GRAB_CUBE.value)
+        channel.send_command.assert_called_once_with(commands_to_stm.Command.GRAB_CUBE.value)
 
     @patch('src.robot.robot_controller.time')
     def test_when_send_drop_cube_then_send_via_channel(self, time):
@@ -79,7 +80,7 @@ class TestRobotController(TestCase):
 
         ctrl.send_drop_cube()
 
-        channel.send_command.assert_called_once_with(CommandsToStm.DROP_CUBE.value)
+        channel.send_command.assert_called_once_with(commands_to_stm.Command.DROP_CUBE.value)
 
     @patch('src.robot.robot_controller.time')
     def test_when_ask_if_can_grab_cube_then_send_via_channel(self, time):
@@ -90,4 +91,15 @@ class TestRobotController(TestCase):
 
         ctrl.ask_if_can_grab_cube()
 
-        channel.send_command.assert_called_once_with(CommandsToStm.CAN_GRAB_CUBE.value)
+        channel.send_command.assert_called_once_with(commands_to_stm.Command.CAN_GRAB_CUBE.value)
+
+    @patch('src.robot.robot_controller.time')
+    def test_when_send_movement_command_then_send_via_channel(self, time):
+        network_ctrl = MagicMock()
+        channel = Mock()
+        channel.send_command= Mock()
+        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
+
+        ctrl.send_movement_command(CommandBuilder().move(commands_to_stm.Target.WHEELS, 5, commands_to_stm.Direction.FORWARD))
+
+        channel.send_command.assert_called_once_with(bytearray(b'\x33\x05\xff'))

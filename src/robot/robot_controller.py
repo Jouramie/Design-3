@@ -1,11 +1,11 @@
 import time
 from logging import Logger
 
-from .hardware.command.command import CommandFromStm
-from .hardware.command.stm_command import CommandsToStm, CommandsFromStm
+from src.robot.hardware.command.stm_command_definition import commands_to_stm
+from .hardware.channel import Channel
+from .hardware.command.command_from_stm import CommandFromStm
 from ..d3_network.client_network_controller import ClientNetworkController
 from ..d3_network.ip_provider import IpProvider
-from .hardware.channel import Channel
 
 
 class RobotController(object):
@@ -40,13 +40,16 @@ class RobotController(object):
         return CommandFromStm(bytearray(msg))
 
     def send_grab_cube(self) -> None:
-        self._channel.send_command(CommandsToStm.GRAB_CUBE.value)
+        self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
 
     def send_drop_cube(self) -> None:
-        self._channel.send_command(CommandsToStm.DROP_CUBE.value)
+        self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
 
     def ask_if_can_grab_cube(self) -> None:
-        self._channel.send_command(CommandsToStm.CAN_GRAB_CUBE.value)
+        self._channel.send_command(commands_to_stm.Command.CAN_GRAB_CUBE.value)
+
+    def send_movement_command(self, command: bytearray):
+        self._channel.send_command(command)
 
     def _main_loop(self):
         time.sleep(2)

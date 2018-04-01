@@ -1,6 +1,6 @@
 import serial
 
-from .command.stm_command import CommandsToStm
+from src.robot.hardware.command.stm_command_definition import commands_to_stm
 from .channel_exception import ChannelException
 
 
@@ -21,7 +21,7 @@ class Channel(object):
         self.serial.write(message)
 
     def ask_repeat(self):
-        self.send_command(CommandsToStm.SEND_AGAIN.value)
+        self.send_command(commands_to_stm.Command.SEND_AGAIN.value)
 
     @staticmethod
     def calculate_checksum(message: bytes) -> int:
