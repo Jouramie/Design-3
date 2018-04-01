@@ -4,7 +4,7 @@ from .command.stm_command import CommandsToStm
 from .channel_exception import ChannelException
 
 
-class Channel:
+class Channel(object):
 
     def __init__(self, serial):
         self.serial = serial
