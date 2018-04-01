@@ -82,3 +82,27 @@ class TestPathCalculator(TestCase):
         expected = [starting_point, ending_point]
         
         self.assertEqual(expected, path_calculator.get_calculated_path())
+
+    def test_when_straight_line_then_does_not_zigzag(self):
+        environment = NavigationEnvironment()
+        environment.create_grid()
+        starting_point = (0, 0)
+        ending_point = (10, 0)
+        path_calculator = PathCalculator()
+
+        path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
+        expected = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0)]
+
+        self.assertEqual(expected, path_calculator.get_calculated_path())
+
+    def test_when_diagonal_line_then_does_not_zigzag(self):
+        environment = NavigationEnvironment()
+        environment.create_grid()
+        starting_point = (0, 0)
+        ending_point = (10, 10)
+        path_calculator = PathCalculator()
+
+        path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
+        expected = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10)]
+
+        self.assertEqual(expected, path_calculator.get_calculated_path())
