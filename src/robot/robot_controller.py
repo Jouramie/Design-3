@@ -1,8 +1,8 @@
 import time
 from logging import Logger
 
-from .hardware.channel_exception import ChannelException
-from .hardware.command import CommandFromStm, CommandsToStm
+from .hardware.command.command import CommandFromStm
+from .hardware.command.stm_command import  CommandsToStm
 from ..d3_network.client_network_controller import ClientNetworkController
 from ..d3_network.ip_provider import IpProvider
 from .hardware.channel import Channel

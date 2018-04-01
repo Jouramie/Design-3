@@ -1,6 +1,6 @@
 import serial
 
-from .command import CommandsToStm
+from .command.stm_command import CommandsToStm
 from .channel_exception import ChannelException
 
 

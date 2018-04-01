@@ -1,31 +1,5 @@
-from enum import Enum
-from .message_corrupted_exception import MessageCorruptedException
-
-
-class CommandsFromStm(Enum):
-
-    PAYS = 0xb0
-    PREHENSEUR_UP = 0xb1
-    PREHENSEUR_STOP = 0xb2
-    PREHENSEUR_DOWN = 0xb3
-    FIN_TACHE = 0xb4
-    STM_COMMANDS = {PAYS, PREHENSEUR_UP, PREHENSEUR_STOP, PREHENSEUR_DOWN, FIN_TACHE}
-
-
-class CommandsToStm(Enum):
-
-    BACKWARD = 'B'
-    FORWARD = 'F'
-    RIGHT = 'R'
-    LEFT = 'L'
-    POSITIVE = 'P'
-    NEGATIVE = 'N'
-
-    GRAB_CUBE = bytearray(b'\x6c\x12\x23')
-    DROP_CUBE = bytearray(b'\xdc\x12\x23')
-    CAN_GRAB_CUBE = bytearray(b'\xc4\x12\x34')
-
-    SEND_AGAIN = bytearray(b'\x46\x41\x12')
+from src.robot.hardware.command.stm_command import CommandsFromStm
+from src.robot.hardware.message_corrupted_exception import MessageCorruptedException
 
 
 class CommandFromStm:

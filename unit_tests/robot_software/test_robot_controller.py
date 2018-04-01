@@ -2,8 +2,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
 from src.robot import robot_controller
-from src.robot.hardware.channel import create_channel
-from src.robot.hardware.command import CommandsToStm
+from src.robot.hardware.command.stm_command import CommandsToStm
 
 
 class TestRobotController(TestCase):

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.robot.hardware.command import CommandFromStm
+from src.robot.hardware.command.command import CommandFromStm
 from src.robot.hardware.message_corrupted_exception import MessageCorruptedException
 
 
