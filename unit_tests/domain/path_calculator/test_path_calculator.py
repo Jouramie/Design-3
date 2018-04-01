@@ -49,7 +49,7 @@ class TestPathCalculator(TestCase):
 
     def test_when_calculate_path_then_set_ending_point_step_value(self):
         environment = NavigationEnvironment()
-        environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
+        environment.create_grid()
         starting_point = (SOME_VALUE_0, SOME_VALUE_0)
         ending_point = (SOME_VALUE_1, SOME_VALUE_0)
         path_calculator = PathCalculator()
@@ -61,7 +61,7 @@ class TestPathCalculator(TestCase):
 
     def test_when_calculate_path_then_increment_neighbor_step_value(self):
         environment = NavigationEnvironment()
-        environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
+        environment.create_grid()
         starting_point = (SOME_VALUE_0, SOME_VALUE_0)
         ending_point = (SOME_VALUE_1, SOME_VALUE_0)
         path_calculator = PathCalculator()
@@ -73,7 +73,7 @@ class TestPathCalculator(TestCase):
 
     def test_when_calculate_path_then_calculate_path(self):
         environment = NavigationEnvironment()
-        environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
+        environment.create_grid()
         starting_point = (SOME_VALUE_1, SOME_VALUE_0)
         ending_point = (SOME_VALUE_0, SOME_VALUE_0)
         path_calculator = PathCalculator()

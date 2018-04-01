@@ -1,7 +1,8 @@
 from unittest import TestCase
 
 from src.domain.navigation_environment import NavigationEnvironment
-SOME_NEGATIVE_VALUE = -1
+
+SOME_INVALID_VALUE = -10000
 SOME_VALUE_0 = 0
 SOME_VALUE_1 = 1
 SOME_VALUE_2 = 2
@@ -12,7 +13,7 @@ class TestNavigationEnvironment(TestCase):
         environment = NavigationEnvironment()
         environment.create_grid()
 
-        value = environment.add_obstacles([(SOME_NEGATIVE_VALUE, SOME_NEGATIVE_VALUE)])
+        value = environment.add_obstacles([(SOME_INVALID_VALUE, SOME_INVALID_VALUE)])
 
         self.assertFalse(value)
 

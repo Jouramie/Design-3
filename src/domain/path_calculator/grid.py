@@ -3,22 +3,23 @@ from src.domain.path_calculator.direction import Direction
 
 
 class Grid:
+    DEFAULT_OFFSET = -23
     DEFAULT_WEIGHT = 1
 
     def __init__(self, width, height):
-        self.__width = width
-        self.__height = height
+        self.__width = width + self.DEFAULT_OFFSET
+        self.__height = height + self.DEFAULT_OFFSET
         self.__vertices_dictionary = {}
         self.__number_vertices = 0
         self.__init_grid_vertices()
 
     def __init_grid_vertices(self):
-        for y in range(self.__height):
-            for x in range(self.__width):
+        for y in range(self.DEFAULT_OFFSET, self.__height):
+            for x in range(self.DEFAULT_OFFSET, self.__width):
                 self.__add_vertex((x, y))
 
-        for y in range(self.__height):
-            for x in range(self.__width):
+        for y in range(self.DEFAULT_OFFSET, self.__height):
+            for x in range(self.DEFAULT_OFFSET, self.__width):
                 self.__initiate_vertices_neighbors((x, y))
 
     def __add_vertex(self, node):

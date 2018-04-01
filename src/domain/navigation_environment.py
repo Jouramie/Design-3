@@ -7,7 +7,8 @@ from ..config import ENVIRONMENT_LOG_DIR, ENVIRONMENT_LOG_FILE
 
 
 class NavigationEnvironment(object):
-    DEFAULT_SIZE = 5
+    DEFAULT_HEIGHT = 231
+    DEFAULT_WIDTH = 111
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
     OBSTACLE_VALUE = -2
@@ -19,9 +20,10 @@ class NavigationEnvironment(object):
     __grid = 0
 
     def __init__(self, log_level=logging.INFO):
-        self.__initialize_log(log_level)
+        #self.__initialize_log(log_level)
+        pass
 
-    def create_grid(self, width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    def create_grid(self, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT):
         self.__width = width
         self.__height = height
         self.__grid = Grid(self.__width, self.__height)
