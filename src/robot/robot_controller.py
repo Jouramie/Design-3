@@ -27,21 +27,17 @@ class RobotController(object):
         self._main_loop()
 
     def receive_country_code(self) -> int:
-        return self._receive_command(CommandsFromStm.PAYS).get_country_code()
+        return self.receive_command().get_country_code()
 
     def receive_final_signal(self) -> CommandFromStm:
-        return self._receive_command(CommandsFromStm.FIN_TACHE)
+        return self.receive_command()
 
-    def _receive_command(self, target: CommandsFromStm):
+    def receive_command(self):
         msg = None
         while msg is None:
             msg = self._channel.receive_message()
 
-        command = CommandFromStm(bytearray(msg))
-        if command.target == target.value:
-            return command
-        else:
-            self._receive_command(target)
+        return CommandFromStm(bytearray(msg))
 
     def send_grab_cube(self) -> None:
         self._channel.send_command(CommandsToStm.GRAB_CUBE.value)
