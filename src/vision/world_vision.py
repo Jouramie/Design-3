@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 
 from src.domain.color import Color
-from src.domain.vision_environment.cube import Cube
-from src.domain.vision_environment.environment import Environment
+from domain.vision_environment.cube import Cube
+from src.domain.vision_environment.vision_environment import VisionEnvironment
 from src.domain.vision_environment.obstacle import Obstacle
 from src.domain.vision_environment.target_zone import TargetZone
 from .vision_exception import VisionException
@@ -13,6 +13,14 @@ from .vision_exception import VisionException
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
 THICKNESS = 2
+
+
+class DummyWorldVision:
+    def __init__(self, camera):
+        self.camera = camera
+
+    def create_environment(self) -> VisionEnvironment:
+        return VisionEnvironment([], [], TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
 
 
 class WorldVision:
@@ -57,7 +65,7 @@ class WorldVision:
             obstacles.append(obstacle)
             self.__draw_obstacle(cropped_image_copy, obstacle)
 
-        return Environment(cubes, obstacles, target_zone), cropped_image_copy
+        return VisionEnvironment(cubes, obstacles, target_zone), cropped_image_copy
 
     def __draw_cube(self, image, cube: Cube):
         cv2.rectangle(image, cube.get_corner(0), cube.get_corner(1), cube.color.bgr, thickness=THICKNESS)

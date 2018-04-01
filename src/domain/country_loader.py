@@ -2,9 +2,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from src.domain.colour import Colour
+from src.domain.color import Color
 from src.domain.country import Country
-from src.domain.cube import Cube
 from src.domain.stylized_flag import StylizedFlag
 
 IMAGE_MAX_SIZE = 96
@@ -33,23 +32,24 @@ class CountryLoader(object):
 
         pil_gif = Image.open(Path(image_path))
         rgb_im = pil_gif.convert('RGB')
-        stylized_flag = StylizedFlag()
+        colors = []
+
         pixel_position_x = 16
         pixel_position_y = 16
+
         while pixel_position_y <= IMAGE_MAX_SIZE:
             while pixel_position_x <= IMAGE_MAX_SIZE:
-                r, g, b = rgb_im.getpixel((pixel_position_x, pixel_position_y))
-                for colour in Colour:
-                    rgb_colour = colour.value
-                    rgb_cube_colour = (r, g, b)
-                    if list(rgb_colour) == list(rgb_cube_colour):
-                        cube = Cube(colour)
-                        stylized_flag.add_cube(cube)
-                        pixel_position_x = pixel_position_x + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
+                rgb = rgb_im.getpixel((pixel_position_x, pixel_position_y))
+
+                color = Color.get_from_rgb(rgb)
+
+                colors.append(color)
+                pixel_position_x = pixel_position_x + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
+
             pixel_position_x = 16
             pixel_position_y = pixel_position_y + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
 
-        return stylized_flag
+        return StylizedFlag(colors)
 
     def get_country(self, country_code: int) -> Country:
         return self._country_dict[country_code]
