@@ -46,6 +46,8 @@ class StationController(object):
         if self.config['update_robot']:
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
+        # TODO create navigation_environment
+
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
@@ -113,6 +115,7 @@ class StationController(object):
                 self.__find_country()
                 self.__select_next_cube_color()
                 self.model.environment.find_cube(self.model.next_cube_color)
+                # TODO find path to cube using path finding
             return
 
         """

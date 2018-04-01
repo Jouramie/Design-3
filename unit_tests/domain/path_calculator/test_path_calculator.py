@@ -2,7 +2,7 @@ from unittest.mock import Mock
 from unittest.mock import MagicMock
 from unittest import TestCase
 
-from src.domain.path_environment import PathEnvironment
+from src.domain.navigation_environment import NavigationEnvironment
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 
@@ -48,7 +48,7 @@ class TestPathCalculator(TestCase):
         starting_vertex.get_step_value.assert_called_once()
 
     def test_when_calculate_path_then_set_ending_point_step_value(self):
-        environment = PathEnvironment()
+        environment = NavigationEnvironment()
         environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
         starting_point = (SOME_VALUE_0, SOME_VALUE_0)
         ending_point = (SOME_VALUE_1, SOME_VALUE_0)
@@ -60,7 +60,7 @@ class TestPathCalculator(TestCase):
         self.assertEqual(expected, environment.get_grid().get_vertex(starting_point).get_step_value())
 
     def test_when_calculate_path_then_increment_neighbor_step_value(self):
-        environment = PathEnvironment()
+        environment = NavigationEnvironment()
         environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
         starting_point = (SOME_VALUE_0, SOME_VALUE_0)
         ending_point = (SOME_VALUE_1, SOME_VALUE_0)
@@ -72,7 +72,7 @@ class TestPathCalculator(TestCase):
         self.assertEqual(expected, environment.get_grid().get_vertex(ending_point).get_step_value())
 
     def test_when_calculate_path_then_calculate_path(self):
-        environment = PathEnvironment()
+        environment = NavigationEnvironment()
         environment.create_grid(SOME_VALUE_2, SOME_VALUE_1)
         starting_point = (SOME_VALUE_1, SOME_VALUE_0)
         ending_point = (SOME_VALUE_0, SOME_VALUE_0)

@@ -1,12 +1,12 @@
 import logging
 import os
 
-from .path_environment_error import EnvironmentDataError
+from .navigation_environment_error import NavigationEnvironmentDataError
 from .path_calculator.grid import Grid
 from ..config import ENVIRONMENT_LOG_DIR, ENVIRONMENT_LOG_FILE
 
 
-class PathEnvironment(object):
+class NavigationEnvironment(object):
     DEFAULT_SIZE = 5
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
@@ -31,7 +31,7 @@ class PathEnvironment(object):
             for point in obstacles_point:
                 self.__validate_point_in_grid(point)
                 self.__add_obstacle(point)
-        except EnvironmentDataError as err:
+        except NavigationEnvironmentDataError as err:
             logging.info(str(err))
             return False
         return True
@@ -52,7 +52,7 @@ class PathEnvironment(object):
         try:
             self.__grid.get_vertex(point).get_id()
         except AttributeError:
-            raise EnvironmentDataError("Invalid point in environment grid: " + str(point))
+            raise NavigationEnvironmentDataError("Invalid point in environment grid: " + str(point))
 
     def get_grid(self):
         return self.__grid
