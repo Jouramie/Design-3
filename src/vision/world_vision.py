@@ -24,8 +24,6 @@ class WorldVision:
 
     def create_environment(self, frame, table):
         cropped_image = self.__crop_environment(frame, table)
-        #cv2.imshow('crop', cropped_image)
-        #cv2.waitKey(0)
 
         cubes = []
         obstacles = []
@@ -103,7 +101,7 @@ class WorldVision:
             y = contour[0][0][1]
             if 400 > cv2.arcLength(contour, True) > 100:
                 if ((0.74*width < x < 0.96*width) and (y <= 0.10*height) or
-                        ((0.95*width < x < width) and (0.026*height < y <= height)) or
+                        ((0.95*width < x < width) and (0.03*height < y <= height)) or
                         ((0.74*width < x < 0.96*width) and (0.91*height < y < height))):
                     yield self.__create_cube(contour, color)
 
@@ -114,7 +112,6 @@ class WorldVision:
 
         _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
         image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.imshow("imagewithcontours", image_with_contours)
 
         height, width, __ = frame.shape
 
