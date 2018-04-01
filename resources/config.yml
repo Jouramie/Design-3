@@ -15,11 +15,11 @@ robot:
 
 station:
   table_number: 4
-  camera_id: 0
+  camera_id: 1
   update_robot: false
   navigation:
-    grid_widht: 14
-    grid_height: 29
+    grid_width: 231
+    grid_height: 111
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
     country_flag: "resources/countries/Flag_{country}.gif"

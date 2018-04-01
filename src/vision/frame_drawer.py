@@ -50,11 +50,11 @@ class FrameDrawer:
             cv2.line(frame, points[i], points[i + 1], (0, 255, 0), 3)
             i = i + 1
 
-    def draw_cube(self, frame, cube: Cube):
+    def draw_cube(self, frame, cube: Cube) -> None:
         cv2.rectangle(frame, cube.get_corner(0), cube.get_corner(1), cube.color.bgr, thickness=3)
 
-    def draw_target_zone(self, frame, target_zone: TargetZone):
+    def draw_target_zone(self, frame, target_zone: TargetZone) -> None:
         cv2.rectangle(frame, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=3)
 
-    def draw_obstacle(self, frame, obstacle: Obstacle):
+    def draw_obstacle(self, frame, obstacle: Obstacle) -> None:
         cv2.circle(frame, obstacle.center, obstacle.radius, Color.PINK.bgr, thickness=3, lineType=cv2.LINE_AA)

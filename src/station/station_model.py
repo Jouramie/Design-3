@@ -16,7 +16,7 @@ class StationModel(object):
         self.frame = None
 
         self.robot: Robot = None
-        self.environment: VisionEnvironment = None
+        self.vision_environment: VisionEnvironment = None
 
         self.robot_is_started = False
         self.robot_is_moving = False

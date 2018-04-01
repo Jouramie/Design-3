@@ -49,7 +49,7 @@ class StationController(object):
         if self.config['update_robot']:
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
-        self.model.environment = self.world_vision.create_environment()
+        self.model.vision_environment = self.world_vision.create_environment()
         # TODO add obstacles to grid
 
         self.logger.info("Waiting for robot to connect.")
@@ -75,7 +75,11 @@ class StationController(object):
             # self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
-        if self.model.environment is not None:
+        self.logger.info("Vision Environment: {}".format(str(self.model.vision_environment)))
+        if self.model.vision_environment is not None:
+            for obstacle in self.model.vision_environment.obstacles:
+                self.frame_drawer.draw_obstacle(frame, obstacle)
+
             pass  # TODO draw environment
 
         # TODO draw navigation grid
@@ -123,7 +127,7 @@ class StationController(object):
                 self.model.country_code = country_received
                 self.__find_country()
                 self.__select_next_cube_color()
-                target_cube = self.model.environment.find_cube(self.model.next_cube_color)
+                target_cube = self.model.vision_environment.find_cube(self.model.next_cube_color)
                 # TODO find path to cube using path finding
             return
 
