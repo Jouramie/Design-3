@@ -2,7 +2,7 @@ from src.robot.hardware.command.stm_command import CommandsFromStm
 from src.robot.hardware.message_corrupted_exception import MessageCorruptedException
 
 
-class CommandFromStm:
+class CommandFromStm(object):
 
     def __init__(self, message: bytes):
         self.target = message[0]
