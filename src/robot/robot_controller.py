@@ -55,11 +55,14 @@ class RobotController(object):
         time.sleep(2)
         # self._network.wait_infrared_ask()
         # self._network.send_infrared_ask(43)
+        ok = None
+        while ok is None:
+            self.ask_if_can_grab_cube()
+            ok = self.receive_command()
 
         self.send_grab_cube()
         time.sleep(10)
         self.send_drop_cube()
         time.sleep(10)
-        self.ask_if_can_grab_cube()
 
         time.sleep(1000)
