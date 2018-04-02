@@ -15,7 +15,6 @@ robot:
 
 station:
   table_number: 4
-  camera_id: 1
   update_robot: false
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
@@ -35,5 +34,9 @@ station:
       - "resources/calibration/world_calibration_4.npy"
       - ""
       - ""
+  camera:
+    use_mocked_camera: true
+    mocked_camera_image_path: "fig/saved_images/table5/13h48m53s.jpg"
+    camera_id: 1
   network:
     port: *port

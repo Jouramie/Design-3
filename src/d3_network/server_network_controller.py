@@ -59,5 +59,3 @@ class ServerNetworkController(NetworkController):
         country_code = msg['country_code']
         self._logger.info("Infrared signal received! {code}".format(code=country_code))
         return country_code
-
-
