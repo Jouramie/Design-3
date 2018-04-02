@@ -39,7 +39,7 @@ class StationController(object):
         self.path_calculator = PathCalculator()
         self.path_converter = PathConverter()
         self.navigation_environment = NavigationEnvironment()
-        self.navigation_environment.create_grid(config['navigation']['grid_width'], config['navigation']['grid_height'])
+        self.navigation_environment.create_grid()
 
         self.table_camera_config = table_camera_config
         self.coordinate_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
