@@ -26,6 +26,24 @@ class Cube:
     def get_color(self):
         return self.color
 
+    def is_inside(self, other):
+        if self.x >= other.x and self.y >= other.y and self.w <= other.w and self.h <= other.h:
+            return True
+        else:
+            return False
+
+    def is_too_close(self, other):
+        if abs(self.get_horizontal_middle() - other.get_horizontal_middle()) <= 20:
+            return True
+        else:
+            return False
+
+    def __eq__(self, other):
+        if self.center == other.center and self.color == other.color and self.corners == other.corners:
+            return True
+        else:
+            return False
+
     def __str__(self):
         return "Center: {} Color: {}".format(str(self.center), self.color.name)
 

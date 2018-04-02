@@ -3,7 +3,7 @@ import copy
 import cv2
 import numpy as np
 
-from domain.table_crop import TableCrop
+from src.domain.table_crop import TableCrop
 from src.domain.color import Color
 from src.domain.vision_environment.cube import Cube
 from src.domain.vision_environment.environment import Environment
@@ -167,17 +167,12 @@ class WorldVision:
         return crop_img
 
     def __cube_list_validation(self, cubes: [Cube]):
-        range = 10
         for cube in cubes:
             print(cube)
             for another_cube in cubes:
-                if cube != another_cube:
-                    if (abs(cube.x - another_cube.x) < range) or (abs(cube.y - another_cube.y) < range):
+                if another_cube != cube:
+                    if another_cube.is_inside(cube):
                         cubes.remove(another_cube)
-            for another_cube in cubes:
-                if cube != another_cube:
-                    if (abs(cube.x - another_cube.x) <= range) or (abs(cube.y - another_cube.y) <= range):
-                        if (((another_cube.get_color == Color.RED) or (another_cube.get_color == Color.RED2)) and
-                                ((cube.get_color == Color.RED) or (cube.get_color == Color.RED2))):
-                            cubes.remove(another_cube)
+                    elif cube.is_too_close(another_cube):
+                        cubes.remove(another_cube)
         return cubes
