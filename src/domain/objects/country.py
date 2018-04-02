@@ -1,4 +1,4 @@
-from .stylized_flag import StylizedFlag
+from src.domain.objects.stylized_flag import StylizedFlag
 
 
 class Country(object):

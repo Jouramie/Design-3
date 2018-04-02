@@ -2,7 +2,7 @@ import logging
 import os
 
 from src.config import MAIN_CONTROLLER_LOG_DIR, MAIN_CONTROLLER_LOG_FILE
-from src.domain.navigation_environment import NavigationEnvironment
+from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.path_calculator.path_calculator import PathCalculator
 
 

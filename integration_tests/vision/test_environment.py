@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from src.domain.color import *
-from src.domain.vision_environment.vision_environment import *
+from src.domain.objects.color import *
 from src.vision.world_vision import *
 
 
@@ -11,7 +10,7 @@ class TestEnvironment(TestCase):
     def test_when_creating_environment_then_environment_is_returned(self):
         world_vision = WorldVision()
         environment, image = world_vision.create_environment(demo_file)
-        self.assertIsInstance(environment, VisionEnvironment, 'Result contains an environment object')
+        self.assertIsInstance(environment, VisionEnvironment, 'Result contains an environments object')
 
     def test_when_creating_environment_then_image_is_returned(self):
         world_vision = WorldVision()

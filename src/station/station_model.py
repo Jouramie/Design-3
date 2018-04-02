@@ -1,7 +1,7 @@
-from src.domain.color import Color
-from src.domain.country import Country
-from src.domain.vision_environment.robot import Robot
-from src.domain.vision_environment.vision_environment import VisionEnvironment
+from src.domain.objects.color import Color
+from src.domain.objects.country import Country
+from src.domain.objects.robot import Robot
+from src.domain.environments.vision_environment import VisionEnvironment
 
 
 class StationModel(object):
@@ -17,6 +17,7 @@ class StationModel(object):
 
         self.robot: Robot = None
         self.vision_environment: VisionEnvironment = None
+        self.real_world_environment = None
 
         self.robot_is_started = False
         self.robot_is_moving = False

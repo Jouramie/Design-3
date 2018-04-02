@@ -1,10 +1,9 @@
 from unittest import TestCase
+from unittest.mock import MagicMock
 
-from mock import MagicMock
-
-from src.domain.vision_environment.vision_environment import VisionEnvironment
-from src.domain.color import Color
-from src.domain.vision_environment.cube import Cube
+from src.domain.environments.vision_environment import VisionEnvironment
+from src.domain.objects.color import Color
+from src.domain.objects.cube import Cube
 
 SOME_COLOR = Color.BLUE
 CUBES_OF_ALL_COLORS = [Cube((), Color.BLUE, []), Cube((), Color.WHITE, []), Cube((), Color.RED, []),

@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from cv2 import aruco
 
-from src.domain.vision_environment.robot import Robot
+from src.domain.objects.robot import Robot
 from src.vision.camera_parameters import CameraParameters
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.transform import Transform
