@@ -8,9 +8,9 @@ REAL_CONFIG = {'resources_path': {'countries_list': "resources/countries/A-Liste
                                   'country_flag': "resources/countries/Flag_{country}.gif"}}
 EXPECTED_COUNTRY_COUNT = 197
 EXPECTED_43_STYLIZED_FLAG = StylizedFlag(
-    [FlagCube(Color.YELLOW, (5, 61)), FlagCube(Color.BLUE, (33, 61)), FlagCube(Color.RED, (61, 61)),
-     FlagCube(Color.BLUE, (5, 33)), FlagCube(Color.RED, (33, 33)), FlagCube(Color.BLUE, (61, 33)),
-     FlagCube(Color.TRANSPARENT, (5, 5)), FlagCube(Color.TRANSPARENT, (33, 5)), FlagCube(Color.TRANSPARENT, (61, 5))])
+    [FlagCube((5, 61), Color.YELLOW), FlagCube((33, 61), Color.BLUE), FlagCube((61, 61), Color.RED),
+     FlagCube((5, 33), Color.BLUE), FlagCube((33, 33), Color.RED), FlagCube((61, 33), Color.BLUE),
+     FlagCube((5, 5), Color.TRANSPARENT), FlagCube((33, 5), Color.TRANSPARENT), FlagCube((61, 5), Color.TRANSPARENT)])
 
 
 class TestCountryLoader(TestCase):
