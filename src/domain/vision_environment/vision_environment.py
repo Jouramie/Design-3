@@ -1,4 +1,4 @@
-from domain.vision_environment.cube import Cube
+from .cube import Cube
 from .obstacle import Obstacle
 from .target_zone import TargetZone
 from ..color import Color
