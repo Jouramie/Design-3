@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from src.domain.color import Color
-from domain.vision_environment.cube import Cube
+from src.domain.vision_environment.cube import Cube
 from src.domain.vision_environment.vision_environment import VisionEnvironment
 from src.domain.vision_environment.obstacle import Obstacle
 from src.domain.vision_environment.target_zone import TargetZone
