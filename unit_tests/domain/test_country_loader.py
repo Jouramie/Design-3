@@ -10,7 +10,7 @@ EXPECTED_COUNTRY_COUNT = 197
 EXPECTED_43_STYLIZED_FLAG = StylizedFlag(
     [FlagCube(Color.YELLOW, (5, 61)), FlagCube(Color.BLUE, (33, 61)), FlagCube(Color.RED, (61, 61)),
      FlagCube(Color.BLUE, (5, 33)), FlagCube(Color.RED, (33, 33)), FlagCube(Color.BLUE, (61, 33)),
-     FlagCube(Color.TRANSPARENT, (5, 5)), FlagCube(Color.TRANSPARENT, (5, 33)), FlagCube(Color.TRANSPARENT, (61, 5))])
+     FlagCube(Color.TRANSPARENT, (5, 5)), FlagCube(Color.TRANSPARENT, (33, 5)), FlagCube(Color.TRANSPARENT, (61, 5))])
 
 
 class TestCountryLoader(TestCase):
