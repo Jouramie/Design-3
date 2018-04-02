@@ -63,21 +63,27 @@ def start_system(args: dict) -> None:
 
 def start_robot(config: dict, logger: logging.Logger) -> None:
     scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
-    network = client_network_controller.ClientNetworkController(logger.getChild("network_controller"),
-                                                                config['network']['port'], encoder.DictionaryEncoder())
+    network_controller = client_network_controller.ClientNetworkController(logger.getChild("network_controller"),
+                                                                           config['network']['port'],
+                                                                           encoder.DictionaryEncoder())
     try:
         channel = create_channel(config['serial']['port'])
-        robot_controller.RobotController(logger, scanner, network, channel).start()
+        robot_controller.RobotController(logger, scanner, network_controller, channel).start()
     finally:
-        if network._socket is not None:
-            network._socket.close()
-        if channel.serial.isOpen:
+        if network_controller._socket is not None:
+            network_controller._socket.close()
+        if channel.serial is not None and channel.serial.isOpen:
             channel.serial.close()
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
-    network_controller = server_network_controller.ServerNetworkController(logger.getChild("network_controller"),
-                                                                    config['network']['port'], encoder.DictionaryEncoder())
+    if config['network']['use_mocked_network']:
+        network_controller = server_network_controller.MockedServerNetworkController(
+            logger.getChild("network_controller"), config['network']['port'], encoder.Encoder())
+    else:
+        network_controller = server_network_controller.ServerNetworkController(logger.getChild("network_controller"),
+                                                                               config['network']['port'],
+                                                                               encoder.DictionaryEncoder())
     table_camera_config_factory = TableCameraConfigurationFactory(config['resources_path']['camera_calibration'],
                                                                   config['resources_path']['world_calibration'])
     table_camera_config = table_camera_config_factory.create(config['table_number'])
@@ -85,10 +91,12 @@ def start_station(config: dict, logger: logging.Logger) -> None:
         app = App(network_controller, table_camera_config, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
     finally:
-        if network_controller._server is not None:
-            network_controller._server.close()
-        if network_controller._socket is not None:
-            network_controller._socket.close()
+        if not config['network']['use_mocked_network']:
+            if network_controller._server is not None:
+                network_controller._server.close()
+            if network_controller._socket is not None:
+                network_controller._socket.close()
+
 
 """
     network_ctl.host_network()
