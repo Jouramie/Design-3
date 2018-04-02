@@ -64,6 +64,8 @@ class RobotController(object):
             return True
         else:
             return False
+    def send_end_signal(self):
+        self._channel.send_command(commands_to_stm.Command.THE_END.value)
 
     def send_movement_command(self, command: bytearray):
         self._channel.send_command(command)
@@ -73,7 +75,6 @@ class RobotController(object):
         # self._network.wait_infrared_ask()
         # self._network.send_infrared_ask(43)
 
-        self.send_grab_cube()
-        self.send_drop_cube()
+        self.send_end_signal()
 
         time.sleep(1000)
