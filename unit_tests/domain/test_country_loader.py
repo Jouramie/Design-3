@@ -32,4 +32,4 @@ class TestCountryLoader(TestCase):
 
         country = country_loader.get_country(43)
 
-        self.assertTrue(EXPECTED_43_STYLIZED_FLAG.flag_cubes == country.stylized_flag.colors)
+        self.assertTrue(EXPECTED_43_STYLIZED_FLAG.flag_cubes == country.stylized_flag.flag_cubes)

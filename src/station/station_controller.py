@@ -82,7 +82,6 @@ class StationController(object):
         self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
 
     def __select_next_cube_color(self):
-        # TODO pas retourner tout le temps le premier cube de couleur de la liste
         for flag_cube in self.model.country.stylized_flag.flag_cubes:
             if flag_cube.color is not Color.TRANSPARENT:
                 self.model.next_cube_color = flag_cube.color
