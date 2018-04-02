@@ -29,7 +29,7 @@ class RobotController(object):
     def receive_country_code(self) -> int:
         return self.receive_command().get_country_code()
 
-    def receive_final_signal(self) -> CommandFromStm:
+    def receive_end_of_task_signal(self) -> CommandFromStm:
         return self.receive_command()
 
     def receive_command(self):
@@ -59,5 +59,7 @@ class RobotController(object):
         self.send_grab_cube()
         time.sleep(10)
         self.send_drop_cube()
+        time.sleep(10)
+        self.ask_if_can_grab_cube()
 
         time.sleep(1000)
