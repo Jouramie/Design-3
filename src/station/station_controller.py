@@ -11,7 +11,7 @@ from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.color import Color
 from src.domain.country_loader import CountryLoader
 from src.domain.path_calculator.path_calculator import PathCalculator
-from src.vision.camera import create_camera
+from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
@@ -25,14 +25,14 @@ import operator
 
 
 class StationController(object):
-    def __init__(self, model: StationModel, network: ServerNetworkController,
+    def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
                  table_camera_config: TableCameraConfiguration, logger: Logger, config: dict):
         self.model = model
         self.logger = logger
         self.config = config
         self.network = network
 
-        self.camera = create_camera(config["camera_id"])
+        self.camera = camera
 
         self.country_loader = CountryLoader(config)
         self.world_vision = DummyWorldVision(self.camera)

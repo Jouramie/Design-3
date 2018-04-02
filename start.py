@@ -16,6 +16,7 @@ import src.d3_network.server_network_controller as server_network_controller
 import src.robot.robot_controller as robot_controller
 from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
+from src.vision.camera import create_real_camera, MockedCamera
 from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
 
 
@@ -87,8 +88,12 @@ def start_station(config: dict, logger: logging.Logger) -> None:
     table_camera_config_factory = TableCameraConfigurationFactory(config['resources_path']['camera_calibration'],
                                                                   config['resources_path']['world_calibration'])
     table_camera_config = table_camera_config_factory.create(config['table_number'])
+    if config['camera']['use_mocked_camera']:
+        camera = MockedCamera(config['camera']['mocked_camera_image_path'], logger.getChild("camera"))
+    else:
+        camera = create_real_camera(config["camera_id"], logger.getChild("camera"))
     try:
-        app = App(network_controller, table_camera_config, logger.getChild("main_controller"), config)
+        app = App(network_controller, camera, table_camera_config, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
     finally:
         if not config['network']['use_mocked_network']:
@@ -96,6 +101,7 @@ def start_station(config: dict, logger: logging.Logger) -> None:
                 network_controller._server.close()
             if network_controller._socket is not None:
                 network_controller._socket.close()
+
 
 
 """
