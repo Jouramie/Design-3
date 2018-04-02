@@ -104,14 +104,14 @@ class TestRobotController(TestCase):
         ctrl.send_movement_command(StmCommandBuilder().forward(5))
 
         channel.send_command.assert_called_once_with(bytearray(b'\x33\x05\xff'))
-    @patch('src.robot.robot_controller.time')
-    def test_robot(self, time):
-        network_ctrl = MagicMock()
-        channel = create_channel('/dev/ttyUSB0')
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-
-        ctrl._main_loop()
-        # ctrl.send_grab_cube()
+    # @patch('src.robot.robot_controller.time')
+    # def test_robot(self, time):
+    #     network_ctrl = MagicMock()
+    #     channel = create_channel('/dev/ttyUSB0')
+    #     ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
+    #
+    #     ctrl._main_loop()
+    #     # ctrl.send_grab_cube()
 
 
 

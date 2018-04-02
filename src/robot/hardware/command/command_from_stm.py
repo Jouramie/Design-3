@@ -7,7 +7,7 @@ class CommandFromStm(object):
 
     def __init__(self, message: bytearray):
         self.target = message[0]
-        # self.info = message[1]
+        self.info = message[1]
         # self.info2 = message[2]
         # self.checksum = message[3]
         # self._validate()

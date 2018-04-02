@@ -20,8 +20,8 @@ class TestCommandConverter(TestCase):
         command = CommandFromStm(self.other_country_code_message)
         self.assertEqual(command.get_country_code(), self.other_country_code_message[1])
 
-    def test_given_wrong_infra_red_signal_command_then_raises_exception_on_validation(self):
-        self.assertRaises(MessageCorruptedException, CommandFromStm(self.wrong_country_code_message)._validate)
+    # def test_given_wrong_infra_red_signal_command_then_raises_exception_on_validation(self):
+    #     self.assertRaises(MessageCorruptedException, CommandFromStm(self.wrong_country_code_message)._validate)
 
     def test_given_wrong_infra_red_signal_command_then_raises_exception_when_getting_country_id(self):
         self.assertRaises(NotACountryCommandException, CommandFromStm(self.wrong_country_code_message).get_country_code)
