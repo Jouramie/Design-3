@@ -19,9 +19,10 @@ class Channel:
         total = 0
         for h in message:
             total += h
-        checksum = 0x100-total
+        checksum = 0x100 - total
         message.append(checksum)
         self.serial.write(message)
+
 
 def create_channel(port: str):
     ser = serial.Serial()

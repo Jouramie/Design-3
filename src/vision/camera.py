@@ -1,6 +1,7 @@
 import os
 import time
 from logging import Logger
+import platform
 
 import cv2
 
@@ -115,27 +116,31 @@ def create_real_camera(camera_id: int, logger: Logger) -> RealCamera:
     capture_object = cv2.VideoCapture(camera_id)
     capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, ORIGINAL_IMAGE_WIDTH)
     capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, ORIGINAL_IMAGE_HEIGHT)
+    if (os == "Windows"):
+        # Disable auto-settings of opencv-contrib
+        capture_object.set(cv2.CAP_PROP_AUTOFOCUS, False)
+        capture_object.set(cv2.CAP_PROP_AUTO_EXPOSURE, False)
+        capture_object.set(cv2.CAP_PROP_BACKLIGHT, False)
 
-    # Disable auto-settings of opencv-contrib
-    capture_object.set(cv2.CAP_PROP_AUTOFOCUS, False)
-    capture_object.set(cv2.CAP_PROP_AUTO_EXPOSURE, False)
-    capture_object.set(cv2.CAP_PROP_BACKLIGHT, False)
+        # Custum settgins(May need to be modified for Environment colors)
+        capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 128)
+        capture_object.set(cv2.CAP_PROP_CONTRAST, 25)
+        capture_object.set(cv2.CAP_PROP_SATURATION, 28)
+        capture_object.set(cv2.CAP_PROP_GAIN, 80)
+        capture_object.set(cv2.CAP_PROP_EXPOSURE, 255)
+        capture_object.set(cv2.CAP_PROP_TEMPERATURE, 0)
+        capture_object.set(cv2.CAP_PROP_ISO_SPEED, 0)
+        capture_object.set(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U, 0)
+        capture_object.set(cv2.CAP_PROP_WHITE_BALANCE_RED_V, 0)
 
-    # Custum settgins(May need to be modified for Environment colors)
-    capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 128)
-    capture_object.set(cv2.CAP_PROP_CONTRAST, 25)
-    capture_object.set(cv2.CAP_PROP_SATURATION, 28)
-    capture_object.set(cv2.CAP_PROP_GAIN, 80)
-    capture_object.set(cv2.CAP_PROP_EXPOSURE, 255)
-    capture_object.set(cv2.CAP_PROP_TEMPERATURE, 0)
-    capture_object.set(cv2.CAP_PROP_ISO_SPEED, 0)
-    capture_object.set(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U, 0)
-    capture_object.set(cv2.CAP_PROP_WHITE_BALANCE_RED_V, 0)
+        # Set focus
+        capture_object.set(cv2.CAP_PROP_FOCUS, 24)
+    if (os == "Linux"):
+        capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
+        capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
 
-    # Set focus
-    capture_object.set(cv2.CAP_PROP_FOCUS, 24)
 
-    if not capture_object.isOpened():
+    if capture_object.isOpened():
         logger.info('World cam initialized')
     else:
         raise CameraInitializationError('Camera could not be set properly')

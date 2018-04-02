@@ -15,7 +15,6 @@ robot:
 
 station:
   table_number: 4
-  update_robot: false
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
     country_flag: "resources/countries/Flag_{country}.gif"
@@ -35,8 +34,10 @@ station:
       - ""
       - ""
   camera:
-    use_mocked_camera: true
+    use_mocked_camera: false
     mocked_camera_image_path: "fig/saved_images/table5/13h48m53s.jpg"
-    camera_id: 1
+    camera_id: 0
   network:
+    use_mocked_network: true
     port: *port
+  update_robot: false
