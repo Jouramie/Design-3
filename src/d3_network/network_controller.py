@@ -3,7 +3,6 @@ from socket import socket
 
 from .command import Command
 from .encoder import Encoder
-from .network_exception import MessageNotReceivedYet
 
 
 class NetworkController(object):
