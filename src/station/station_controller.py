@@ -86,7 +86,7 @@ class StationController(object):
             self.navigation_environment.add_obstacles(obstacle_pos)
             # TODO add obstacles to grid
 
-        path = self.path_calculator.calculate_path((0, 0), (200, 0), self.navigation_environment.get_grid())
+        is_possible = self.path_calculator.calculate_path((0, 0), (200, 0), self.navigation_environment.get_grid())
         _, self.model.planned_path = self.path_converter.convert_path(self.path_calculator.get_calculated_path())
 
         self.logger.info("Waiting for robot to connect.")
@@ -105,15 +105,15 @@ class StationController(object):
             self.frame_drawer.draw_robot(frame, self.model.robot)
 
         if self.model.planned_path is not None and self.model.planned_path:
-            # self.logger.info("Planned path " + str(self.model.planned_path))
+            self.logger.info("Planned path " + str(self.model.planned_path))
             self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
 
         if self.model.real_path is not None and self.model.real_path:
             # self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
-        self.logger.info("Vision Environment: {}".format(str(self.model.vision_environment)))
         if self.model.vision_environment is not None:
+            self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
             for obstacle in self.model.vision_environment.obstacles:
                 self.frame_drawer.draw_obstacle(frame, obstacle)
 
@@ -142,14 +142,14 @@ class StationController(object):
 
     def update(self):
         # self.logger.info("StationController.update()")
-        self.model.frame = frame = self.camera.get_frame()
-        self.model.robot = self.robot_detector.detect(frame)
+        self.model.frame = self.camera.get_frame()
+        self.model.robot = self.robot_detector.detect(self.model.frame)
 
         if self.model.robot is not None:
             robot_center_3d = self.model.robot.get_center_3d()
             self.model.real_path.append(np.float32(robot_center_3d))
 
-        self.__draw_environment(frame)
+        self.__draw_environment(self.model.frame)
 
         if not self.model.robot_is_started:
             return
