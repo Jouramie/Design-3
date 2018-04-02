@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 from src.domain.vision_environment.robot import Robot
-from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.camera_parameters import CameraParameters
+from src.vision.coordinate_converter import CoordinateConverter
 
 
 class FrameDrawer:
@@ -23,9 +23,12 @@ class FrameDrawer:
 
     def __projectPoints(self, points):
         camera_to_world_parameters = self.coordinate_converter.get_camera_to_world().to_parameters()
-        camera_to_world_tvec = np.array([camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
-        camera_to_world_rvec = np.array([camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
-        projected_points, jac = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec, self.cam_param.camera_matrix, self.cam_param.distortion)
+        camera_to_world_tvec = np.array(
+            [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
+        camera_to_world_rvec = np.array(
+            [camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
+        projected_points, jac = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec,
+                                                  self.cam_param.camera_matrix, self.cam_param.distortion)
 
         return projected_points
 

@@ -13,4 +13,3 @@ def create_camera_parameters_from_file(file_path) -> CameraParameters:
     distortion = f.getNode("distortion_coefficients")
 
     return CameraParameters(camera_matrix.mat(), distortion.mat())
-
