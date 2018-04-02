@@ -67,7 +67,7 @@ class WorldVision:
                 new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
 
-        #self.__cube_list_validation(cubes)
+        self.__cube_list_validation(cubes)
 
         if target_zone is not None:
             target_zone.center = (target_zone.center[0], target_zone.center[1] + table_crop.y_crop_top)
@@ -171,8 +171,10 @@ class WorldVision:
             print(cube)
             for another_cube in cubes:
                 if another_cube != cube:
+                    '''
                     if another_cube.is_inside(cube):
                         cubes.remove(another_cube)
-                    elif cube.is_too_close(another_cube):
+                    elif cube.is_too_close(another_cube) and cube.color == another_cube.color:
                         cubes.remove(another_cube)
+                    '''
         return cubes
