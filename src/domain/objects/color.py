@@ -1,9 +1,9 @@
 from enum import Enum
+
 import numpy as np
 
 
 class Color(Enum):
-
     BLACK = ((0, 0, 0), np.array([0, 0, 0]), np.array([180, 0, 40]))
     BLUE = ((255, 0, 0), np.array([90, 40, 40]), np.array([130, 255, 255]))
     GREEN = ((0, 209, 0), np.array([40, 80, 80]), np.array([70, 255, 255]))

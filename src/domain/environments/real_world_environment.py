@@ -1,11 +1,11 @@
 import cv2
 import numpy as np
 
-from src.domain.environments.vision_environment import VisionEnvironment
-from src.domain.objects.obstacle import Obstacle
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.transform import Transform
+from .vision_environment import VisionEnvironment
+from ..objects.obstacle import Obstacle
 
 
 class RealWorldEnvironment(object):
@@ -42,4 +42,4 @@ class RealWorldEnvironment(object):
         world_to_obstacle = self.__coordinate_converter.world_from_camera(camera_to_obstacle)
 
         obstacle_information = world_to_obstacle.to_parameters(True)
-        return Obstacle((obstacle_information[0], obstacle_information[1]), 6.3)
+        return Obstacle((obstacle_information[0], obstacle_information[1]), 7)

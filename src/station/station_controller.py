@@ -2,23 +2,21 @@ import subprocess
 import time
 from logging import Logger
 
-import cv2
 import numpy as np
 
-from src.domain.environments.real_world_environment import RealWorldEnvironment
-from src.domain.path_calculator.path_converter import PathConverter
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
-from src.domain.objects.color import Color
 from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
+from src.domain.environments.real_world_environment import RealWorldEnvironment
+from src.domain.objects.color import Color
 from src.domain.path_calculator.path_calculator import PathCalculator
+from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
 from src.vision.table_camera_configuration import TableCameraConfiguration
-from src.vision.transform import Transform
 from src.vision.world_vision import WorldVision
 from .station_model import StationModel
 
@@ -36,7 +34,7 @@ class StationController(object):
         self.country_loader = CountryLoader(config)
         self.world_vision = WorldVision()  # DummyWorldVision(self.camera)
         self.path_calculator = PathCalculator()
-        self.path_converter = PathConverter()
+        self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.navigation_environment.create_grid()
 

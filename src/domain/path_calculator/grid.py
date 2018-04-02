@@ -1,5 +1,5 @@
+from .direction import Direction
 from .vertex import Vertex
-from src.domain.path_calculator.direction import Direction
 
 
 class Grid:

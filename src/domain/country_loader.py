@@ -2,9 +2,9 @@ from pathlib import Path
 
 from PIL import Image
 
-from src.domain.objects.color import Color
-from src.domain.objects.country import Country
-from src.domain.objects.stylized_flag import StylizedFlag
+from .objects.color import Color
+from .objects.country import Country
+from .objects.stylized_flag import StylizedFlag
 
 IMAGE_MAX_SIZE = 96
 NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES = 32

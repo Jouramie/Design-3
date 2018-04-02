@@ -1,4 +1,4 @@
-from src.domain.objects.color import Color
+from .color import Color
 
 
 class Cube(object):

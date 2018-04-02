@@ -1,8 +1,8 @@
 from logging import Logger
 
-from src.domain.environments.navigation_environment_error import NavigationEnvironmentDataError
-from src.domain.environments.real_world_environment import RealWorldEnvironment
-from src.domain.path_calculator.grid import Grid
+from .navigation_environment_error import NavigationEnvironmentDataError
+from .real_world_environment import RealWorldEnvironment
+from ..path_calculator.grid import Grid
 
 
 class NavigationEnvironment(object):

@@ -1,7 +1,7 @@
-from src.domain.objects.cube import Cube
-from src.domain.objects.obstacle import Obstacle
-from src.domain.objects.target_zone import TargetZone
-from src.domain.objects.color import Color
+from ..objects.color import Color
+from ..objects.cube import Cube
+from ..objects.obstacle import Obstacle
+from ..objects.target_zone import TargetZone
 
 
 class VisionEnvironment(object):
