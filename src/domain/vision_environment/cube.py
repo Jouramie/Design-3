@@ -20,14 +20,6 @@ class Cube:
     def get_horizontal_middle(self):
         return (self.x + self.w)/2
 
-    def get_y(self):
-        y = self.corners[0][1]
-        return y
-
-    def get_h(self):
-        h = self.corners[1][1]
-        return h
-
     def get_vertical_middle(self):
         return (self.y + self.h)/2
 
