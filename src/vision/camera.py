@@ -78,7 +78,7 @@ def create_camera(camera_id):
     capture_object = cv2.VideoCapture(camera_id)
     capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, ORIGINAL_IMAGE_WIDTH)
     capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, ORIGINAL_IMAGE_HEIGHT)
-    capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
+    capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.6)
     capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
 
     if capture_object.isOpened():

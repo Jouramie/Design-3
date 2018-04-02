@@ -28,7 +28,7 @@ class StationController(object):
         self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(1)
+        self.camera = create_camera(2)
         self.world_vision = WorldVision(logger, config)
         self.environment = self.world_vision.create_environment(self.camera.get_frame(), table_camera_config.id)
 
