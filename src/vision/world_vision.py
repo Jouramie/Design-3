@@ -6,7 +6,7 @@ from src.domain.objects.color import Color
 from src.domain.objects.cube import Cube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.target_zone import TargetZone
-from src.vision.vision_exception import VisionException
+from .vision_exception import VisionException
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
