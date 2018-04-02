@@ -11,6 +11,7 @@ class StationModel(object):
 
         self.country: Country = "Country not yet selected"
         self.country_code: int = None
+        self.current_cube_index = 0
         self.next_cube_color: Color = None
 
         self.frame = None

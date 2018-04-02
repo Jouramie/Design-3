@@ -38,9 +38,9 @@ class StationController(object):
         self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
 
         self.model.world_camera_is_on = True
-        #self.model.country_code = 43
-        #self.__find_country()
-        #self.__select_next_cube_color()
+        self.model.country_code = 100
+        self.__find_country()
+        self.__select_next_cube_color()
 
     def start_robot(self):
         self.model.robot_is_started = True
@@ -82,10 +82,14 @@ class StationController(object):
         self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
 
     def __select_next_cube_color(self):
-        for flag_cube in self.model.country.stylized_flag.flag_cubes:
-            if flag_cube.color is not Color.TRANSPARENT:
-                self.model.next_cube_color = flag_cube.color
-                break
+        cube_index = self.model.current_cube_index
+        flag_cube = self.model.country.stylized_flag.flag_cubes[cube_index]
+        if flag_cube.color is not Color.TRANSPARENT:
+            self.model.current_cube_index = cube_index + 1
+            self.model.next_cube_color = flag_cube.color
+        else:
+            self.model.current_cube_index = cube_index + 1
+            self.__select_next_cube_color()
 
     def update(self):
         # self.logger.info("StationController.update()")
