@@ -5,10 +5,11 @@ from src.robot.hardware.message_corrupted_exception import MessageCorruptedExcep
 
 class CommandFromStm(object):
 
-    def __init__(self, message: bytes):
+    def __init__(self, message: bytearray):
         self.target = message[0]
-        self.info = message[1]
-        self.checksum = message[2]
+        # self.info = message[1]
+        # self.info2 = message[2]
+        # self.checksum = message[3]
         # self._validate()
 
     def get_country_code(self):
@@ -18,7 +19,7 @@ class CommandFromStm(object):
             raise NotACountryCommandException('Not a country code message')
 
     def _validate(self):
-        calculated_checksum = (0x100 - self.target - self.info) & 0x0FF
+        calculated_checksum = (0x100 - self.target - self.info - self.info2) & 0x0FF
         if self.checksum != calculated_checksum:
             raise MessageCorruptedException('Message could not be validated')
         if self.target not in Target.STM_COMMANDS.value:

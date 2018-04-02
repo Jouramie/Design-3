@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
 from src.robot import robot_controller
+from src.robot.hardware.channel import create_channel
 from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
 from src.robot.hardware.command.not_a_country_command_exception import NotACountryCommandException
 from src.robot.hardware.command.stm_command_definition import commands_to_stm
@@ -89,7 +90,7 @@ class TestRobotController(TestCase):
         channel.send_command= Mock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.ask_if_can_grab_cube()
+        ctrl.send_ask_if_can_grab_cube()
 
         channel.send_command.assert_called_once_with(commands_to_stm.Command.CAN_GRAB_CUBE.value)
 
@@ -103,3 +104,14 @@ class TestRobotController(TestCase):
         ctrl.send_movement_command(StmCommandBuilder().forward(5))
 
         channel.send_command.assert_called_once_with(bytearray(b'\x33\x05\xff'))
+    @patch('src.robot.robot_controller.time')
+    def test_robot(self, time):
+        network_ctrl = MagicMock()
+        channel = create_channel('/dev/ttyUSB0')
+        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
+
+        ctrl._main_loop()
+        # ctrl.send_grab_cube()
+
+
+

@@ -36,17 +36,34 @@ class RobotController(object):
         msg = None
         while msg is None:
             msg = self._channel.receive_message()
-
+        print(msg)
         return CommandFromStm(bytearray(msg))
 
-    def send_grab_cube(self) -> None:
-        self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
+    def send_grab_cube(self) -> bool:
+        if (self.send_ask_if_can_grab_cube() == True):
+            self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
+            msg = None
+            while msg is None:
+                msg = self._channel.receive_message()
+                self._logger.info('Received from STM : {}'.format(msg))
+            if msg[3:4] == 'fc':
+                return True
+            else:
+                return False
 
     def send_drop_cube(self) -> None:
         self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
 
-    def ask_if_can_grab_cube(self) -> None:
+    def send_ask_if_can_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.CAN_GRAB_CUBE.value)
+        msg = None
+        while msg is None:
+            msg = self._channel.receive_message()
+            self._logger.info('Received from STM : {}'.format(msg))
+        if msg[3:4] == 'fc':
+            return True
+        else:
+            return False
 
     def send_movement_command(self, command: bytearray):
         self._channel.send_command(command)
@@ -55,14 +72,8 @@ class RobotController(object):
         time.sleep(2)
         # self._network.wait_infrared_ask()
         # self._network.send_infrared_ask(43)
-        ok = None
-        while ok is None:
-            self.ask_if_can_grab_cube()
-            ok = self.receive_command()
 
         self.send_grab_cube()
-        time.sleep(10)
         self.send_drop_cube()
-        time.sleep(10)
 
         time.sleep(1000)
