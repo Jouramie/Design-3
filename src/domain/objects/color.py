@@ -12,9 +12,12 @@ class Color(Enum):
     YELLOW = ((0, 255, 255), np.array([26, 100, 80]), np.array([36, 255, 255]))
 
     SKY_BLUE = ((235, 206, 135), None, None)
+    LIGHT_GREEN = ((124, 255, 124), None, None)
+    LIGHT_BLUE = ((255, 124, 124), None, None)
     PINK = ((147, 20, 255), None, None)
     PINK2 = ((200, 20, 255), None, None)
     TRANSPARENT = ((230, 240, 250), None, None)
+    LIGHT_GREY = ((200, 200, 200), None, None)
 
     def __init__(self, bgr: tuple, lower_bound: np.ndarray, upper_bound: np.ndarray):
         self.bgr = bgr

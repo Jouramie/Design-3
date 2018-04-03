@@ -167,13 +167,3 @@ class WorldVision:
             raise VisionException('Impossible to crop image.')
 
         return crop_img
-
-
-if __name__ == "__main__":
-    from src.vision.camera import create_camera
-
-    cam = create_camera(1)
-    frame = cam.take_picture()
-    vision = WorldVision()
-    env = vision.create_environment(frame)
-    print(env)
