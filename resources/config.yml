@@ -11,7 +11,7 @@ robot:
     port: *port
   serial:
     port: "/dev/ttyUSB0"
-
+  distance_between_robot_center_and_cube_center: 18 #cm
 
 station:
   table_number: 2

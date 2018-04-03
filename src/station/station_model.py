@@ -1,5 +1,5 @@
+from src.domain.objects.flag_cube import FlagCube
 from src.domain.environments.vision_environment import VisionEnvironment
-from src.domain.objects.color import Color
 from src.domain.objects.country import Country
 from src.domain.objects.robot import Robot
 
@@ -11,7 +11,8 @@ class StationModel(object):
 
         self.country: Country = "Country not yet selected"
         self.country_code: int = None
-        self.next_cube_color: Color = None
+        self.current_cube_index = 0
+        self.next_cube: FlagCube = None
 
         self.frame = None
 
@@ -24,6 +25,7 @@ class StationModel(object):
         self.timer_is_on = False
         self.world_camera_is_on = False
         self.infrared_signal_asked = False
+        self.flag_is_finish = False
 
         self.planned_path = None
         self.real_path = []
