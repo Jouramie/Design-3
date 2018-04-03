@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Color(Enum):
-    BLACK = ((0, 0, 0), np.array([0, 0, 0]), np.array([180, 255, 60]))
+    BLACK = ((0, 0, 0), np.array([0, 0, 0]), np.array([180, 255, 40]))
     BLUE = ((255, 0, 0), np.array([90, 40, 70]), np.array([130, 255, 255]))
     GREEN = ((0, 209, 0), np.array([40, 80, 80]), np.array([70, 255, 255]))
     RED = ((0, 0, 255), np.array([0, 60, 0]), np.array([20, 245, 200]))
