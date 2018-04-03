@@ -57,7 +57,6 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
-        self.network.send_end_of_task_signal()
         input()
         self.network.send_ask_if_can_grab_cube()
         input()
