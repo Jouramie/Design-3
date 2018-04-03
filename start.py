@@ -84,7 +84,7 @@ def start_station(config: dict, logger: logging.Logger) -> None:
     else:
         network_controller = server_network_controller.SocketServerNetworkController(
             logger.getChild("network_controller"), config['network']['port'], encoder.DictionaryEncoder())
-        
+
     table_camera_config_factory = TableCameraConfigurationFactory(config['resources_path']['camera_calibration'],
                                                                   config['resources_path']['world_calibration'])
     table_camera_config = table_camera_config_factory.create(config['table_number'])

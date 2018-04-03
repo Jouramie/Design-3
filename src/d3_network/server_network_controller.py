@@ -13,19 +13,19 @@ class ServerNetworkController(NetworkController):
         super().__init__(logger, port, encoder)
 
     def host_network(self) -> None:
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def send_start_command(self) -> None:
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def send_reset_command(self) -> None:
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def ask_infrared_signal(self) -> None:
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def check_infrared_signal(self) -> int:
-        pass
+        raise NotImplementedError("This is an interface...")
 
 
 class SocketServerNetworkController(ServerNetworkController):
