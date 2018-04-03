@@ -68,3 +68,16 @@ class ClientNetworkController(NetworkController):
     def send_infrared_ask(self, country_code: int) -> None:
         self._logger.info('Sending country_code {code}.'.format(code=country_code))
         self._send_command(Command.INFRARED_SIGNAL, {'country_code': country_code})
+
+    def wait_message(self):
+        self._logger.info('Waiting for a command.')
+        msg = None
+        while msg is None:
+            try:
+                msg = self._receive_message()
+            except MessageNotReceivedYet:
+                self._logger.info('Waiting for a command.')
+                sleep(1)
+
+        self._logger.info(msg)
+        return msg

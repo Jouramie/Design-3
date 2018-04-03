@@ -1,12 +1,15 @@
 import time
+from queue import Queue
 from logging import Logger
 
+from .hardware.command.not_a_country_command_exception import NotACountryCommandException
 from .hardware.command.stm_command_definition import commands_from_stm
 from .hardware.command.stm_command_definition import commands_to_stm
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm
 from ..d3_network.client_network_controller import ClientNetworkController
 from ..d3_network.ip_provider import IpProvider
+from ..d3_network.command import Command
 
 
 class RobotController(object):
@@ -16,6 +19,7 @@ class RobotController(object):
         self._ip_provider = ip_provider
         self._network = network
         self._channel = channel
+        self._network_queue = Queue()
 
     def start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
@@ -26,10 +30,6 @@ class RobotController(object):
 
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
         self._main_loop()
-
-    def receive_country_code(self) -> int:
-        return self.receive_command().get_country_code()
-
 
     def receive_end_of_task_signal(self) -> bool:
         msg = self.receive_command()
@@ -78,14 +78,29 @@ class RobotController(object):
         else:
             return False
 
-    def _main_loop(self):
-        time.sleep(2)
-        # self._network.wait_infrared_ask()
-        # self._network.send_infrared_ask(43)
-        # self.receive_country_code()
-        self.send_seek_flag()
-        self.receive_country_code()
-        self.send_end_signal()
+    def _execute_flag_sequence(self):
+        command = self.receive_command()
+        try:
+            self._logger.info('Received country number : {}'.format(command.get_country_code()))
+            self._network.send_infrared_ask(command.get_country_code())
+        except NotACountryCommandException:
+            self._logger.info('Expected a country number but received : {}'.format(command.raw_command))
 
+    def execute(self):
+        msg = self._network_queue.get()
+        if msg['command'] == Command.INFRARED_SIGNAL:
+            self.send_seek_flag()
+            self._execute_flag_sequence()
+        elif msg['command'] == Command.END_SIGNAL:
+            self.send_end_signal()
+        elif msg['command'] == Command
+
+
+    def _main_loop(self):
+        done = False
+        time.sleep(2)
+        while not done:
+            self._network_queue.put(self._network.wait_message())
+            self.execute()
         time.sleep(1000)
 

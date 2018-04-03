@@ -3,3 +3,4 @@ class Command(object):
     START = 'start'
     HELLO = 'hello'
     INFRARED_SIGNAL = 'infrared-signal'
+    END_SIGNAL = 'end-signal'

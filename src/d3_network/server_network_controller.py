@@ -27,6 +27,8 @@ class ServerNetworkController(NetworkController):
     def check_infrared_signal(self) -> int:
         raise NotImplementedError("This is an interface...")
 
+    def send_end_of_task_signal(self) -> int:
+        raise NotImplementedError("This is an interface...")
 
 class SocketServerNetworkController(ServerNetworkController):
 
@@ -80,6 +82,9 @@ class SocketServerNetworkController(ServerNetworkController):
         country_code = msg['country_code']
         self._logger.info("Infrared signal received! {code}".format(code=country_code))
         return country_code
+
+    def send_end_of_task_signal(self) -> int:
+        self._send_command(Command.END_SIGNAL)
 
 
 class MockedServerNetworkController(ServerNetworkController):
