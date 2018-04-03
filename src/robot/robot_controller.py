@@ -82,7 +82,6 @@ class RobotController(object):
         time.sleep(2)
         # self._network.wait_infrared_ask()
         # self._network.send_infrared_ask(43)
-        self.send_seek_flag()
         # self.receive_country_code()
 
         self.send_end_signal()
