@@ -56,17 +56,7 @@ class StationController(object):
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
-        self.network.send_start_command()
-        # input('next step if infrared signal')
-        # self.network.ask_infrared_signal()
-        # self.network.send_ask_if_can_grab_cube()
-        # input('next is grab')
-        # self.network.send_grab_cube()
-        # input('next is drop')
-        # self.network.send_drop_cube()
-        input('next is end of task')
-        self.network.send_end_of_task_signal()
-        input('press enter')
+        self.interactive_testing()
 
     def interactive_testing(self):
         while True:
