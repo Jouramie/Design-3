@@ -24,6 +24,7 @@ class TestRobotController(TestCase):
         network_scanner = Mock()
         network_scanner.attach_mock(Mock(return_value=host_ip), 'get_host_ip')
         network_ctrl = MagicMock()
+        network_ctrl.attach_mock(Mock(return_value=dict({'command': 'end-signal'})), 'wait_message')
         ctrl = robot_controller.RobotController(MagicMock(), network_scanner, network_ctrl, MagicMock())
 
         ctrl.start()
@@ -46,9 +47,10 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value="b'\xb0\x43\x12\xfb'")
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.receive_country_code()
+        ctrl._execute_flag_sequence()
 
         channel.receive_message.assert_called_once()
+
 
     @patch('src.robot.robot_controller.time')
     def test_when_receive_wrong_country_code_then_raise_not_a_country_command_exception(self, time):
@@ -57,7 +59,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value="b'\xb1\x43\x12\xfa'")
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        self.assertRaises(NotACountryCommandException, ctrl.receive_country_code)
+        self.assertRaises(NotACountryCommandException, ctrl._execute_flag_sequence())
 
 
     @patch('src.robot.robot_controller.time')

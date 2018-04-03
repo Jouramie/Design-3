@@ -20,6 +20,7 @@ class RobotController(object):
         self._network = network
         self._channel = channel
         self._network_queue = Queue()
+        self.task_done = False
 
     def start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
@@ -29,7 +30,6 @@ class RobotController(object):
         self._network.wait_start_command()
 
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
-        self._main_loop()
 
     def receive_end_of_task_signal(self) -> bool:
         msg = self.receive_command()
@@ -62,6 +62,7 @@ class RobotController(object):
 
     def send_end_signal(self):
         self._channel.send_command(commands_to_stm.Command.THE_END.value)
+        self.task_done = True
 
     def send_seek_flag(self):
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
@@ -74,8 +75,10 @@ class RobotController(object):
 
     def _validate_target(self, command: CommandFromStm, target: commands_from_stm.Target) -> bool:
         if command.target == target:
+            self._logger.info('Command successfull')
             return True
         else:
+            self._logger.info('Command UNsuccessfull')
             return False
 
     def _execute_flag_sequence(self):
@@ -87,20 +90,30 @@ class RobotController(object):
             self._logger.info('Expected a country number but received : {}'.format(command.raw_command))
 
     def execute(self):
-        msg = self._network_queue.get()
-        if msg['command'] == Command.INFRARED_SIGNAL:
-            self.send_seek_flag()
-            self._execute_flag_sequence()
-        elif msg['command'] == Command.END_SIGNAL:
-            self.send_end_signal()
-        elif msg['command'] == Command
-
+        if not self._network_queue.empty():
+            msg = self._network_queue.get()
+            if msg['command'] == Command.INFRARED_SIGNAL:
+                self.send_seek_flag()
+                self._execute_flag_sequence()
+            elif msg['command'] == Command.CAN_I_GRAB:
+                self.send_ask_if_can_grab_cube()
+            elif msg['command'] == Command.GRAB:
+                self.send_grab_cube()
+            elif msg['command'] == Command.DROP:
+                self.send_drop_cube()
+            elif msg['command'] == Command.END_SIGNAL:
+                self.send_end_signal()
+            else:
+                self._logger.info('Received this {} but does not know how to deal with it'.format(msg))
+                raise NotImplementedError("Please do more stuff")
 
     def _main_loop(self):
-        done = False
+        self.start()
         time.sleep(2)
-        while not done:
-            self._network_queue.put(self._network.wait_message())
+        while not self.task_done:
+            msg = self._network.wait_message()
+            if msg is not None:
+                self._network_queue.put(msg)
             self.execute()
         time.sleep(1000)
 

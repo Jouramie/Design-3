@@ -69,10 +69,11 @@ class ClientNetworkController(NetworkController):
         self._logger.info('Sending country_code {code}.'.format(code=country_code))
         self._send_command(Command.INFRARED_SIGNAL, {'country_code': country_code})
 
-    def wait_message(self):
+    def wait_message(self) -> dict:
         self._logger.info('Waiting for a command.')
         msg = None
-        while msg is None:
+        timeout = 5
+        while msg is None or timeout < 5:
             try:
                 msg = self._receive_message()
             except MessageNotReceivedYet:
