@@ -34,12 +34,13 @@ class WorldVision:
 
         cv2.imshow('frame', cropped_image)
 
-        cubes = self.__validate_cube_is_present(cropped_image, Color.RED, cubes)
-        cubes = self.__validate_cube_is_present(cropped_image, Color.RED2, cubes)
-        # cubes = self.__validate_cube_is_present(cropped_image, Color.BLUE, cubes)
-        # cubes = self.__validate_cube_is_present(cropped_image, Color.GREEN, cubes)
-        # cubes = self.__validate_cube_is_present(cropped_image, Color.YELLOW, cubes)
-        # cubes = self.__validate_cube_is_present(cropped_image, Color.BLACK, cubes)
+        for cube in self.__find_red_cubes(cropped_image):
+            cubes.append(cube)
+
+        cubes = self.__validate_cube_is_present(cropped_image, Color.BLUE, cubes)
+        cubes = self.__validate_cube_is_present(cropped_image, Color.GREEN, cubes)
+        cubes = self.__validate_cube_is_present(cropped_image, Color.YELLOW, cubes)
+        #cubes = self.__validate_cube_is_present(cropped_image, Color.BLACK, cubes)
 
         for cube in self.__find_color_cubes(cropped_image, Color.WHITE):
             cubes.append(cube)
@@ -56,8 +57,8 @@ class WorldVision:
                 new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
 
-        # self.__cube_list_validation(cubes, table_crop)
-        cubes = self.__cube_inside_cube_validation(cubes, table_crop)
+        #self.__cube_list_validation(cubes, table_crop)
+        #cubes = self.__cube_inside_cube_validation(cubes, table_crop)
 
         if target_zone is not None:
             target_zone.center = (target_zone.center[0], target_zone.center[1] + table_crop.y_crop_top)
@@ -99,11 +100,34 @@ class WorldVision:
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if 500 > cv2.arcLength(contour, True) > 120:
+            if 500 > cv2.arcLength(contour, True) > 80:
                 if ((0.8 * width < x < 0.92 * width) and (y <= 0.10 * height) or
-                        ((0.96 * width < x < width) and (0.18 * height < y <= 0.82 * height)) or
+                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, color)
+
+    def __find_red_cubes(self, frame):
+        red = Color.RED
+        red2 = Color.RED2
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+        red_mask = cv2.inRange(hsv, red.lower_bound, red.upper_bound)
+        red2_mask = cv2.inRange(hsv, red2.lower_bound, red2.upper_bound)
+
+        mask = red_mask + red2_mask
+
+        image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+        height, width, _ = frame.shape
+
+        for contour in contours:
+            x = contour[0][0][0]
+            y = contour[0][0][1]
+            if 500 > cv2.arcLength(contour, True) > 80:
+                if ((0.8 * width < x < 0.92 * width) and (y <= 0.10 * height) or
+                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
+                        ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
+                    yield self.__create_cube(contour, Color.RED)
 
     def __create_cube(self, contour, color: Color) -> Cube:
         x, y, w, h = cv2.boundingRect(contour)

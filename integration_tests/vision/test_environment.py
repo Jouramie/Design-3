@@ -4,11 +4,14 @@ from src.domain.objects.color import *
 from src.vision.world_vision import *
 
 
+
 demo_file = "/home/willvalin/PycharmProjects/system/fig/29-03-2018/table29-03-2018.jpg"
 
 class TestEnvironment(TestCase):
     def test_when_creating_environment_then_environment_is_returned(self):
         world_vision = WorldVision()
+        environment, image = world_vision.create_environment(demo_file)
+        self.assertIsInstance(environment, VisionEnvironment, 'Result contains an environments object')
         demo_frame = cv2.imread(demo_file)
         environment, image = world_vision.create_environment(demo_frame, )
         self.assertIsInstance(environment, Environment, 'Result contains an environment object')
@@ -20,6 +23,8 @@ class TestEnvironment(TestCase):
 
     def test_given_white_cube_when_creating_environment_then_white_cube_is_returned(self):
         world_vision = WorldVision()
+        environment, image = world_vision.create_environment(new_def)
+        cubes_list = environment.cubes
         environment, image = world_vision.create_environment(new_def, )
         cubes_list = environment.get_cubes()
         cv2.imshow('White cube', image)

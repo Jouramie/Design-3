@@ -3,7 +3,7 @@ import cv2.aruco as aruco
 import numpy as np
 import yaml
 
-from src.vision.camera_parameters import CameraParameters
+from src.vision.camera_parameters import *
 from src.vision.transform import Transform
 
 if __name__ == '__main__':
