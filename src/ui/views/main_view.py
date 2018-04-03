@@ -26,9 +26,6 @@ class StationView(QMainWindow):
     def start_robot(self):
         self.station_controller.start_robot()
 
-    def test(self):
-        self.station_controller.select_next_cube_color()
-
     def update(self):
         self.station_controller.update()
 
