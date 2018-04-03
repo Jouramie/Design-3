@@ -1,6 +1,6 @@
-import numpy as np
-
 from math import cos, sin, radians
+
+import numpy as np
 
 
 class Robot:
@@ -11,8 +11,8 @@ class Robot:
         self.width = 22
 
     def get_corners(self):
-        half_width = self.width/2.0
-        half_height = self.height/2.0
+        half_width = self.width / 2.0
+        half_height = self.height / 2.0
 
         top_left = self.__get_corner(-half_width, half_height)
         top_right = self.__get_corner(half_width, half_height)

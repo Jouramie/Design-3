@@ -1,5 +1,5 @@
-from src.vision.transform import Transform
 from src.vision.camera_parameters import CameraParameters
+from src.vision.transform import Transform
 
 
 class TableCameraConfiguration:

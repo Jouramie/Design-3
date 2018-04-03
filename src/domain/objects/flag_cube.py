@@ -1,4 +1,4 @@
-from src.domain.color import Color
+from src.domain.objects.color import Color
 
 
 class FlagCube(object):

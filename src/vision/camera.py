@@ -1,25 +1,44 @@
-import logging
 import os
 import time
-import platform
+from logging import Logger
 
 import cv2
 
-from src.config import FIG_DIRECTORY, WORLD_CAM_LOG_DIR, WORLD_CAM_LOG_FILE, ORIGINAL_IMAGE_WIDTH, ORIGINAL_IMAGE_HEIGHT
-from src.vision.cameraError import CameraInitializationError, CameraError
+from src.vision.camera_error import CameraInitializationError, CameraError
 
 
-class Camera:
-    def __init__(self, capture_object, log_level=logging.INFO):
+class Camera(object):
+    def __init__(self, logger: Logger):
+        self.logger = logger
+
+    def take_picture(self):
+        raise NotImplementedError("This is an interface...")
+
+    def take_video(self):
+        raise NotImplementedError("This is an interface...")
+
+    def get_frame(self):
+        raise NotImplementedError("This is an interface...")
+
+    def get_fps(self):
+        raise NotImplementedError("This is an interface...")
+
+    def release(self):
+        raise NotImplementedError("This is an interface...")
+
+
+class RealCamera(Camera):
+    def __init__(self, capture_object, logger: Logger, image_save_dir: str):
+        super().__init__(logger)
         self.capture_object = capture_object
-        #self._initialize_log(log_level)
+        self.image_save_dir = image_save_dir
 
     def take_picture(self):
         is_frame_returned, img = self.capture_object.read()
         if is_frame_returned:
-            logging.info('Picture taken')
+            self.logger.info('Picture taken')
 
-            directory = FIG_DIRECTORY + time.strftime("%Y-%m-%d")
+            directory = self.image_save_dir.format(date=time.strftime("%Y-%m-%d"))
             if not os.path.exists(directory):
                 os.makedirs(directory)
             cv2.imwrite(directory + time.strftime("/%Hh%Mm%Ss.jpg"), img)
@@ -27,7 +46,7 @@ class Camera:
             return img
         else:
             message = 'No frame was returned while taking a picture'
-            logging.info(message)
+            self.logger.info(message)
             raise CameraError(message)
 
     def take_video(self):
@@ -48,7 +67,7 @@ class Camera:
             return frame
         else:
             message = 'Camera is not opened'
-            logging.info(message)
+            self.logger.info(message)
             raise CameraError(message)
 
     def get_fps(self):
@@ -57,29 +76,45 @@ class Camera:
             return fps
         else:
             message = 'Camera is not opened'
-            logging.info(message)
+            self.logger.info(message)
             raise CameraError(message)
 
     def release(self):
         if self.capture_object.isOpened():
+            self.logger.info("Capture object released.")
             self.capture_object.release()
         else:
             message = 'Camera is not opened'
-            logging.info(message)
+            self.logger.info(message)
             raise CameraError(message)
 
-    def _initialize_log(self, log_level):
-        if not os.path.exists(WORLD_CAM_LOG_DIR):
-            os.makedirs(WORLD_CAM_LOG_DIR)
 
-        logging.basicConfig(level=log_level, filename=WORLD_CAM_LOG_FILE, format='%(asctime)s %(message)s')
+class MockedCamera(Camera):
+    def __init__(self, image_file_path: str, logger: Logger):
+        super().__init__(logger)
+        self.image_file_path = image_file_path
+
+    def take_picture(self):
+        return self.get_frame()
+
+    def take_video(self):
+        raise NotImplementedError('This method is not implemented yet.')
+
+    def get_frame(self):
+        # self.logger.info("Returning image at {}.".format(self.image_file_path))
+        return cv2.imread(self.image_file_path)
+
+    def get_fps(self):
+        raise NotImplementedError('This method is not implemented yet.')
+
+    def release(self):
+        self.logger.info("Capture object released.")
 
 
-def create_camera(camera_id):
-    os = platform.system()
-    capture_object = cv2.VideoCapture(camera_id)
-    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, ORIGINAL_IMAGE_WIDTH)
-    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, ORIGINAL_IMAGE_HEIGHT)
+def create_real_camera(config: dict, logger: Logger) -> RealCamera:
+    capture_object = cv2.VideoCapture(config['camera_id'])
+    capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, config['image_width'])
+    capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, config['image_height'])
     if (os == "Windows"):
         # Disable auto-settings of opencv-contrib
         capture_object.set(cv2.CAP_PROP_AUTOFOCUS, False)
@@ -103,11 +138,9 @@ def create_camera(camera_id):
         capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
         capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
 
-
     if capture_object.isOpened():
-        logging.info('World cam initialized')
+        logger.info('World cam initialized')
     else:
-        logging.info('Camera could not be set properly')
         raise CameraInitializationError('Camera could not be set properly')
 
-    return Camera(capture_object)
+    return RealCamera(capture_object, logger, config['image_save_dir'])

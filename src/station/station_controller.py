@@ -6,36 +6,44 @@ import numpy as np
 
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
-from src.domain.color import Color
 from src.domain.country_loader import CountryLoader
+from src.domain.environments.navigation_environment import NavigationEnvironment
+from src.domain.environments.real_world_environment import RealWorldEnvironment
+from src.domain.objects.color import Color
 from src.domain.path_calculator.path_calculator import PathCalculator
-from src.vision.camera import create_camera
+from src.domain.path_calculator.path_converter import PathConverter
+from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
 from src.vision.table_camera_configuration import TableCameraConfiguration
-from src.vision.world_vision import DummyWorldVision
+from src.vision.world_vision import WorldVision
 from .station_model import StationModel
 
 
 class StationController(object):
-    def __init__(self, model: StationModel, network: ServerNetworkController,
+    def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
                  table_camera_config: TableCameraConfiguration, logger: Logger, config: dict):
         self.model = model
         self.logger = logger
         self.config = config
         self.network = network
 
-        self.camera = create_camera(config["camera_id"])
+        self.camera = camera
 
         self.country_loader = CountryLoader(config)
-        self.world_vision = DummyWorldVision(self.camera)
+        self.world_vision = WorldVision()
         self.path_calculator = PathCalculator()
+        self.path_converter = PathConverter(logger.getChild("PathConverter"))
+        self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
+        self.navigation_environment.create_grid()
 
         self.table_camera_config = table_camera_config
-        self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
-        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
-        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
+        self.coordinate_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
+        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coordinate_converter)
+        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coordinate_converter)
+
+        self.obstacle_pos = []
 
         self.model.world_camera_is_on = True
 
@@ -45,8 +53,6 @@ class StationController(object):
 
         if self.config['update_robot']:
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
-
-        # TODO create navigation_environment
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
@@ -71,20 +77,28 @@ class StationController(object):
             # self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
-        if self.model.environment is not None:
-            pass  # TODO draw environment
+        if self.model.vision_environment is not None:
+            self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
+
+        if self.model.real_world_environment is not None:
+            self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
+
+        # TODO draw navigation grid
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
         self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
 
-    def select_next_cube_color(self):
+    def __select_next_cube_color(self):
         cube_index = self.model.current_cube_index
         while cube_index < 9:
             flag_cube = self.model.country.stylized_flag.flag_cubes[cube_index]
             if flag_cube.color is not Color.TRANSPARENT:
                 self.model.current_cube_index = cube_index + 1
                 self.model.next_cube = flag_cube
+                self.logger.info(
+                    "Found " + str(self.model.country) + " flag: "
+                    + str(self.model.country.stylized_flag.flag_cubes[cube_index]))
                 break
             else:
                 cube_index = cube_index + 1
@@ -92,21 +106,29 @@ class StationController(object):
             self.model.flag_is_finish = True
 
     def update(self):
-        # self.logger.info("StationController.update()")
-        self.model.frame = frame = self.camera.get_frame()
-        self.model.robot = self.robot_detector.detect(frame)
-        self.model.environment = self.world_vision.create_environment()
+        self.model.frame = self.camera.get_frame()
+        self.model.robot = self.robot_detector.detect(self.model.frame)
 
         if self.model.robot is not None:
             robot_center_3d = self.model.robot.get_center_3d()
             self.model.real_path.append(np.float32(robot_center_3d))
 
-        self.__draw_environment(frame)
+        self.__draw_environment(self.model.frame)
 
         if not self.model.robot_is_started:
             return
 
         self.model.passed_time = time.time() - self.model.start_time
+
+        if self.model.vision_environment is None:
+            self.model.vision_environment = self.world_vision.create_environment(self.model.frame)
+            self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
+
+            self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
+                                                                     self.table_camera_config,
+                                                                     self.coordinate_converter)
+
+            self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()
@@ -119,9 +141,14 @@ class StationController(object):
             if country_received is not None:
                 self.model.country_code = country_received
                 self.__find_country()
-                self.select_next_cube_color()
-                self.model.environment.find_cube(self.model.next_cube.color)
+                self.__select_next_cube_color()
+                target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
                 # TODO find path to cube using path finding
+                is_possible = self.path_calculator.calculate_path((0, 0), (200, 0),
+                                                                  self.navigation_environment.get_grid())
+                _, self.model.planned_path = self.path_converter.convert_path(
+                    self.path_calculator.get_calculated_path())
+
             return
 
         """

@@ -1,8 +1,8 @@
 from unittest import TestCase
 from src.domain.country_loader import CountryLoader
-from src.domain.stylized_flag import StylizedFlag
-from src.domain.color import Color
-from src.domain.flag_cube import FlagCube
+from src.domain.objects.flag_cube import FlagCube
+from src.domain.objects.stylized_flag import StylizedFlag
+from src.domain.objects.color import Color
 
 REAL_CONFIG = {'resources_path': {'countries_list': "resources/countries/A-Liste_UTF-16.txt",
                                   'country_flag': "resources/countries/Flag_{country}.gif"}}

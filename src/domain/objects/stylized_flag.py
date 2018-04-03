@@ -1,4 +1,4 @@
-from src.domain.flag_cube import FlagCube
+from src.domain.objects.flag_cube import FlagCube
 
 
 class StylizedFlag(object):
