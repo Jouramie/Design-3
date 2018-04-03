@@ -11,6 +11,8 @@ class NavigationEnvironment(object):
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
     OBSTACLE_VALUE = -2
+    CUBE_HALF_SIZE = 4
+    OBSTACLE_RAYON = 7
 
     __width = 0
     __height = 0
@@ -30,21 +32,52 @@ class NavigationEnvironment(object):
 
         pass  # TODO
 
-    def add_obstacles(self, obstacles_point):
+    def add_cubes(self, cubes_central_point):
         try:
-            for point in obstacles_point:
-                self.__validate_point_in_grid(point)
-
-                for x in range(-7, 7):
-                    for y in range(-7, 7):
-                        self.__add_obstacle((point[0] + x, point[1] + y))
+            # This add a nice square of obstacles in the navigation environment grid
+            for point in cubes_central_point:
+                for x in range(-4, 5):
+                    for y in range(-4, 5):
+                        self.__set_obstacle_point(x, y, point)
 
         except NavigationEnvironmentDataError as err:
             self.logger.info(str(err))
             return False
         return True
 
-    def __add_obstacle(self, point):
+    def add_obstacles(self, obstacles_central_point):
+        try:
+            # This add a nice rounded shape of obstacles in the navigation environment grid
+            for point in obstacles_central_point:
+                print(point)
+                for x in range(-7, 8):
+                    for y in range(-2, 3):
+                        self.__set_obstacle_point(x, y, point)
+                for x in range(-6, 7):
+                    for y in range(3, 5):
+                        self.__set_obstacle_point(x, y, point)
+                        self.__set_obstacle_point(-x, -y, point)
+                for x in range(-5, 6):
+                    self.__set_obstacle_point(x, 5, point)
+                    self.__set_obstacle_point(-x, -5, point)
+                for x in range(-4, 5):
+                    self.__set_obstacle_point(x, 6, point)
+                    self.__set_obstacle_point(-x, -6, point)
+                for x in range(-2, 3):
+                    self.__set_obstacle_point(x, 7, point)
+                    self.__set_obstacle_point(-x, -7, point)
+
+        except NavigationEnvironmentDataError as err:
+            self.logger.info(str(err))
+            return False
+        return True
+
+    def __set_obstacle_point(self, x, y, point: tuple):
+        perimeter_point = (point[0] + x, point[1] + y)
+        self.__validate_point_in_grid(perimeter_point)
+        self.__add_grid_obstacle(perimeter_point)
+
+    def __add_grid_obstacle(self, point):
         self.__grid.get_vertex(point).set_step_value(self.OBSTACLE_VALUE)
         for connection in self.__grid.get_vertex(point).get_connections():
             self.__grid.get_vertex(connection.get_id()).set_new_weight(

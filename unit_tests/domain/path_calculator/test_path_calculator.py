@@ -106,3 +106,24 @@ class TestPathCalculator(TestCase):
         expected = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10)]
 
         self.assertEqual(expected, path_calculator.get_calculated_path())
+
+    def test_when_obstacle_then_goes_around_it(self):
+        environment = NavigationEnvironment(MagicMock())
+        environment.create_grid()
+        environment.add_obstacles([(0, 0)])
+        starting_point_next_to_obstacle = (-8, 1)
+        ending_point_next_to_obstacle = (8, 0)
+        path_calculator = PathCalculator()
+
+        path_calculator.calculate_path(starting_point_next_to_obstacle, ending_point_next_to_obstacle,
+                                       environment.get_grid())
+        expected = [(-8, 1), (-9, 2), (-9, 3), (-8, 4), (-8, 5), (-7, 6), (-6, 7), (-5, 8), (-4, 8), (-3, 9), (-2, 9),
+                    (-1, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 8), (5, 8), (6, 7), (7, 6), (8, 5), (8, 4), (9, 3),
+                    (9, 2), (9, 1), (9, 0), (9, -1), (8, 0)]
+
+
+        expected_less = [(-8, 1), (-9, 2), (-9, 3), (-8, 4), (-8, 5), (-7, 6), (-6, 7), (-5, 8), (-4, 9), (-3, 10), (-2, 9),
+                         (-1, 10), (0, 9), (1, 10), (2, 9), (3, 9), (4, 8), (5, 8), (6, 7), (7, 6), (8, 5), (9, 4),
+                         (10, 3), (9, 2), (9, 1), (9, 0), (9, -1), (8, 0)]
+
+        self.assertEqual(expected, path_calculator.get_calculated_path())

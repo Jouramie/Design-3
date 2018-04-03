@@ -18,7 +18,7 @@ class TestNavigationEnvironment(TestCase):
 
         self.assertFalse(value)
 
-    def test_when_adding_obstacle_then_return_true(self):
+    def test_when_adding_valid_obstacle_then_return_true(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
 
