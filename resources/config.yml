@@ -43,4 +43,6 @@ station:
   network:
     use_mocked_network: true
     port: *port
-  update_robot: false
+  robot:
+    use_mocked_robot_detector: true
+    update_robot: false

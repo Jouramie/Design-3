@@ -2,6 +2,8 @@ from logging import Logger
 
 from .navigation_environment_error import NavigationEnvironmentDataError
 from .real_world_environment import RealWorldEnvironment
+from ..objects.cube import Cube
+from ..objects.obstacle import Obstacle
 from ..path_calculator.grid import Grid
 
 
@@ -14,7 +16,7 @@ class NavigationEnvironment(object):
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 7
     # TODO Validate
-    BIGGEST_ROBOT_RADIUS = 25
+    BIGGEST_ROBOT_RADIUS = 21
 
     __width = 0
     __height = 0
@@ -31,14 +33,16 @@ class NavigationEnvironment(object):
         self.__grid = Grid(self.__width, self.__height)
 
     def add_real_world_environment(self, real_world_environment: RealWorldEnvironment):
+        self.add_cubes(real_world_environment.cubes)
+        self.add_obstacles(real_world_environment.obstacles)
+        self.__add_walls()
 
-        pass  # TODO
-
-    def add_cubes(self, cubes_central_point):
+    def add_cubes(self, cubes: [Cube]):
         try:
-            for point in cubes_central_point:
-                for x in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE+1):
-                    for y in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE+1):
+            for cube in cubes:
+                point = cube.center
+                for x in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
+                    for y in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
                         self.__set_obstacle_point(x, y, point)
 
         except NavigationEnvironmentDataError as err:
@@ -48,9 +52,10 @@ class NavigationEnvironment(object):
 
     # TODO clean way to add robot dimension to obstacle, radius? orientation? position?
 
-    def add_obstacles(self, obstacles_central_point):
-        try:
-            for point in obstacles_central_point:
+    def add_obstacles(self, obstacles: [Obstacle]):
+        for obstacle in obstacles:
+            try:
+                point = (int(obstacle.center[0]), int(obstacle.center[1]))
                 for x in range(-7, 8):
 
                     # TODO Test and chose the best shape
@@ -58,29 +63,29 @@ class NavigationEnvironment(object):
                     # Square shape obstacle
 
                     for y in range(-7, 8):
-                       self.__set_obstacle_point(x, y, point)
+                        self.__set_obstacle_point(x, y, point)
 
                     # Round shaped circle obstacle
 
-    #                for y in range(-2, 3):
-     #                   self.__set_obstacle_point(x, y, point)
-      #          for x in range(-6, 7):
-       #             for y in range(3, 5):
-        #                self.__set_obstacle_point(x, y, point)
-         #               self.__set_obstacle_point(-x, -y, point)
-          #      for x in range(-5, 6):
-           #         self.__set_obstacle_point(x, 5, point)
+            #                for y in range(-2, 3):
+            #                   self.__set_obstacle_point(x, y, point)
+            #          for x in range(-6, 7):
+            #             for y in range(3, 5):
+            #                self.__set_obstacle_point(x, y, point)
+            #               self.__set_obstacle_point(-x, -y, point)
+            #      for x in range(-5, 6):
+            #         self.__set_obstacle_point(x, 5, point)
             #        self.__set_obstacle_point(-x, -5, point)
-             #   for x in range(-4, 5):
-              #      self.__set_obstacle_point(x, 6, point)
-               #     self.__set_obstacle_point(-x, -6, point)
-                #for x in range(-2, 3):
-                 #   self.__set_obstacle_point(x, 7, point)
-                  #  self.__set_obstacle_point(-x, -7, point)
+            #   for x in range(-4, 5):
+            #      self.__set_obstacle_point(x, 6, point)
+            #     self.__set_obstacle_point(-x, -6, point)
+            # for x in range(-2, 3):
+            #   self.__set_obstacle_point(x, 7, point)
+            #  self.__set_obstacle_point(-x, -7, point)
 
-        except NavigationEnvironmentDataError as err:
-            self.logger.info(str(err))
-            return False
+            except NavigationEnvironmentDataError as err:
+                self.logger.info(str(err))
+                return False
         return True
 
     def __add_walls(self):

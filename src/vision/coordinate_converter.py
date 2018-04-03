@@ -46,7 +46,7 @@ class CoordinateConverter:
                                                        np.asscalar(rotation_vector[2]))
 
         world_to_obstacle = self.world_from_camera(camera_to_obstacle)
-        print(world_to_obstacle)
+        # print(world_to_obstacle)
 
         obstacle_information = world_to_obstacle.to_parameters(True)
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
@@ -89,6 +89,6 @@ class CoordinateConverter:
         # print(cube_center, [(cube_center[0] - 4, cube_center[1] - 4),
         #                    (cube_center[0] + 4, cube_center[1] + 4)])
         # Pour l'image `table4/08h55m49s`
-        cube_center = (152, -21)
-        return Cube(cube_center, Color.LIGHT_GREY, [(cube_center[0] - 4, cube_center[1] - 4),
+        cube_center = (152, -19)
+        return Cube(cube_center, Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4),
                                                     (cube_center[0] + 4, cube_center[1] + 4)])

@@ -17,6 +17,8 @@ import src.robot.robot_controller as robot_controller
 from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
 from src.vision.camera import create_real_camera, MockedCamera
+from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.robot_detector import MockedRobotDetector, VisionRobotDetector
 from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
 
 
@@ -92,8 +94,16 @@ def start_station(config: dict, logger: logging.Logger) -> None:
         camera = MockedCamera(config['camera']['mocked_camera_image_path'], logger.getChild("camera"))
     else:
         camera = create_real_camera(config['camera'], logger.getChild("camera"))
+
+    coordinate_converter = CoordinateConverter(table_camera_config)
+    if config['robot']['use_mocked_robot_detector']:
+        robot_detector = MockedRobotDetector()
+    else:
+        robot_detector = VisionRobotDetector(table_camera_config.camera_parameters, coordinate_converter)
+
     try:
-        app = App(network_controller, camera, table_camera_config, logger.getChild("main_controller"), config)
+        app = App(network_controller, camera, table_camera_config, coordinate_converter, robot_detector,
+                  logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
     finally:
         if not config['network']['use_mocked_network']:

@@ -10,13 +10,12 @@ from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
-from src.domain.objects.robot import Robot
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
-from src.vision.robot_detector import MockedRobotDetector
+from src.vision.robot_detector import RobotDetector
 from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.world_vision import WorldVision
 from .station_model import StationModel
@@ -24,7 +23,8 @@ from .station_model import StationModel
 
 class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
-                 table_camera_config: TableCameraConfiguration, logger: Logger, config: dict):
+                 table_camera_config: TableCameraConfiguration, coordinate_converter: CoordinateConverter,
+                 robot_detector: RobotDetector, logger: Logger, config: dict):
         self.model = model
         self.logger = logger
         self.config = config
@@ -40,8 +40,8 @@ class StationController(object):
         self.navigation_environment.create_grid()
 
         self.table_camera_config = table_camera_config
-        self.coordinate_converter = CoordinateConverter(self.table_camera_config)
-        self.robot_detector = MockedRobotDetector()  # VisionRobotDetector(self.table_camera_config.camera_parameters, self.coordinate_converter)
+        self.coordinate_converter = coordinate_converter
+        self.robot_detector = robot_detector
         self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter,
                                         logger.getChild("FrameDrawer"))
 
@@ -53,7 +53,7 @@ class StationController(object):
         self.model.robot_is_started = True
         self.model.start_time = time.time()
 
-        if self.config['update_robot']:
+        if self.config['robot']['update_robot']:
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
         self.logger.info("Waiting for robot to connect.")
@@ -110,9 +110,8 @@ class StationController(object):
             robot_center_3d = self.model.robot.get_center_3d()
             self.model.real_path.append(np.float32(robot_center_3d))
 
-        self.__draw_environment(self.model.frame)
-
         if not self.model.robot_is_started:
+            self.__draw_environment(self.model.frame)
             return
 
         self.model.passed_time = time.time() - self.model.start_time
@@ -126,6 +125,8 @@ class StationController(object):
                                                                      self.coordinate_converter)
 
             self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
+
+        self.__draw_environment(self.model.frame)
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()
@@ -148,14 +149,13 @@ class StationController(object):
                     self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                     return
 
+                target_position = (target_cube.center[0],
+                                   target_cube.center[1] + max(self.model.robot.height, self.model.robot.width) + 10)
                 is_possible = self.path_calculator.calculate_path(
-                    self.model.robot.center,
-                    (target_cube.center[0],
-                     target_cube.center[1] + max(self.model.robot.height, self.model.robot.width) + 10),
-                    self.navigation_environment.get_grid())
+                    self.model.robot.center, target_position, self.navigation_environment.get_grid())
 
                 if not is_possible:
-                    self.logger.warning("Path to the cube is not possible.")
+                    self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
                     return
 
                 _, self.model.planned_path = self.path_converter.convert_path(
