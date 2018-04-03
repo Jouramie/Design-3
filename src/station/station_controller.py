@@ -32,7 +32,7 @@ class StationController(object):
         self.camera = camera
 
         self.country_loader = CountryLoader(config)
-        self.world_vision = WorldVision()  # DummyWorldVision(self.camera)
+        self.world_vision = WorldVision()
         self.path_calculator = PathCalculator()
         self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
@@ -102,7 +102,6 @@ class StationController(object):
                 break
 
     def update(self):
-        # self.logger.info("StationController.update()")
         self.model.frame = self.camera.get_frame()
         self.model.robot = self.robot_detector.detect(self.model.frame)
 
