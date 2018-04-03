@@ -12,19 +12,19 @@ class Camera(object):
         self.logger = logger
 
     def take_picture(self):
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def take_video(self):
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def get_frame(self):
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def get_fps(self):
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def release(self):
-        pass
+        raise NotImplementedError("This is an interface...")
 
 
 class RealCamera(Camera):
@@ -95,7 +95,7 @@ class MockedCamera(Camera):
         self.image_file_path = image_file_path
 
     def take_picture(self):
-        raise NotImplementedError('This method is not implemented yet.')
+        return self.get_frame()
 
     def take_video(self):
         raise NotImplementedError('This method is not implemented yet.')
