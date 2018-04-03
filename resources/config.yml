@@ -36,8 +36,8 @@ station:
   camera:
     use_mocked_camera: false
     mocked_camera_image_path: "fig/saved_images/table5/13h48m53s.jpg"
-    camera_id: 0
+    camera_id: 1
   network:
-    use_mocked_network: true
+    use_mocked_network: false
     port: *port
   update_robot: false
