@@ -12,7 +12,12 @@ class NavigationEnvironment(object):
     INFINITY_WEIGHT = 3
     OBSTACLE_VALUE = -2
     CUBE_HALF_SIZE = 4
-    OBSTACLE_RAYON = 7
+    OBSTACLE_RADIUS = 7
+
+    # TODO Validate
+    # TODO Rethrow algorithm with cube ?
+    # ROBOT_RADIUS_WITH_CUBE = 24 (REALLY HUGE !)
+    ROBOT_RADIUS_WITHOUT_CUBE = 16
 
     __width = 0
     __height = 0
@@ -36,8 +41,8 @@ class NavigationEnvironment(object):
         try:
             # This add a nice square of obstacles in the navigation environment grid
             for point in cubes_central_point:
-                for x in range(-4, 5):
-                    for y in range(-4, 5):
+                for x in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE+1):
+                    for y in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE+1):
                         self.__set_obstacle_point(x, y, point)
 
         except NavigationEnvironmentDataError as err:
