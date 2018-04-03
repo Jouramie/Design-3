@@ -38,9 +38,6 @@ class StationController(object):
         self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
 
         self.model.world_camera_is_on = True
-        self.model.country_code = 43
-        self.__find_country()
-        self.select_next_cube_color()
 
     def start_robot(self):
         self.model.robot_is_started = True
