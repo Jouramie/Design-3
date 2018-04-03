@@ -34,7 +34,7 @@ station:
       - ""
       - ""
   camera:
-    use_mocked_camera: true
+    use_mocked_camera: false
     mocked_camera_image_path: "fig/saved_images/table5/13h48m53s.jpg"
     camera_id: 0
     image_width: 1600
