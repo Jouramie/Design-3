@@ -10,12 +10,13 @@ from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
+from src.domain.objects.robot import Robot
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
-from src.vision.robot_detector import RobotDetector
+from src.vision.robot_detector import MockedRobotDetector
 from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.world_vision import WorldVision
 from .station_model import StationModel
@@ -40,7 +41,7 @@ class StationController(object):
 
         self.table_camera_config = table_camera_config
         self.coordinate_converter = CoordinateConverter(self.table_camera_config)
-        self.robot_detector = RobotDetector(self.table_camera_config.camera_parameters, self.coordinate_converter)
+        self.robot_detector = MockedRobotDetector()  # VisionRobotDetector(self.table_camera_config.camera_parameters, self.coordinate_converter)
         self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter,
                                         logger.getChild("FrameDrawer"))
 
@@ -143,9 +144,20 @@ class StationController(object):
                     self.logger.warning("The target cube is None. Cannot continue, exiting.")
                     return
 
-                # TODO find path to cube using path finding
-                is_possible = self.path_calculator.calculate_path((0, 0), (200, 0),
-                                                                  self.navigation_environment.get_grid())
+                if self.model.robot is None:
+                    self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
+                    return
+
+                is_possible = self.path_calculator.calculate_path(
+                    self.model.robot.center,
+                    (target_cube.center[0],
+                     target_cube.center[1] + max(self.model.robot.height, self.model.robot.width) + 10),
+                    self.navigation_environment.get_grid())
+
+                if not is_possible:
+                    self.logger.warning("Path to the cube is not possible.")
+                    return
+
                 _, self.model.planned_path = self.path_converter.convert_path(
                     self.path_calculator.get_calculated_path())
 

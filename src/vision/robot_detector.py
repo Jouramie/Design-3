@@ -8,8 +8,12 @@ from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.transform import Transform
 
 
-class RobotDetector:
+class RobotDetector(object):
+    def detect(self, img):
+        raise NotImplementedError("This is an interface...")
 
+
+class VisionRobotDetector(RobotDetector):
     def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter):
         self.cam_param = cam_param
         self.coordinate_converter = coordinate_converter
@@ -50,3 +54,8 @@ class RobotDetector:
             return Robot((position_x, position_y), orientation)
         else:
             return None
+
+
+class MockedRobotDetector(RobotDetector):
+    def detect(self, img):
+        return Robot((0, 0), 0)

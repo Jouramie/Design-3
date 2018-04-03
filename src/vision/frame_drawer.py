@@ -70,8 +70,9 @@ class FrameDrawer(object):
             cv2.rectangle(frame, cube.corners[0], cube.corners[1], cube.color.bgr, thickness=3)
 
     def __draw_target_zone(self, frame, target_zone: TargetZone) -> None:
-        if target_zone is not None:
+        if target_zone is None:
             self.logger.warning("Target zone is None.")
+        else:
             cv2.rectangle(frame, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=3)
 
     def __draw_obstacle(self, frame, obstacle: Obstacle) -> None:

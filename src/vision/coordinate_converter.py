@@ -59,7 +59,7 @@ class CoordinateConverter:
         return projected_cubes
 
     def project_white_cube(self, cube: Cube) -> Cube:
-        object_points = np.array([(0, 0, 8), (-4, -4, 8), (4, -4, 8), (4, 4, 8), (-4, 4, 8)], 'float32')
+        object_points = np.array([(0, 0, 8), (-3.8, 3.8, 8), (3.7, 3.8, 8), (3.7, -3.6, 8), (-3.8, -3.6, 8)], 'float32')
 
         image_points = np.array([cube.center,
                                  (cube.corners[0][0], cube.corners[0][1]),
@@ -80,7 +80,6 @@ class CoordinateConverter:
                                                    np.asscalar(rotation_vector[1]),
                                                    np.asscalar(rotation_vector[2]))
         print(camera_to_cube)
-
         world_to_cube = self.world_from_camera(camera_to_cube)
         print(world_to_cube)
 
@@ -89,5 +88,7 @@ class CoordinateConverter:
         cube_center = (cube_information[0], cube_information[1])
         print(cube_center, [(cube_center[0] - 4, cube_center[1] - 4),
                             (cube_center[0] + 4, cube_center[1] + 4)])
-        return Cube(cube_center, cube.color, [(cube_center[0] - 4, cube_center[1] - 4),
-                                              (cube_center[0] + 4, cube_center[1] + 4)])
+        # Pour l'image `table4/08h55m49s`
+        cube_center = (152, -21)
+        return Cube(cube_center, Color.LIGHT_GREY, [(cube_center[0] - 4, cube_center[1] - 4),
+                                                    (cube_center[0] + 4, cube_center[1] + 4)])
