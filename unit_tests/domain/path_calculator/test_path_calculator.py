@@ -1,8 +1,9 @@
-from unittest.mock import Mock
-from unittest.mock import MagicMock
 from unittest import TestCase
+from unittest.mock import MagicMock
+from unittest.mock import Mock
 
 from src.domain.environments.navigation_environment import NavigationEnvironment
+from src.domain.objects.obstacle import Obstacle
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 
@@ -80,7 +81,7 @@ class TestPathCalculator(TestCase):
 
         path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
         expected = [starting_point, ending_point]
-        
+
         self.assertEqual(expected, path_calculator.get_calculated_path())
 
     def test_when_straight_line_then_does_not_zigzag(self):
@@ -110,7 +111,7 @@ class TestPathCalculator(TestCase):
     def test_when_obstacle_then_goes_around_it(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
-        environment.add_obstacles([(0, 0)])
+        environment.add_obstacles([Obstacle((0, 0), 7)])
         starting_point_next_to_obstacle = (-8, 1)
         ending_point_next_to_obstacle = (8, 0)
         path_calculator = PathCalculator()
@@ -121,9 +122,9 @@ class TestPathCalculator(TestCase):
                     (-1, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 8), (5, 8), (6, 7), (7, 6), (8, 5), (8, 4), (9, 3),
                     (9, 2), (9, 1), (9, 0), (9, -1), (8, 0)]
 
+        expected_square = [(-8, 1), (-9, 2), (-9, 3), (-9, 4), (-9, 5), (-9, 6), (-9, 7), (-9, 8), (-8, 9), (-7, 9),
+                         (-6, 9), (-5, 9), (-4, 9), (-3, 9), (-2, 9), (-1, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 9),
+                         (5, 9), (6, 9), (7, 9), (8, 9), (9, 8), (9, 7), (9, 6), (9, 5), (9, 4), (9, 3), (9, 2), (9, 1),
+                         (9, 0), (9, -1), (8, 0)]
 
-        expected_less = [(-8, 1), (-9, 2), (-9, 3), (-8, 4), (-8, 5), (-7, 6), (-6, 7), (-5, 8), (-4, 9), (-3, 10), (-2, 9),
-                         (-1, 10), (0, 9), (1, 10), (2, 9), (3, 9), (4, 8), (5, 8), (6, 7), (7, 6), (8, 5), (9, 4),
-                         (10, 3), (9, 2), (9, 1), (9, 0), (9, -1), (8, 0)]
-
-        self.assertEqual(expected, path_calculator.get_calculated_path())
+        self.assertEqual(expected_square, path_calculator.get_calculated_path())

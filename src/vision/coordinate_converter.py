@@ -91,4 +91,4 @@ class CoordinateConverter:
         # Pour l'image `table4/08h55m49s`
         cube_center = (152, -19)
         return Cube(cube_center, Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4),
-                                                    (cube_center[0] + 4, cube_center[1] + 4)])
+                                               (cube_center[0] + 4, cube_center[1] + 4)])

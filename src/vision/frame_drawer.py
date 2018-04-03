@@ -1,7 +1,7 @@
-import cv2
-import numpy as np
 from logging import Logger
 
+import cv2
+import numpy as np
 
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.environments.vision_environment import VisionEnvironment
@@ -95,9 +95,9 @@ class FrameDrawer(object):
                    thickness=3, lineType=cv2.LINE_AA)
 
     def __project_and_draw_real_cube(self, frame, cube: Cube) -> None:
-        #print(str(cube))
+        # print(str(cube))
         real_positions = np.array(cube.get_3d_corners(), 'float32')
         image_positions = self.__project_points(real_positions)
-        #print(image_positions)
+        # print(image_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), cube.color.bgr, thickness=3)
