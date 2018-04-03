@@ -44,23 +44,26 @@ class RobotController(object):
     def send_grab_cube(self) -> bool:
         if (self.send_ask_if_can_grab_cube() == True):
             self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
-            command = self.receive_command()
-            return self._validate_if_successful(command)
+            feedback = self.receive_command()
+            return self._validate_if_successful(feedback)
         else:
             return False
 
     def send_drop_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
-        command = self.receive_command()
-        return self._validate_if_successful(command)
+        feedback = self.receive_command()
+        return self._validate_if_successful(feedback)
 
     def send_ask_if_can_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.CAN_GRAB_CUBE.value)
-        command = self.receive_command()
-        return self._validate_if_successful(command)
+        feedback = self.receive_command()
+        return self._validate_if_successful(feedback)
 
     def send_end_signal(self):
         self._channel.send_command(commands_to_stm.Command.THE_END.value)
+
+    def send_seek_flag(self):
+        self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
     def send_movement_command(self, command: bytearray):
         self._channel.send_command(command)
@@ -78,6 +81,8 @@ class RobotController(object):
         time.sleep(2)
         # self._network.wait_infrared_ask()
         # self._network.send_infrared_ask(43)
+        self.send_seek_flag()
+        self.receive_country_code()
 
         self.send_end_signal()
 
