@@ -8,20 +8,20 @@ from src.robot.hardware.message_corrupted_exception import MessageCorruptedExcep
 class TestCommandConverter(TestCase):
 
     def setUp(self):
-        self.country_code_message = b'\xb0\x04\x4c'
-        self.other_country_code_message = b'\xb0\x75\xdb'
-        self.wrong_country_code_message = b'\xb1\x04\x4b'
+        self.country_code_message = "b'\xb0\x04\x12\x3A'"
+        self.other_country_code_message = "b'\xb0\x75\x12\xc9'"
+        self.wrong_country_code_message = "b'\xb1\x04\x4b\x00'"
 
     def test_given_infra_red_signal_then_extract_country_code(self):
         command = CommandFromStm(self.country_code_message)
-        self.assertEqual(command.get_country_code(), self.country_code_message[1])
+        self.assertEqual(command.get_country_code(), 0x04)
 
     def test_given_another_infra_red_signal_then_extract_country_code(self):
         command = CommandFromStm(self.other_country_code_message)
-        self.assertEqual(command.get_country_code(), self.other_country_code_message[1])
+        self.assertEqual(command.get_country_code(), 0x75)
 
-    # def test_given_wrong_infra_red_signal_command_then_raises_exception_on_validation(self):
-    #     self.assertRaises(MessageCorruptedException, CommandFromStm(self.wrong_country_code_message)._validate)
+    def test_given_wrong_infra_red_signal_command_then_raises_exception_on_validation(self):
+        self.assertRaises(MessageCorruptedException, CommandFromStm(self.wrong_country_code_message)._validate)
 
     def test_given_wrong_infra_red_signal_command_then_raises_exception_when_getting_country_id(self):
         self.assertRaises(NotACountryCommandException, CommandFromStm(self.wrong_country_code_message).get_country_code)

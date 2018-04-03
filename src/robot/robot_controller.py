@@ -1,6 +1,7 @@
 import time
 from logging import Logger
 
+from .hardware.command.stm_command_definition import commands_from_stm
 from .hardware.command.stm_command_definition import commands_to_stm
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm
@@ -28,47 +29,50 @@ class RobotController(object):
     def receive_country_code(self) -> int:
         return self.receive_command().get_country_code()
 
-    def receive_end_of_task_signal(self):
+
+    def receive_end_of_task_signal(self) -> bool:
         msg = self.receive_command()
-        print(msg)
+        return self._validate_target(msg, commands_from_stm.Target.TASK_SUCCESS)
 
     def receive_command(self):
         msg = None
         while msg is None:
             msg = self._channel.receive_message()
-        return msg
+            self._logger.info('Received from STM : {}'.format(msg))
+        return CommandFromStm(msg)
 
     def send_grab_cube(self) -> bool:
         if (self.send_ask_if_can_grab_cube() == True):
             self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
-            msg = None
-            while msg is None:
-                msg = self._channel.receive_message()
-                self._logger.info('Received from STM : {}'.format(msg))
-            if msg[3:4] == 'fc':
-                return True
-            else:
-                return False
+            command = self.receive_command()
+            return self._validate_if_successful(command)
+        else:
+            return False
 
-    def send_drop_cube(self) -> None:
+    def send_drop_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
+        command = self.receive_command()
+        return self._validate_if_successful(command)
 
     def send_ask_if_can_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.CAN_GRAB_CUBE.value)
-        msg = None
-        while msg is None:
-            msg = self._channel.receive_message()
-            self._logger.info('Received from STM : {}'.format(msg))
-        if msg[3:4] == 'fc':
-            return True
-        else:
-            return False
+        command = self.receive_command()
+        return self._validate_if_successful(command)
 
     def send_end_signal(self):
         self._channel.send_command(commands_to_stm.Command.THE_END.value)
 
     def send_movement_command(self, command: bytearray):
         self._channel.send_command(command)
+
+    def _validate_if_successful(self, command: CommandFromStm) -> bool:
+        return self._validate_target(command, commands_from_stm.Target.TASK_SUCCESS)
+
+    def _validate_target(self, command: CommandFromStm, target: commands_from_stm.Target) -> bool:
+        if command.target == target:
+            return True
+        else:
+            return False
 
     def _main_loop(self):
         time.sleep(2)
