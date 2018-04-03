@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from src.domain.color import *
-from src.domain.vision_environment.environment import *
+from src.domain.objects.color import *
 from src.vision.world_vision import *
 
 
@@ -19,14 +18,14 @@ class TestEnvironment(TestCase):
         environment, image = world_vision.create_environment(demo_file, )
         self.assertIsInstance(image, np.ndarray, 'Result contains a ndarray image')
 
-    def test_given_white_cube_when_creating_environement_then_white_cube_is_returned(self):
+    def test_given_white_cube_when_creating_environment_then_white_cube_is_returned(self):
         world_vision = WorldVision()
         environment, image = world_vision.create_environment(new_def, )
         cubes_list = environment.get_cubes()
         cv2.imshow('White cube', image)
         cv2.waitKey(0)
         for cube in cubes_list:
-            self.assertTrue(cube.get_colour_value == Color.WHITE)
+            self.assertTrue(cube.color == Color.WHITE)
 
     def test_given_cubes_when_creating_environment_then_environment_contains_list_of_cubes(self):
         world_vision = WorldVision()

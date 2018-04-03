@@ -1,19 +1,16 @@
-import logging
-import os
+from logging import Logger
 
-from src.config import MAIN_CONTROLLER_LOG_DIR, MAIN_CONTROLLER_LOG_FILE
-from src.domain.environment import Environment
+from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.path_calculator.path_calculator import PathCalculator
 
 
 class MainController(object):
-
     __environment = 0
     __path_calculator = 0
 
-    def __init__(self, log_level=logging.INFO):
-        self.__initialize_log(log_level)
-        self.__environment = Environment()
+    def __init__(self, logger: Logger):
+        self.logger = logger
+        self.__environment = NavigationEnvironment(logger)
         self.__path_calculator = PathCalculator()
 
     def create_environment(self, obstacles_point):
@@ -26,9 +23,4 @@ class MainController(object):
         self.__path_calculator.calculate_path(starting_point, ending_point, self.__environment.get_grid())
 
     def print_path(self):
-        logging.info(self.__path_calculator.get_calculated_path())
-
-    def __initialize_log(self, log_level):
-        if not os.path.exists(MAIN_CONTROLLER_LOG_DIR):
-            os.makedirs(MAIN_CONTROLLER_LOG_DIR)
-        logging.basicConfig(level=log_level, filename=MAIN_CONTROLLER_LOG_FILE, format='%(asctime)s %(message)s')
+        self.logger.info(self.__path_calculator.get_calculated_path())

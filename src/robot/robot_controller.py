@@ -3,14 +3,16 @@ from logging import Logger
 
 from src.d3_network.client_network_controller import ClientNetworkController
 from src.d3_network.ip_provider import IpProvider
+from .hardware.channel import Channel
 
 
 class RobotController(object):
 
-    def __init__(self, logger: Logger, ip_provider: IpProvider, network: ClientNetworkController):
+    def __init__(self, logger: Logger, ip_provider: IpProvider, network: ClientNetworkController, channel: Channel):
         self._logger = logger
         self._ip_provider = ip_provider
         self._network = network
+        self._channel = channel
 
     def start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
@@ -26,5 +28,5 @@ class RobotController(object):
         time.sleep(2)
         self._network.wait_infrared_ask()
         self._network.send_infrared_ask(43)
-        time.sleep(1000)
 
+        time.sleep(1000)

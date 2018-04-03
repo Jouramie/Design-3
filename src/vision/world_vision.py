@@ -1,20 +1,22 @@
-import copy
+from logging import Logger
 
 import cv2
-import numpy as np
 
+from src.domain.environments.vision_environment import VisionEnvironment
+from src.domain.objects.color import Color
+from src.domain.objects.cube import Cube
+from src.domain.objects.obstacle import Obstacle
+from src.domain.objects.target_zone import TargetZone
 from src.domain.table_crop import TableCrop
-from src.domain.color import Color
-from src.domain.vision_environment.cube import Cube
-from src.domain.vision_environment.environment import Environment
-from src.domain.vision_environment.obstacle import Obstacle
-from src.domain.vision_environment.target_zone import TargetZone
-
-from logging import Logger
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
 THICKNESS = 2
+
+
+class MockedWorldVision:
+    def create_environment(self) -> VisionEnvironment:
+        return VisionEnvironment([], [Obstacle((1043.5, 850.0), 52.9)], TargetZone((), []))
 
 
 class WorldVision:
@@ -34,10 +36,10 @@ class WorldVision:
 
         cubes = self.__validate_cube_is_present(cropped_image, Color.RED, cubes)
         cubes = self.__validate_cube_is_present(cropped_image, Color.RED2, cubes)
-        #cubes = self.__validate_cube_is_present(cropped_image, Color.BLUE, cubes)
-        #cubes = self.__validate_cube_is_present(cropped_image, Color.GREEN, cubes)
-        #cubes = self.__validate_cube_is_present(cropped_image, Color.YELLOW, cubes)
-        #cubes = self.__validate_cube_is_present(cropped_image, Color.BLACK, cubes)
+        # cubes = self.__validate_cube_is_present(cropped_image, Color.BLUE, cubes)
+        # cubes = self.__validate_cube_is_present(cropped_image, Color.GREEN, cubes)
+        # cubes = self.__validate_cube_is_present(cropped_image, Color.YELLOW, cubes)
+        # cubes = self.__validate_cube_is_present(cropped_image, Color.BLACK, cubes)
 
         for cube in self.__find_color_cubes(cropped_image, Color.WHITE):
             cubes.append(cube)
@@ -54,7 +56,7 @@ class WorldVision:
                 new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
 
-        #self.__cube_list_validation(cubes, table_crop)
+        # self.__cube_list_validation(cubes, table_crop)
         cubes = self.__cube_inside_cube_validation(cubes, table_crop)
 
         if target_zone is not None:
@@ -67,9 +69,9 @@ class WorldVision:
         for obstacle in obstacles:
             obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + table_crop.y_crop_top))
 
-        return Environment(cubes, obstacles, target_zone)
+        return VisionEnvironment(cubes, obstacles, target_zone)
 
-    #TODO vérifier que ça marche
+    # TODO vérifier que ça marche
     def __validate_cube_is_present(self, frame, color: Color, cubes):
         for cube in self.__find_color_cubes(frame, color):
             cubes.append(cube)
@@ -83,8 +85,8 @@ class WorldVision:
         return cubes
 
     def __find_color_cubes(self, frame, color: Color):
-        #image = cv2.medianBlur(frame, 5)
-        #image = cv2.GaussianBlur(image, (5, 5), 0)
+        # image = cv2.medianBlur(frame, 5)
+        # image = cv2.GaussianBlur(image, (5, 5), 0)
 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -98,9 +100,9 @@ class WorldVision:
             x = contour[0][0][0]
             y = contour[0][0][1]
             if 500 > cv2.arcLength(contour, True) > 120:
-                if ((0.8*width < x < 0.92*width) and (y <= 0.10*height) or
-                        ((0.96*width < x < width) and (0.18*height < y <= 0.82*height)) or
-                        ((0.78*width < x < 0.92*width) and (0.86*height < y < height))):
+                if ((0.8 * width < x < 0.92 * width) and (y <= 0.10 * height) or
+                        ((0.96 * width < x < width) and (0.18 * height < y <= 0.82 * height)) or
+                        ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, color)
 
     def __create_cube(self, contour, color: Color) -> Cube:
@@ -152,7 +154,7 @@ class WorldVision:
         if contours is not None:
             for contour in contours[0]:
                 x = contour[0]
-                if x > 0.4*width:
+                if x > 0.4 * width:
                     print(width)
                     print(x)
                     yield self.__create_obstacle(contour)

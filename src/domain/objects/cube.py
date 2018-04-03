@@ -1,5 +1,5 @@
-from domain.table_crop import TableCrop
-from src.domain.color import Color
+from ..table_crop import TableCrop
+from .color import Color
 
 
 class Cube:

@@ -1,10 +1,10 @@
-import yaml
 import cv2
 import cv2.aruco as aruco
 import numpy as np
+import yaml
 
+from src.vision.camera_parameters import CameraParameters
 from src.vision.transform import Transform
-from src.vision.camera_parameters import *
 
 if __name__ == '__main__':
 
@@ -27,16 +27,17 @@ if __name__ == '__main__':
                                                           cameraMatrix=cam_param.camera_matrix,
                                                           distCoeff=cam_param.distortion)
     if len(ids) == 1:
-        rvecs, tvecs, objPoints = aruco.estimatePoseSingleMarkers(corners, SIZE, cam_param.camera_matrix, cam_param.distortion)
+        rvecs, tvecs, objPoints = aruco.estimatePoseSingleMarkers(corners, SIZE, cam_param.camera_matrix,
+                                                                  cam_param.distortion)
         tvec = tvecs[0][0]
         rvec = rvecs[0][0]
-        half_size = SIZE/2.0
+        half_size = SIZE / 2.0
         tvec[0] = tvec[0] - half_size
         tvec[1] = tvec[1] + half_size
         aruco.drawAxis(img, cam_param.camera_matrix, cam_param.distortion, rvec, tvec, 20)
         camera_to_world = Transform.from_parameters(np.asscalar(tvec[0]), np.asscalar(tvec[1]),
-                                                        np.asscalar(tvec[2]), np.asscalar(rvec[0]),
-                                                        np.asscalar(rvec[1]), np.asscalar(rvec[2]))
+                                                    np.asscalar(tvec[2]), np.asscalar(rvec[0]),
+                                                    np.asscalar(rvec[1]), np.asscalar(rvec[2]))
 
         world_to_camera = camera_to_world.inverse()
 
@@ -44,4 +45,3 @@ if __name__ == '__main__':
 
         cv2.imshow('world_calibration', img)
         cv2.waitKey(0)
-

@@ -1,36 +1,49 @@
 import subprocess
-import numpy as np
 import time
+from logging import Logger
 
-import cv2
+import numpy as np
 
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
-from src.vision.table_camera_configuration import TableCameraConfiguration
+from src.domain.environments.navigation_environment import NavigationEnvironment
+from src.domain.environments.real_world_environment import RealWorldEnvironment
+from src.domain.objects.color import Color
+from src.domain.path_calculator.path_calculator import PathCalculator
+from src.domain.path_calculator.path_converter import PathConverter
+from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
-from src.vision.robot_detector import RobotDetector
 from src.vision.frame_drawer import FrameDrawer
+from src.vision.robot_detector import RobotDetector
+from src.vision.table_camera_configuration import TableCameraConfiguration
+from src.vision.world_vision import WorldVision
 from .station_model import StationModel
-from src.vision.camera import *
-from src.vision.world_vision import *
 
 
 class StationController(object):
-    def __init__(self, model: StationModel, network: ServerNetworkController,
-                 table_camera_config: TableCameraConfiguration, logger, config):
+    def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
+                 table_camera_config: TableCameraConfiguration, logger: Logger, config: dict):
         self.model = model
-        self.country_loader = CountryLoader(config)
-        self.table_camera_config = table_camera_config
-        self.coord_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
-        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coord_converter)
-        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coord_converter)
-        self.network = network
         self.logger = logger
         self.config = config
-        self.camera = create_camera(0)
+        self.network = network
+
+        self.camera = camera
+
+        self.country_loader = CountryLoader(config)
         self.world_vision = WorldVision(logger, config)
-        self.environment = self.world_vision.create_environment(self.camera.get_frame(), table_camera_config.id)
+        self.path_calculator = PathCalculator()
+        self.path_converter = PathConverter(logger.getChild("PathConverter"))
+        self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
+        self.navigation_environment.create_grid()
+
+        self.table_camera_config = table_camera_config
+        self.coordinate_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
+        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coordinate_converter)
+        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coordinate_converter)
+
+        self.obstacle_pos = []
 
         self.model.world_camera_is_on = True
 
@@ -53,46 +66,65 @@ class StationController(object):
 
     def __draw_environment(self, frame):
         if self.model.robot is not None:
+            # self.logger.info("Robot " + str(self.model.robot))
             self.frame_drawer.draw_robot(frame, self.model.robot)
-        if self.model.planned_path is not None:
-            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
-        if self.model.real_path is not None:
-            self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
-        if self.environment is not None:
-            for cube in self.environment.get_cubes():
-                self.frame_drawer.draw_cube(frame, cube)
-            for obstacle in self.environment.get_obstacles():
-                self.frame_drawer.draw_obstacle(frame, obstacle)
-            target_zone = self.environment.get_target_zone()
-            if target_zone is not None:
-                self.frame_drawer.draw_target_zone(frame, self.environment.get_target_zone())
 
+        if self.model.planned_path is not None and self.model.planned_path:
+            # self.logger.info("Planned path " + str(self.model.planned_path))
+            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
+
+        if self.model.real_path is not None and self.model.real_path:
+            # self.logger.info("Real path " + str(self.model.real_path))
+            self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
+
+        if self.model.vision_environment is not None:
+            self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
+
+        if self.model.real_world_environment is not None:
+            self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
+
+        # TODO draw navigation grid
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
+        self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.colors))
 
-    def __select_next_cube_color(self):
-        stylized_flag = self.model.country.stylized_flag
-        cubes = stylized_flag.get_cube_list()
-        for cube in cubes:
-            color_name = cube.get_colour_name()
-            if color_name != "TRANSPARENT":
-                self.model.next_cube_color = color_name
+    def __select_next_cube_color(self) -> None:
+        """Choose the next color to be placed in the flag
+
+        """
+
+        # TODO pas retourner tout le temps le premier cube de couleur de la liste
+        for color in self.model.country.stylized_flag.colors:
+            if color is not Color.TRANSPARENT:
+                self.model.next_cube_color = color
                 break
 
     def update(self):
-        frame = self.camera.get_frame()
-        self.model.robot = self.robot_detector.detect(frame)
+        self.model.frame = self.camera.get_frame()
+        self.model.robot = self.robot_detector.detect(self.model.frame)
+
         if self.model.robot is not None:
             robot_center_3d = self.model.robot.get_center_3d()
             self.model.real_path.append(np.float32(robot_center_3d))
-        self.__draw_environment(frame)
-        self.model.frame = frame
+
+        self.__draw_environment(self.model.frame)
+
         if not self.model.robot_is_started:
             return
 
         self.model.passed_time = time.time() - self.model.start_time
 
+        if self.model.vision_environment is None:
+            self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
+                                                                                 self.config['table_number'])
+            self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
+
+            self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
+                                                                     self.table_camera_config,
+                                                                     self.coordinate_converter)
+
+            self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()
@@ -106,6 +138,14 @@ class StationController(object):
                 self.model.country_code = country_received
                 self.__find_country()
                 self.__select_next_cube_color()
+                target_cube = self.model.real_world_environment.find_cube(self.model.next_cube_color)
+
+                # TODO find path to cube using path finding
+                is_possible = self.path_calculator.calculate_path((0, 0), (200, 0),
+                                                                  self.navigation_environment.get_grid())
+                _, self.model.planned_path = self.path_converter.convert_path(
+                    self.path_calculator.get_calculated_path())
+
             return
 
         """

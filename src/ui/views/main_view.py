@@ -1,13 +1,13 @@
 from pathlib import Path
 
+import cv2
 from PyQt5 import uic, QtGui
-from PyQt5.QtCore import QTime, QTimer, Qt
+from PyQt5.QtCore import QTime, QTimer
 from PyQt5.QtWidgets import QMainWindow
 
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
 
-import cv2
 
 class StationView(QMainWindow):
     def __init__(self, model: StationModel, station_controller: StationController, config: dict):
@@ -17,9 +17,9 @@ class StationView(QMainWindow):
         self.ui = uic.loadUi(Path(self.__config['resources_path']['ui']))
         self.time = QTime(0, 0, 0, 0)
         self.update_timer = QTimer()
-        self.ui.StartButton.clicked.connect(self.start_robot)
         self.update_timer.start(100)
         self.update_timer.timeout.connect(self.update)
+        self.ui.StartButton.clicked.connect(self.start_robot)
         super(StationView, self).__init__()
 
     def start_robot(self):
@@ -66,5 +66,5 @@ class StationView(QMainWindow):
         self.ui.CountryName.setText(self.model.country.name)
 
     def __display_next_cube_color(self):
-        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube_color + ';')
+        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube_color.name + ';')
         self.ui.cube_label.show()

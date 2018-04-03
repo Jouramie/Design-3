@@ -1,17 +1,19 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock
 
-from src.vision.camera import Camera
-from src.vision.cameraError import CameraError
+from src.vision.camera import RealCamera
+from src.vision.camera_error import CameraError
+
+IMAGE_SAVE_DIRECTORY = "fig/{date}"
 
 
-class TestCamera(TestCase):
+class TestRealCamera(TestCase):
 
     def test_when_successfully_taking_picture_then_openCV_called(self):
         capture_object = MagicMock()
         capture_object.attach_mock(Mock(return_value=[True, True]), 'read')
 
-        camera = Camera(capture_object)
+        camera = RealCamera(capture_object, MagicMock(), IMAGE_SAVE_DIRECTORY)
         camera.take_picture()
 
         capture_object.read.assert_called_once()
@@ -20,7 +22,7 @@ class TestCamera(TestCase):
         capture_object = MagicMock()
         capture_object.attach_mock(Mock(return_value=[False, True]), 'read')
 
-        camera = Camera(capture_object)
+        camera = RealCamera(capture_object, MagicMock(), IMAGE_SAVE_DIRECTORY)
 
         self.assertRaises(CameraError, camera.take_picture)
 
@@ -28,6 +30,5 @@ class TestCamera(TestCase):
         capture_object = MagicMock()
         capture_object.attach_mock(Mock(return_value=[False, True]), 'read')
 
-        camera = Camera(capture_object)
+        camera = RealCamera(capture_object, MagicMock(), IMAGE_SAVE_DIRECTORY)
         camera.take_video()
-
