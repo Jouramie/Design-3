@@ -54,6 +54,7 @@ class StationController(object):
 
         if self.config['robot']['update_robot']:
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
+            subprocess.call("ssh design3@10.41.0.1 'cd robot && nohup ./start.py robot &'", shell=True)
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()

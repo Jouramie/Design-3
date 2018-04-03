@@ -11,5 +11,5 @@ git push -f robot
 ssh design3@10.42.0.1 'cd ~/robot && git checkout robot'
 git checkout ${ACTUAL_BRANCH}
 
-# ssh design3@10.41.0.1 'nohup ~/robot/src/start.py robot &'
+# ssh design3@10.41.0.1 'cd system && nohup ./start.py station &'
 
