@@ -1,7 +1,7 @@
 import time
 from logging import Logger
 
-from src.robot.hardware.command.stm_command_definition import commands_to_stm
+from .hardware.command.stm_command_definition import commands_to_stm
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm
 from ..d3_network.client_network_controller import ClientNetworkController
@@ -9,7 +9,6 @@ from ..d3_network.ip_provider import IpProvider
 
 
 class RobotController(object):
-
     def __init__(self, logger: Logger, ip_provider: IpProvider, network: ClientNetworkController, channel: Channel):
         self._logger = logger
         self._ip_provider = ip_provider
@@ -29,15 +28,15 @@ class RobotController(object):
     def receive_country_code(self) -> int:
         return self.receive_command().get_country_code()
 
-    def receive_end_of_task_signal(self) -> CommandFromStm:
-        return self.receive_command()
+    def receive_end_of_task_signal(self):
+        msg = self.receive_command()
+        print(msg)
 
     def receive_command(self):
         msg = None
         while msg is None:
             msg = self._channel.receive_message()
-        print(msg)
-        return CommandFromStm(bytearray(msg))
+        return msg
 
     def send_grab_cube(self) -> bool:
         if (self.send_ask_if_can_grab_cube() == True):
@@ -64,6 +63,7 @@ class RobotController(object):
             return True
         else:
             return False
+
     def send_end_signal(self):
         self._channel.send_command(commands_to_stm.Command.THE_END.value)
 

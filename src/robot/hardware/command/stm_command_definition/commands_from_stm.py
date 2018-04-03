@@ -4,8 +4,10 @@ from enum import Enum
 class Target(Enum):
 
     PAYS = 0xb0
-    STM_COMMANDS = {PAYS}
+    TASK_SUCCESS = 0xfc
+    TASK_FAILED = 0xec
+    STM_COMMANDS = {PAYS, TASK_SUCCESS, TASK_FAILED}
 
 class Command(Enum):
 
-    END_OF_TASK = bytearray(b'\xfc\x12\x34')
+    END_OF_TASK = "b'\xfc\x12\x34\xbe'"

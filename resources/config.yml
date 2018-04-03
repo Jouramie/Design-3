@@ -7,7 +7,7 @@ log_file: "log/{date}.log"
 
 robot:
   network:
-    host_ip: "10.42.0.190"
+    host_ip: "127.0.0.1"
     port: *port
   serial:
     port: "/dev/ttyUSB0"
@@ -16,7 +16,6 @@ robot:
 station:
   table_number: 4
   camera_id: 0
-  update_robot: true
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
     country_flag: "resources/countries/Flag_{country}.gif"
@@ -36,4 +35,6 @@ station:
       - ""
       - ""
   network:
+    use_mocked_network: true
     port: *port
+  update_robot: false

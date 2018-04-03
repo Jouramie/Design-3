@@ -5,11 +5,13 @@ from src.robot.hardware.message_corrupted_exception import MessageCorruptedExcep
 
 class CommandFromStm(object):
 
-    def __init__(self, message: bytearray):
-        self.target = message[0]
-        self.info = message[1]
-        # self.info2 = message[2]
-        # self.checksum = message[3]
+    def __init__(self, message: str):
+        self.raw_command = "".join("{:02x}".format(ord(c)) for c in message)
+        self.command = self.raw_command[4:10] + self.raw_command[10:12]
+        self.target = int(self.command[0:2], 16)
+        self.info = int(self.command[2:4], 16)
+        self.info2 = int(self.command[4:6], 16)
+        self.checksum = int(self.command[6:8], 16)
         # self._validate()
 
     def get_country_code(self):
@@ -21,6 +23,8 @@ class CommandFromStm(object):
     def _validate(self):
         calculated_checksum = (0x100 - self.target - self.info - self.info2) & 0x0FF
         if self.checksum != calculated_checksum:
-            raise MessageCorruptedException('Message could not be validated')
+            raise MessageCorruptedException('Message could not be validated. Calculated checksum : {}, current checksum : {}'.format(hex(calculated_checksum), hex(self.checksum)))
         if self.target not in Target.STM_COMMANDS.value:
             raise MessageCorruptedException('Target is not defined')
+        else:
+            return True

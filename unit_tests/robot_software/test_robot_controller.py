@@ -44,7 +44,7 @@ class TestRobotController(TestCase):
     def test_when_receive_country_code_then_return_country_code(self, time):
         network_ctrl = MagicMock()
         channel = Mock()
-        channel.receive_message = Mock(return_value=bytearray(b'\xb0\x43\x0d'))
+        channel.receive_message = Mock(return_value=b'\xb0\x43\x0d')
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.receive_country_code()
@@ -98,12 +98,25 @@ class TestRobotController(TestCase):
     def test_when_send_movement_command_then_send_via_channel(self, time):
         network_ctrl = MagicMock()
         channel = Mock()
-        channel.send_command= Mock()
+        channel.send_command = Mock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.send_movement_command(StmCommandBuilder().forward(5))
 
         channel.send_command.assert_called_once_with(bytearray(b'\x33\x05\xff'))
+
+    @patch('src.robot.robot_controller.time')
+    def test_when_receive_successful_end_of_task_then_message_received_correclty(self, time):
+        network_ctrl = MagicMock()
+        channel = Mock()
+        channel.receive_command = Mock(return_value="b'\xfc\x12\x34\xbe'")
+        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
+
+        ctrl.receive_end_of_task_signal()
+
+        #TODO
+
+
     # @patch('src.robot.robot_controller.time')
     # def test_robot(self, time):
     #     network_ctrl = MagicMock()
