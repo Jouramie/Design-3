@@ -37,7 +37,7 @@ class RobotController(object):
 
     def receive_command(self):
         msg = None
-        while msg is None:
+        while msg is None or msg == "b''" or msg == "b'ff'":
             msg = self._channel.receive_message()
             self._logger.info('Received from STM : {}'.format(msg))
         return CommandFromStm(msg)
