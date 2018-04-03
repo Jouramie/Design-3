@@ -32,20 +32,12 @@ class WorldVision:
         cubes = []
         obstacles = []
 
-        cv2.imshow('frame', cropped_image)
-
-        for cube in self.__find_red_cubes(cropped_image):
-            cubes.append(cube)
-
+        cubes = self.__validate_red_cube_is_present(cropped_image, cubes)
         cubes = self.__validate_cube_is_present(cropped_image, Color.BLUE, cubes)
         cubes = self.__validate_cube_is_present(cropped_image, Color.GREEN, cubes)
         cubes = self.__validate_cube_is_present(cropped_image, Color.YELLOW, cubes)
-        #cubes = self.__validate_cube_is_present(cropped_image, Color.BLACK, cubes)
-
-        for cube in self.__find_color_cubes(cropped_image, Color.WHITE):
-            cubes.append(cube)
-
-        target_zone = self.__find_target_zone(cropped_image)
+        cubes = self.__validate_white_cube_is_present(cropped_image, cubes)
+        cubes = self.__validate_cube_is_present(cropped_image, Color.BLACK, cubes)
 
         for obstacle in self.__find_obstacles(cropped_image):
             obstacles.append(obstacle)
@@ -57,26 +49,16 @@ class WorldVision:
                 new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
 
-        #self.__cube_list_validation(cubes, table_crop)
-        #cubes = self.__cube_inside_cube_validation(cubes, table_crop)
-
-        if target_zone is not None:
-            target_zone.center = (target_zone.center[0], target_zone.center[1] + table_crop.y_crop_top)
-            new_corners = []
-            for corner in target_zone.corners:
-                new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
-            target_zone.corners = new_corners
-
         for obstacle in obstacles:
             obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + table_crop.y_crop_top))
 
-        return VisionEnvironment(cubes, obstacles, target_zone)
+        return VisionEnvironment(cubes, obstacles)
 
     # TODO vérifier que ça marche
     def __validate_cube_is_present(self, frame, color: Color, cubes):
         for cube in self.__find_color_cubes(frame, color):
             cubes.append(cube)
-        for i in range(0, 2):
+        for i in range(0, 1):
             for cube in cubes:
                 if cube.color == color:
                     break
@@ -85,10 +67,32 @@ class WorldVision:
                         cubes.append(cube)
         return cubes
 
-    def __find_color_cubes(self, frame, color: Color):
-        # image = cv2.medianBlur(frame, 5)
-        # image = cv2.GaussianBlur(image, (5, 5), 0)
+    def __validate_white_cube_is_present(self, frame, cubes):
+        color = Color.WHITE
+        for cube in self.__find_color_cubes(frame, color):
+            cubes.append(cube)
+        for i in range(0, 1):
+            for cube in cubes:
+                if cube.color == color:
+                    break
+                else:
+                    for cube in self.__find_white_cubes(frame):
+                        cubes.append(cube)
+        return cubes
 
+    def __validate_red_cube_is_present(self, frame, cubes):
+        for cube in self.__find_red_cubes(frame):
+            cubes.append(cube)
+        for i in range(0, 1):
+            for cube in cubes:
+                if cube.color == Color.RED:
+                    break
+                else:
+                    for cube in self.__find_red_cubes(frame):
+                        cubes.append(cube)
+        return cubes
+
+    def __find_color_cubes(self, frame, color: Color):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(hsv, color.lower_bound, color.upper_bound)
@@ -100,8 +104,27 @@ class WorldVision:
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if 500 > cv2.arcLength(contour, True) > 80:
+            if cv2.contourArea(contour) > 1000:
                 if ((0.8 * width < x < 0.92 * width) and (y <= 0.10 * height) or
+                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
+                        ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
+                    yield self.__create_cube(contour, color)
+
+    def __find_white_cubes(self, frame):
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+        color = Color.WHITE
+        mask = cv2.inRange(hsv, color.lower_bound, color.upper_bound)
+
+        image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+        height, width, _ = frame.shape
+
+        for contour in contours:
+            x = contour[0][0][0]
+            y = contour[0][0][1]
+            if cv2.contourArea(contour) > 600:
+                if ((0.8 * width < x < 0.92 * width) and (y <= 0.09 * height) or
                         ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, color)
@@ -123,8 +146,8 @@ class WorldVision:
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if 500 > cv2.arcLength(contour, True) > 80:
-                if ((0.8 * width < x < 0.92 * width) and (y <= 0.10 * height) or
+            if cv2.contourArea(contour) > 1000:
+                if ((0.8 * width < x < 0.92 * width) and (y <= 0.8 * height) or
                         ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, Color.RED)
@@ -197,42 +220,3 @@ class WorldVision:
         crop_img = frame[y:y + h, x:x + w]
 
         return crop_img
-
-    def __cube_list_validation(self, cubes: [Cube], table_crop: TableCrop):
-        for cube in cubes:
-            print(cube)
-            for another_cube in cubes:
-                if another_cube != cube:
-                    if cube.is_too_close(another_cube) and cube.color == another_cube.color:
-                        merged_cube = cube.merge(another_cube, table_crop)
-                        cubes.append(merged_cube)
-                        if cube in cubes:
-                            cubes.remove(cube)
-                        if another_cube in cubes:
-                            cubes.remove(another_cube)
-                    elif cube.is_too_close(another_cube) and another_cube.color == Color.WHITE:
-                        if another_cube in cubes:
-                            cubes.remove(another_cube)
-        return cubes
-
-    def __cube_inside_cube_validation(self, cubes: [Cube], table_crop: TableCrop):
-        for cube in cubes:
-            for another_cube in cubes:
-                if another_cube != cube:
-                    if another_cube.is_inside(cube):
-                        if another_cube.color == Color.WHITE and cube.color != Color.WHITE:
-                            cubes.remove(another_cube)
-                        if cube.get_color() == another_cube.get_color():
-                            merged_cube = cube.merge_center(another_cube, table_crop)
-                            merged_cube.set_color(cube.get_color())
-                            cubes.append(merged_cube)
-                            if cube in cubes:
-                                cubes.remove(cube)
-                            if another_cube in cubes:
-                                cubes.remove(another_cube)
-        return cubes
-
-    def __cube_too_close_validation(self, cubes: [Cube]):
-        for cube in cubes:
-            for another_cube in cubes:
-                print('hello')

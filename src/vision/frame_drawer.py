@@ -59,8 +59,6 @@ class FrameDrawer:
             self.__draw_obstacle(frame, obstacle)
         for cube in vision_environment.cubes:
             self.__draw_cube(frame, cube)
-        if vision_environment.target_zone is not None:
-            self.__draw_target_zone(frame, vision_environment.target_zone)
 
     def __draw_cube(self, frame, cube: Cube) -> None:
         cv2.rectangle(frame, cube.get_corner(0), cube.get_corner(1), cube.color.bgr, thickness=3)
