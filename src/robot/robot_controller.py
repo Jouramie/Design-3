@@ -92,6 +92,7 @@ class RobotController(object):
     def execute(self):
         if not self._network_queue.empty():
             msg = self._network_queue.get()
+            self._logger.info('Executing this command : {}'.format(msg))
             if msg['command'] == Command.INFRARED_SIGNAL:
                 self.send_seek_flag()
                 self._execute_flag_sequence()
