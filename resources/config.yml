@@ -13,9 +13,6 @@ robot:
     port: "/dev/ttyUSB0"
   distance_between_robot_center_and_cube_center: 18 #cm
 
-table:
-
-
 station:
   table_number: 4
   camera_id: 1
