@@ -95,14 +95,22 @@ class SocketServerNetworkController(ServerNetworkController):
     def send_end_of_task_signal(self) -> None:
         self._send_command(Command.END_SIGNAL)
 
+        self._logger.info("End of task signal!")
+
     def send_ask_if_can_grab_cube(self) -> None:
         self._send_command(Command.CAN_I_GRAB)
+
+        self._logger.info("Are you able to grab a cube?!")
 
     def send_grab_cube(self) -> None:
         self._send_command(Command.GRAB)
 
+        self._logger.info("Grab it!")
+
     def send_drop_cube(self) -> None:
         self._send_command(Command.DROP)
+
+        self._logger.info("Drop it!")
 
 class MockedServerNetworkController(ServerNetworkController):
     def __init__(self, logger: Logger, port: int, encoder: Encoder):

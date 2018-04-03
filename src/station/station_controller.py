@@ -58,7 +58,13 @@ class StationController(object):
         self.network.host_network()
         self.network.send_start_command()
         self.network.send_end_of_task_signal()
-        self.network.se
+        input()
+        self.network.send_ask_if_can_grab_cube()
+        input()
+        self.network.send_grab_cube()
+        input()
+        self.network.send_drop_cube()
+        input()
         self.network.send_end_of_task_signal()
 
 
