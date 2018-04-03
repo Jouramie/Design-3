@@ -138,7 +138,7 @@ class StationController(object):
                 self.model.country_code = country_received
                 self.__find_country()
                 self.__select_next_cube_color()
-                target_cube = self.model.vision_environment.find_cube(self.model.next_cube_color)
+                target_cube = self.model.real_world_environment.find_cube(self.model.next_cube_color)
 
                 # TODO find path to cube using path finding
                 is_possible = self.path_calculator.calculate_path((0, 0), (200, 0),

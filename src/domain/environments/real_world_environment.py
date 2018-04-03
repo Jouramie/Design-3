@@ -5,6 +5,8 @@ from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.transform import Transform
 from .vision_environment import VisionEnvironment
+from ..objects.color import Color
+from ..objects.cube import Cube
 from ..objects.obstacle import Obstacle
 
 
@@ -15,6 +17,7 @@ class RealWorldEnvironment(object):
         self.__coordinate_converter = coordinate_converter
         # TODO déplacer dans une factory
         self.obstacles = self.__project_obstacles(vision_environment.obstacles)
+        self.cubes = []  # TODO projeter
 
     def __project_obstacles(self, obstacles: [Obstacle]) -> [Obstacle]:
         return list(map(self.__project_obstacle, obstacles))
@@ -43,3 +46,15 @@ class RealWorldEnvironment(object):
 
         obstacle_information = world_to_obstacle.to_parameters(True)
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
+
+    def find_cube(self, color: Color) -> Cube:
+        """Return a cube matching the color in parameter
+
+        :param color: The desired color
+        :return: A cube of the desired color
+        """
+        for cube in self.cubes:
+            if cube.color == color:
+                # TODO remove cube from environments?
+                return cube
+        return None  # TODO raise une exception

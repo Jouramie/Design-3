@@ -44,7 +44,7 @@ class FrameDrawer:
             world_points = self.__project_points(points)
             number_of_points = (len(world_points) - 1)
             while i < number_of_points:
-                cv2.line(frame, tuple(world_points[i][0]), tuple(world_points[i + 1][0]), (255, 0, 0), 3)
+                cv2.line(frame, tuple(world_points[i][0]), tuple(world_points[i + 1][0]), Color.LIGHT_BLUE.bgr, 3)
                 i = i + 1
 
     def draw_planned_path(self, frame, points):
@@ -52,8 +52,7 @@ class FrameDrawer:
             np_points = np.array([(point[0][0], point[0][1], 0), (point[1][0], point[1][1], 0)], 'float32')
             projected_points = self.__project_points(np_points)
 
-            # TODO mettre la couleur dans l'enum de couleur
-            cv2.line(frame, tuple(projected_points[0][0]), tuple(projected_points[1][0]), (0, 255, 0), 3)
+            cv2.line(frame, tuple(projected_points[0][0]), tuple(projected_points[1][0]), Color.LIGHT_GREEN.bgr, 3)
 
     def draw_vision_environment(self, frame, vision_environment: VisionEnvironment):
         for obstacle in vision_environment.obstacles:
@@ -72,9 +71,9 @@ class FrameDrawer:
 
     def draw_real_world_environment(self, frame, real_world_environment: RealWorldEnvironment):
         for obstacle in real_world_environment.obstacles:
-            self.__draw_transformed_obstacle(frame, obstacle)
+            self.__project_and_draw_real_obstacle(frame, obstacle)
 
-    def __draw_transformed_obstacle(self, frame, obstacle: Obstacle) -> None:
+    def __project_and_draw_real_obstacle(self, frame, obstacle: Obstacle) -> None:
         pos = np.array([(obstacle.center[0], obstacle.center[1], 0.0),
                         (obstacle.center[0] + obstacle.radius, obstacle.center[1], 0.0)], 'float32')
         projected_pos = self.__project_points(pos)
