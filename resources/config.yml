@@ -7,7 +7,7 @@ log_file: "log/{date}.log"
 
 robot:
   network:
-    host_ip: "127.0.0.1"
+    host_ip: "10.42.0.190"
     port: *port
   serial:
     port: "/dev/ttyUSB0"
@@ -40,4 +40,4 @@ station:
   network:
     use_mocked_network: true
     port: *port
-  update_robot: false
+  update_robot: true
