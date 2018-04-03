@@ -58,7 +58,7 @@ class StationController(object):
         self.network.host_network()
         self.network.send_start_command()
         self.network.send_end_of_task_signal()
-        self.network.send_
+        self.network.se
         self.network.send_end_of_task_signal()
 
 

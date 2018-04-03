@@ -30,6 +30,15 @@ class ServerNetworkController(NetworkController):
     def send_end_of_task_signal(self) -> int:
         raise NotImplementedError("This is an interface...")
 
+    def send_ask_if_can_grab_cube(self) -> None:
+        raise NotImplementedError("This is an interface...")
+
+    def send_grab_cube(self) -> None:
+        raise NotImplementedError("This is an interface...")
+
+    def send_drop_cube(self) -> None:
+        raise NotImplementedError("This is an interface...")
+
 class SocketServerNetworkController(ServerNetworkController):
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
@@ -83,16 +92,16 @@ class SocketServerNetworkController(ServerNetworkController):
         self._logger.info("Infrared signal received! {code}".format(code=country_code))
         return country_code
 
-    def send_end_of_task_signal(self) -> int:
+    def send_end_of_task_signal(self) -> None:
         self._send_command(Command.END_SIGNAL)
 
-    def send_ask_if_can_grab_cube(self) -> int:
+    def send_ask_if_can_grab_cube(self) -> None:
         self._send_command(Command.CAN_I_GRAB)
 
-    def send_grab_cube(self) -> int:
+    def send_grab_cube(self) -> None:
         self._send_command(Command.GRAB)
 
-    def send_drop_cube(self) -> int:
+    def send_drop_cube(self) -> None:
         self._send_command(Command.DROP)
 
 class MockedServerNetworkController(ServerNetworkController):
