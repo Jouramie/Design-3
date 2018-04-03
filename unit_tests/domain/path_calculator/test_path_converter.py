@@ -1,13 +1,15 @@
 from unittest import TestCase
+from unittest.mock import MagicMock
+
 from src.domain.path_calculator.direction import Direction
-from src.domain.path_calculator.direction import NINETY_DEGREES_MOVE_LENGTH
 from src.domain.path_calculator.direction import FORTY_FIVE_DEGREES_MOVE_LENGTH
+from src.domain.path_calculator.direction import NINETY_DEGREES_MOVE_LENGTH
 from src.domain.path_calculator.path_converter import PathConverter
 
 
 class TestPathConverter(TestCase):
     def setUp(self):
-        self.path_converter = PathConverter()
+        self.path_converter = PathConverter(MagicMock())
         self.path = []
         self.path.append((0, 0))
 
