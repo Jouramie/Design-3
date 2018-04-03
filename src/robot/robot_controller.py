@@ -10,6 +10,7 @@ from ..d3_network.ip_provider import IpProvider
 
 
 class RobotController(object):
+
     def __init__(self, logger: Logger, ip_provider: IpProvider, network: ClientNetworkController, channel: Channel):
         self._logger = logger
         self._ip_provider = ip_provider
@@ -82,8 +83,9 @@ class RobotController(object):
         # self._network.wait_infrared_ask()
         # self._network.send_infrared_ask(43)
         self.send_seek_flag()
-        self.receive_country_code()
+        # self.receive_country_code()
 
         self.send_end_signal()
 
         time.sleep(1000)
+

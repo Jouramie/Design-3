@@ -1,4 +1,4 @@
-from src.domain.color import Color
+from .color import Color
 
 
 class StylizedFlag(object):

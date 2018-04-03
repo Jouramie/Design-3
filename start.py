@@ -73,7 +73,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     finally:
         if network_controller._socket is not None:
             network_controller._socket.close()
-        if channel.serial is not None and channel.serial.isOpen:
+        if channel is not None and channel.serial.isOpen:
             channel.serial.close()
 
 
@@ -82,16 +82,16 @@ def start_station(config: dict, logger: logging.Logger) -> None:
         network_controller = server_network_controller.MockedServerNetworkController(
             logger.getChild("network_controller"), config['network']['port'], encoder.Encoder())
     else:
-        network_controller = server_network_controller.ServerNetworkController(logger.getChild("network_controller"),
-                                                                               config['network']['port'],
-                                                                               encoder.DictionaryEncoder())
+        network_controller = server_network_controller.SocketServerNetworkController(
+            logger.getChild("network_controller"), config['network']['port'], encoder.DictionaryEncoder())
+
     table_camera_config_factory = TableCameraConfigurationFactory(config['resources_path']['camera_calibration'],
                                                                   config['resources_path']['world_calibration'])
     table_camera_config = table_camera_config_factory.create(config['table_number'])
     if config['camera']['use_mocked_camera']:
         camera = MockedCamera(config['camera']['mocked_camera_image_path'], logger.getChild("camera"))
     else:
-        camera = create_real_camera(config['camera']["camera_id"], logger.getChild("camera"))
+        camera = create_real_camera(config['camera'], logger.getChild("camera"))
     try:
         app = App(network_controller, camera, table_camera_config, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())
@@ -101,7 +101,6 @@ def start_station(config: dict, logger: logging.Logger) -> None:
                 network_controller._server.close()
             if network_controller._socket is not None:
                 network_controller._socket.close()
-
 
 
 """

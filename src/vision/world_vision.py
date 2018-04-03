@@ -1,13 +1,11 @@
-import copy
-
 import cv2
 import numpy as np
 
-from src.domain.color import Color
-from src.domain.vision_environment.cube import Cube
-from src.domain.vision_environment.vision_environment import VisionEnvironment
-from src.domain.vision_environment.obstacle import Obstacle
-from src.domain.vision_environment.target_zone import TargetZone
+from src.domain.environments.vision_environment import VisionEnvironment
+from src.domain.objects.color import Color
+from src.domain.objects.cube import Cube
+from src.domain.objects.obstacle import Obstacle
+from src.domain.objects.target_zone import TargetZone
 from .vision_exception import VisionException
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
@@ -20,61 +18,45 @@ class DummyWorldVision:
         self.camera = camera
 
     def create_environment(self) -> VisionEnvironment:
-        return VisionEnvironment([], [], TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
+        return VisionEnvironment([], [Obstacle((1043.5, 850.0), 52.9)],
+                                 TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
 
 
 class WorldVision:
     def __init__(self):
         pass
 
-    def create_environment(self, image_location):
-        cropped_image = self.__crop_environment(image_location)
-        cropped_image_copy = copy.copy(cropped_image)
+    def create_environment(self, frame):
+        # cropped_image = self.__crop_environment(image_location)
+        # cropped_image_copy = copy.copy(cropped_image)
 
         cubes = []
         obstacles = []
 
-        for cube in self.__find_color_cubes(cropped_image, Color.BLUE):
+        for cube in self.__find_color_cubes(frame, Color.BLUE):
             cubes.append(cube)
-            self.__draw_cube(cropped_image_copy, cube)
 
-        for cube in self.__find_color_cubes(cropped_image, Color.GREEN):
+        for cube in self.__find_color_cubes(frame, Color.GREEN):
             cubes.append(cube)
-            self.__draw_cube(cropped_image_copy, cube)
 
-        for cube in self.__find_color_cubes(cropped_image, Color.RED):
+        for cube in self.__find_color_cubes(frame, Color.RED):
             cubes.append(cube)
-            self.__draw_cube(cropped_image_copy, cube)
 
-        for cube in self.__find_color_cubes(cropped_image, Color.YELLOW):
+        for cube in self.__find_color_cubes(frame, Color.YELLOW):
             cubes.append(cube)
-            self.__draw_cube(cropped_image_copy, cube)
 
-        for cube in self.__find_black_cubes(cropped_image):
+        for cube in self.__find_black_cubes(frame):
             cubes.append(cube)
-            self.__draw_cube(cropped_image_copy, cube)
 
-        for cube in self.__find_white_cube(cropped_image):
+        for cube in self.__find_white_cube(frame):
             cubes.append(cube)
-            self.__draw_cube(cropped_image_copy, cube)
 
-        target_zone = self.__find_target_zone(cropped_image)
-        self.__draw_target_zone(cropped_image_copy, target_zone)
+        target_zone = self.__find_target_zone(frame)
 
-        for obstacle in self.__find_obstacles(cropped_image):
+        for obstacle in self.__find_obstacles(frame):
             obstacles.append(obstacle)
-            self.__draw_obstacle(cropped_image_copy, obstacle)
 
-        return VisionEnvironment(cubes, obstacles, target_zone), cropped_image_copy
-
-    def __draw_cube(self, image, cube: Cube):
-        cv2.rectangle(image, cube.get_corner(0), cube.get_corner(1), cube.color.bgr, thickness=THICKNESS)
-
-    def __draw_target_zone(self, image, target_zone: TargetZone):
-        cv2.rectangle(image, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=THICKNESS)
-
-    def __draw_obstacle(self, image, obstacle: Obstacle):
-        cv2.circle(image, obstacle.center, obstacle.radius, Color.PINK.bgr, thickness=THICKNESS, lineType=cv2.LINE_AA)
+        return VisionEnvironment(cubes, obstacles, target_zone)
 
     def __find_color_cubes(self, original_image, color: Color):
         image = cv2.medianBlur(original_image, 5)
@@ -167,8 +149,8 @@ class WorldVision:
         radius = contour[2]
         return Obstacle(center, radius)
 
-    def __crop_environment(self, filename):
-        original_image = cv2.imread(filename)
+    def __crop_environment(self, frame):
+        original_image = frame
 
         image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         _, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)

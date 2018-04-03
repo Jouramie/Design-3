@@ -1,5 +1,5 @@
+from .direction import Direction
 from .vertex import Vertex
-from src.domain.path_calculator.direction import Direction
 
 
 class Grid:
@@ -14,12 +14,12 @@ class Grid:
         self.__init_grid_vertices()
 
     def __init_grid_vertices(self):
-        for y in range(self.DEFAULT_OFFSET, self.__height):
-            for x in range(self.DEFAULT_OFFSET, self.__width):
+        for y in range(self.DEFAULT_OFFSET, self.__width):
+            for x in range(self.DEFAULT_OFFSET, self.__height):
                 self.__add_vertex((x, y))
 
-        for y in range(self.DEFAULT_OFFSET, self.__height):
-            for x in range(self.DEFAULT_OFFSET, self.__width):
+        for y in range(self.DEFAULT_OFFSET, self.__width):
+            for x in range(self.DEFAULT_OFFSET, self.__height):
                 self.__initiate_vertices_neighbors((x, y))
 
     def __add_vertex(self, node):
@@ -31,12 +31,11 @@ class Grid:
     def __initiate_vertices_neighbors(self, node):
         for direction in Direction:
             neighbor = (node[0] + direction.value[0], node[1] + direction.value[1])
-            if 0 <= neighbor[0] < self.__width and 0 <= neighbor[1] < self.__height:
+            if self.DEFAULT_OFFSET <= neighbor[0] < self.__height and self.DEFAULT_OFFSET <= neighbor[1] < self.__width:
                 self.__add_edge(node, neighbor)
 
     def __add_edge(self, origin, destination, weight=DEFAULT_WEIGHT):
         self.__vertices_dictionary[origin].add_neighbor(self.__vertices_dictionary[destination], weight)
-        self.__vertices_dictionary[destination].add_neighbor(self.__vertices_dictionary[origin], weight)
 
     def get_vertex(self, node):
         if node in self.__vertices_dictionary:
