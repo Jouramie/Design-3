@@ -1,13 +1,7 @@
-import cv2
-import numpy as np
-
 from src.vision.coordinate_converter import CoordinateConverter
-from src.vision.table_camera_configuration import TableCameraConfiguration
-from src.vision.transform import Transform
 from .vision_environment import VisionEnvironment
 from ..objects.color import Color
 from ..objects.cube import Cube
-from ..objects.obstacle import Obstacle
 
 
 class RealWorldEnvironment(object):
@@ -16,6 +10,11 @@ class RealWorldEnvironment(object):
         # TODO déplacer dans une factory
         self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
         self.cubes = coordinate_converter.project_cubes(vision_environment.cubes)
+
+    def __str__(self):
+        return "Cubes: {} \nObstacles: {} \nTarget: {}".format('\n    '.join(str(c) for c in self.cubes),
+                                                               '\n    '.join(str(o) for o in self.obstacles),
+                                                               str(self.target_zone))
 
     def find_cube(self, color: Color) -> Cube:
         """Return a cube matching the color in parameter
