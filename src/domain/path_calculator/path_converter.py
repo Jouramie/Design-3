@@ -1,11 +1,10 @@
-import logging
-import os
+from itertools import cycle
+from logging import Logger
+
 import numpy
 
-from itertools import cycle
 from .direction import Direction
 from .path_calculator_error import PathConverterError
-from src.config import PATH_CONVERTER_LOG_DIR, PATH_CONVERTER_LOG_FILE
 
 
 class PathConverter(object):
@@ -14,9 +13,8 @@ class PathConverter(object):
     __segments = []
     __path = []
 
-    def __init__(self, log_level=logging.INFO):
-        #self.__initialize_log(log_level)
-        pass
+    def __init__(self, logger: Logger):
+        self.logger = logger
 
     def convert_path(self, path):
         self.__path = path
@@ -52,11 +50,11 @@ class PathConverter(object):
                     self.__add_segments(starting_point, next_node)
                     break
         except PathConverterError as err:
-            logging.info(str(err))
+            self.logger.info(str(err))
             return 0
 
         if iteration == self.MAX_ITERATION:
-            logging.info("PathConverter MAX_ITERATION REACH")
+            self.logger.info("PathConverter MAX_ITERATION REACH")
 
         return self.__commands, self.__segments
 
@@ -71,8 +69,3 @@ class PathConverter(object):
             return Direction(direction).name
         except ValueError:
             raise PathConverterError("Invalid direction %s, in path %s" % (str(direction), str(self.__path)))
-
-    def __initialize_log(self, log_level):
-        if not os.path.exists(PATH_CONVERTER_LOG_DIR):
-            os.makedirs(PATH_CONVERTER_LOG_DIR)
-        logging.basicConfig(level=log_level, filename=PATH_CONVERTER_LOG_FILE, format='%(asctime)s %(message)s')

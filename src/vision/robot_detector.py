@@ -1,11 +1,11 @@
 import cv2
-import cv2.aruco as aruco
 import numpy as np
+from cv2 import aruco
 
-from src.domain.vision_environment.robot import Robot
-from src.vision.transform import Transform
-from src.vision.coordinate_converter import CoordinateConverter
+from src.domain.objects.robot import Robot
 from src.vision.camera_parameters import CameraParameters
+from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.transform import Transform
 
 
 class RobotDetector:
@@ -25,9 +25,9 @@ class RobotDetector:
 
     def detect(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
-                                                              cameraMatrix=self.cam_param.camera_matrix,
-                                                              distCoeff=self.cam_param.distortion)
+        corners, ids, rejected_img_points = aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
+                                                                cameraMatrix=self.cam_param.camera_matrix,
+                                                                distCoeff=self.cam_param.distortion)
 
         self.success, rotation, translation = aruco.estimatePoseBoard(corners, ids, self.board,
                                                                       self.cam_param.camera_matrix,

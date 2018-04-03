@@ -1,4 +1,5 @@
 import ast
+
 from .network_exception import MessageNotReceivedYet
 
 MESSAGE_SIZE_BYTES = 4

@@ -73,7 +73,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     finally:
         if network_controller._socket is not None:
             network_controller._socket.close()
-        if channel.serial is not None and channel.serial.isOpen:
+        if channel is not None and channel.serial.isOpen:
             channel.serial.close()
 
 
@@ -91,7 +91,7 @@ def start_station(config: dict, logger: logging.Logger) -> None:
     if config['camera']['use_mocked_camera']:
         camera = MockedCamera(config['camera']['mocked_camera_image_path'], logger.getChild("camera"))
     else:
-        camera = create_real_camera(config['camera']["camera_id"], logger.getChild("camera"))
+        camera = create_real_camera(config['camera'], logger.getChild("camera"))
     try:
         app = App(network_controller, camera, table_camera_config, logger.getChild("main_controller"), config)
         sys.exit(app.exec_())

@@ -2,7 +2,7 @@ from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathErro
 
 
 class PathCalculator(object):
-    MAX_ITERATIONS = 10000
+    MAX_ITERATIONS = 100000
     UNASSIGNED_VALUE = -1
     STEP_VALUE = 1
     END_POINT_VALUE = 0
@@ -14,7 +14,7 @@ class PathCalculator(object):
         self.__last_node = 0
         self.__current_node = 0
 
-    def calculate_path(self, starting_point, ending_point, grid):
+    def calculate_path(self, starting_point: tuple, ending_point: tuple, grid):
         self.__set_grid(grid)
         self.__path.clear()
         self.__set_neighbor_step_value(ending_point)

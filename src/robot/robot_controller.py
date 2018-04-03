@@ -1,8 +1,8 @@
 import time
 from logging import Logger
 
-from ..d3_network.client_network_controller import ClientNetworkController
-from ..d3_network.ip_provider import IpProvider
+from src.d3_network.client_network_controller import ClientNetworkController
+from src.d3_network.ip_provider import IpProvider
 from .hardware.channel import Channel
 
 
@@ -30,4 +30,3 @@ class RobotController(object):
         self._network.send_infrared_ask(43)
 
         time.sleep(1000)
-
