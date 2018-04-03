@@ -21,10 +21,14 @@ class StationView(QMainWindow):
         self.update_timer.start(100)
         self.update_timer.timeout.connect(self.update)
         self.ui.StartButton.clicked.connect(self.start_robot)
+        self.ui.StopButton.clicked.connect(self.test)
         super(StationView, self).__init__()
 
     def start_robot(self):
         self.station_controller.start_robot()
+
+    def test(self):
+        self.station_controller.select_next_cube_color()
 
     def update(self):
         self.station_controller.update()
@@ -67,5 +71,5 @@ class StationView(QMainWindow):
         self.ui.CountryName.setText(self.model.country.name)
 
     def __display_next_cube_color(self):
-        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube_color.name.lower() + ';')
+        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube.color.name.lower() + ';')
         self.ui.cube_label.show()

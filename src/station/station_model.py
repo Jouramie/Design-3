@@ -1,6 +1,6 @@
 from src.domain.vision_environment.robot import Robot
 from src.domain.vision_environment.vision_environment import VisionEnvironment
-from src.domain.color import Color
+from src.domain.flag_cube import FlagCube
 from src.domain.country import Country
 
 
@@ -12,7 +12,7 @@ class StationModel(object):
         self.country: Country = "Country not yet selected"
         self.country_code: int = None
         self.current_cube_index = 0
-        self.next_cube_color: Color = None
+        self.next_cube: FlagCube = None
 
         self.frame = None
 

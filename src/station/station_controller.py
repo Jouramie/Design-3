@@ -40,7 +40,7 @@ class StationController(object):
         self.model.world_camera_is_on = True
         self.model.country_code = 100
         self.__find_country()
-        self.__select_next_cube_color()
+        self.select_next_cube_color()
 
     def start_robot(self):
         self.model.robot_is_started = True
@@ -81,15 +81,15 @@ class StationController(object):
         self.model.country = self.country_loader.get_country(self.model.country_code)
         self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
 
-    def __select_next_cube_color(self):
+    def select_next_cube_color(self):
         cube_index = self.model.current_cube_index
         flag_cube = self.model.country.stylized_flag.flag_cubes[cube_index]
         if flag_cube.color is not Color.TRANSPARENT:
             self.model.current_cube_index = cube_index + 1
-            self.model.next_cube_color = flag_cube.color
+            self.model.next_cube = flag_cube
         else:
             self.model.current_cube_index = cube_index + 1
-            self.__select_next_cube_color()
+            self.select_next_cube_color()
 
     def update(self):
         # self.logger.info("StationController.update()")
@@ -119,8 +119,8 @@ class StationController(object):
             if country_received is not None:
                 self.model.country_code = country_received
                 self.__find_country()
-                self.__select_next_cube_color()
-                self.model.environment.find_cube(self.model.next_cube_color)
+                self.select_next_cube_color()
+                self.model.environment.find_cube(self.model.next_cube.color)
                 # TODO find path to cube using path finding
             return
 
