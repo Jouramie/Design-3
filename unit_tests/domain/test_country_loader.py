@@ -1,15 +1,17 @@
 from unittest import TestCase
 
 from src.domain.country_loader import CountryLoader
-from src.domain.objects.color import Color
+from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.stylized_flag import StylizedFlag
+from src.domain.objects.color import Color
 
 REAL_CONFIG = {'resources_path': {'countries_list': "resources/countries/A-Liste_UTF-16.txt",
                                   'country_flag': "resources/countries/Flag_{country}.gif"}}
 EXPECTED_COUNTRY_COUNT = 197
 EXPECTED_43_STYLIZED_FLAG = StylizedFlag(
-    [Color.YELLOW, Color.BLUE, Color.RED, Color.BLUE, Color.RED, Color.BLUE, Color.TRANSPARENT, Color.TRANSPARENT,
-     Color.TRANSPARENT])
+    [FlagCube((5, 61), Color.TRANSPARENT), FlagCube((33, 61), Color.TRANSPARENT), FlagCube((61, 61), Color.TRANSPARENT),
+     FlagCube((5, 33), Color.BLUE), FlagCube((33, 33), Color.RED), FlagCube((61, 33), Color.BLUE),
+     FlagCube((5, 5), Color.YELLOW), FlagCube((33, 5), Color.BLUE), FlagCube((61, 5), Color.RED)])
 
 
 class TestCountryLoader(TestCase):
@@ -31,4 +33,4 @@ class TestCountryLoader(TestCase):
 
         country = country_loader.get_country(43)
 
-        self.assertTrue(EXPECTED_43_STYLIZED_FLAG.colors == country.stylized_flag.colors)
+        self.assertTrue(EXPECTED_43_STYLIZED_FLAG.flag_cubes == country.stylized_flag.flag_cubes)
