@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from logging import Logger
+
 
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.environments.vision_environment import VisionEnvironment
@@ -12,10 +14,11 @@ from src.vision.camera_parameters import CameraParameters
 from src.vision.coordinate_converter import CoordinateConverter
 
 
-class FrameDrawer:
-    def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter):
+class FrameDrawer(object):
+    def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter, logger: Logger):
         self.cam_param = cam_param
         self.coordinate_converter = coordinate_converter
+        self.logger = logger
 
     def draw_robot(self, frame, robot: Robot):
         robot_corners = robot.get_corners()
@@ -63,10 +66,13 @@ class FrameDrawer:
         self.__draw_target_zone(frame, vision_environment.target_zone)
 
     def __draw_cube(self, frame, cube: Cube) -> None:
-        cv2.rectangle(frame, cube.corners[0], cube.corners[1], cube.color.bgr, thickness=3)
+        if cube is not None:
+            cv2.rectangle(frame, cube.corners[0], cube.corners[1], cube.color.bgr, thickness=3)
 
     def __draw_target_zone(self, frame, target_zone: TargetZone) -> None:
-        cv2.rectangle(frame, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=3)
+        if target_zone is not None:
+            self.logger.warning("Target zone is None.")
+            cv2.rectangle(frame, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=3)
 
     def __draw_obstacle(self, frame, obstacle: Obstacle) -> None:
         cv2.circle(frame, (int(obstacle.center[0]), int(obstacle.center[1])), int(obstacle.radius), Color.PINK.bgr,

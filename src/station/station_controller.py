@@ -41,7 +41,8 @@ class StationController(object):
         self.table_camera_config = table_camera_config
         self.coordinate_converter = CoordinateConverter(self.table_camera_config)
         self.robot_detector = RobotDetector(self.table_camera_config.camera_parameters, self.coordinate_converter)
-        self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter)
+        self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter,
+                                        logger.getChild("FrameDrawer"))
 
         self.obstacle_pos = []
 
@@ -117,6 +118,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.vision_environment is None:
+            # self.model.frame = self.camera.take_picture()
             self.model.vision_environment = self.world_vision.create_environment(self.model.frame)
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
 
