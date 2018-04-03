@@ -39,9 +39,9 @@ class StationController(object):
         self.navigation_environment.create_grid()
 
         self.table_camera_config = table_camera_config
-        self.coordinate_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
-        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coordinate_converter)
-        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coordinate_converter)
+        self.coordinate_converter = CoordinateConverter(self.table_camera_config)
+        self.robot_detector = RobotDetector(self.table_camera_config.camera_parameters, self.coordinate_converter)
+        self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter)
 
         self.obstacle_pos = []
 
@@ -65,9 +65,11 @@ class StationController(object):
             return None
 
     def __draw_environment(self, frame):
-        if self.model.robot is not None:
-            # self.logger.info("Robot " + str(self.model.robot))
-            self.frame_drawer.draw_robot(frame, self.model.robot)
+        if self.model.vision_environment is not None:
+            self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
+
+        if self.model.real_world_environment is not None:
+            self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
 
         if self.model.planned_path is not None and self.model.planned_path:
             # self.logger.info("Planned path " + str(self.model.planned_path))
@@ -77,11 +79,9 @@ class StationController(object):
             # self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
-        if self.model.vision_environment is not None:
-            self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
-
-        if self.model.real_world_environment is not None:
-            self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
+        if self.model.robot is not None:
+            # self.logger.info("Robot " + str(self.model.robot))
+            self.frame_drawer.draw_robot(frame, self.model.robot)
 
         # TODO draw navigation grid
 
@@ -121,7 +121,6 @@ class StationController(object):
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
 
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
-                                                                     self.table_camera_config,
                                                                      self.coordinate_converter)
 
             self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
@@ -139,6 +138,9 @@ class StationController(object):
                 self.__find_country()
                 self.__select_next_cube_color()
                 target_cube = self.model.real_world_environment.find_cube(self.model.next_cube_color)
+                if target_cube is None:
+                    self.logger.warning("The target cube is None. Cannot continue, exiting.")
+                    return
 
                 # TODO find path to cube using path finding
                 is_possible = self.path_calculator.calculate_path((0, 0), (200, 0),

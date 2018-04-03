@@ -28,6 +28,7 @@ class FrameDrawer:
         cv2.line(frame, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
 
     def __project_points(self, points):
+        # TODO mettre dans CoordinateConverter
         camera_to_world_parameters = self.coordinate_converter.get_camera_to_world().to_parameters()
         camera_to_world_tvec = np.array(
             [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
@@ -57,10 +58,12 @@ class FrameDrawer:
     def draw_vision_environment(self, frame, vision_environment: VisionEnvironment):
         for obstacle in vision_environment.obstacles:
             self.__draw_obstacle(frame, obstacle)
-        # TODO dessiner les autres choses
+        for cube in vision_environment.cubes:
+            self.__draw_cube(frame, cube)
+        self.__draw_target_zone(frame, vision_environment.target_zone)
 
     def __draw_cube(self, frame, cube: Cube) -> None:
-        cv2.rectangle(frame, cube.get_corner(0), cube.get_corner(1), cube.color.bgr, thickness=3)
+        cv2.rectangle(frame, cube.corners[0], cube.corners[1], cube.color.bgr, thickness=3)
 
     def __draw_target_zone(self, frame, target_zone: TargetZone) -> None:
         cv2.rectangle(frame, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=3)
@@ -72,11 +75,22 @@ class FrameDrawer:
     def draw_real_world_environment(self, frame, real_world_environment: RealWorldEnvironment):
         for obstacle in real_world_environment.obstacles:
             self.__project_and_draw_real_obstacle(frame, obstacle)
+        for cube in real_world_environment.cubes:
+            self.__project_and_draw_real_cube(frame, cube)
 
     def __project_and_draw_real_obstacle(self, frame, obstacle: Obstacle) -> None:
-        pos = np.array([(obstacle.center[0], obstacle.center[1], 0.0),
-                        (obstacle.center[0] + obstacle.radius, obstacle.center[1], 0.0)], 'float32')
-        projected_pos = self.__project_points(pos)
+        real_positions = np.array([(obstacle.center[0], obstacle.center[1], 0.0),
+                                   (obstacle.center[0] + obstacle.radius, obstacle.center[1], 0.0)], 'float32')
+        image_positions = self.__project_points(real_positions)
 
-        cv2.circle(frame, tuple(projected_pos[0][0]), projected_pos[1][0][0] - projected_pos[0][0][0], Color.PINK2.bgr,
+        cv2.circle(frame, tuple(image_positions[0][0]), image_positions[1][0][0] - image_positions[0][0][0],
+                   Color.PINK2.bgr,
                    thickness=3, lineType=cv2.LINE_AA)
+
+    def __project_and_draw_real_cube(self, frame, cube: Cube) -> None:
+        #print(str(cube))
+        real_positions = np.array(cube.get_3d_corners(), 'float32')
+        image_positions = self.__project_points(real_positions)
+        #print(image_positions)
+
+        cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), cube.color.bgr, thickness=3)
