@@ -11,7 +11,7 @@ robot:
     port: *port
 
 station:
-  table_number: 4
+  table_number: 6
   update_robot: false
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
@@ -30,6 +30,6 @@ station:
       - ""
       - "resources/calibration/world_calibration_4.npy"
       - ""
-      - ""
+      - "resources/calibration/world_calibration_6.npy"
   network:
     port: *port

@@ -31,8 +31,11 @@ class Cube:
     def get_color(self):
         return self.color
 
+    def set_color(self, new_color):
+        self.color = new_color
+
     def is_inside(self, other):
-        if self.x >= other.x and self.y >= other.y and self.w <= other.w and self.h <= other.h:
+        if other.x >= self.x and other.y >= self.y and other.w >= self.w and other.h >= self.h:
             return True
         else:
             return False
@@ -63,8 +66,14 @@ class Cube:
         self_y_center = self.center[1]
         other_x_center = other.center[0]
         other_y_center = other.center[1]
-        new_cube_x_center = self_x_center/2
-        new_cube_y_center = self_y_center/2
+        new_cube_x_center = round((self_x_center+other_x_center)/2)
+        new_cube_y_center = round((self_y_center+other_y_center)/2)
+        new_cube_x = (new_cube_x_center - 10 + table_crop.x_crop)
+        new_cube_y = (new_cube_y_center - 10 + table_crop.y_crop_top)
+        new_cube_w = (new_cube_x_center + 10 + table_crop.x_crop)
+        new_cube_h = (new_cube_y_center + 10 + table_crop.y_crop_top)
+        new_corners = [(new_cube_x, new_cube_y), (new_cube_w, new_cube_h)]
+        return Cube(self.color, new_corners)
 
 
     def __eq__(self, other):
