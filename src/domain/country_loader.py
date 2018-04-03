@@ -9,7 +9,7 @@ from src.domain.stylized_flag import StylizedFlag
 
 IMAGE_MAX_SIZE = 96
 NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES = 32
-RANGE_BETWEEN_TWO_CUBES = 28
+DISTANCE_BETWEEN_TWO_CUBES = 28
 
 
 class CountryLoader(object):
