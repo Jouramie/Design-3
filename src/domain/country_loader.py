@@ -37,11 +37,11 @@ class CountryLoader(object):
         flag_cubes = []
 
         pixel_position_x = 16
-        pixel_position_y = 16
+        pixel_position_y = 80
         world_position_x = 5
         world_position_y = 61
 
-        while pixel_position_y <= IMAGE_MAX_SIZE:
+        while pixel_position_y >= 0:
             while pixel_position_x <= IMAGE_MAX_SIZE:
                 rgb = rgb_im.getpixel((pixel_position_x, pixel_position_y))
 
@@ -49,12 +49,12 @@ class CountryLoader(object):
                 flag_cube = FlagCube((world_position_x, world_position_y), color)
                 flag_cubes.append(flag_cube)
                 pixel_position_x = pixel_position_x + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
-                world_position_x = world_position_x + RANGE_BETWEEN_TWO_CUBES
+                world_position_x = world_position_x + DISTANCE_BETWEEN_TWO_CUBES
 
             pixel_position_x = 16
             world_position_x = 5
-            pixel_position_y = pixel_position_y + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
-            world_position_y = world_position_y - RANGE_BETWEEN_TWO_CUBES
+            pixel_position_y = pixel_position_y - NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
+            world_position_y = world_position_y - DISTANCE_BETWEEN_TWO_CUBES
 
         return StylizedFlag(flag_cubes)
 

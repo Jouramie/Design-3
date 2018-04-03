@@ -24,6 +24,7 @@ class StationModel(object):
         self.timer_is_on = False
         self.world_camera_is_on = False
         self.infrared_signal_asked = False
+        self.flag_is_finish = False
 
         self.planned_path = [(55, 100), (210, 40), (160, 150), (230, 180)]
         self.real_path = []

@@ -80,13 +80,16 @@ class StationController(object):
 
     def select_next_cube_color(self):
         cube_index = self.model.current_cube_index
-        flag_cube = self.model.country.stylized_flag.flag_cubes[cube_index]
-        if flag_cube.color is not Color.TRANSPARENT:
-            self.model.current_cube_index = cube_index + 1
-            self.model.next_cube = flag_cube
-        else:
-            self.model.current_cube_index = cube_index + 1
-            self.select_next_cube_color()
+        while cube_index < 9:
+            flag_cube = self.model.country.stylized_flag.flag_cubes[cube_index]
+            if flag_cube.color is not Color.TRANSPARENT:
+                self.model.current_cube_index = cube_index + 1
+                self.model.next_cube = flag_cube
+                break
+            else:
+                cube_index = cube_index + 1
+        if cube_index >= 9:
+            self.model.flag_is_finish = True
 
     def update(self):
         # self.logger.info("StationController.update()")
