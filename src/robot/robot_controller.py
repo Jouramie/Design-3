@@ -39,7 +39,7 @@ class RobotController(object):
         msg = None
         while msg is None or msg == "b''" or msg == "b'ff'":
             msg = self._channel.receive_message()
-            self._logger.info('Received from STM : {}'.format(msg))
+        self._logger.info('Received from STM : {}'.format(msg))
         return CommandFromStm(msg)
 
     def send_grab_cube(self) -> bool:

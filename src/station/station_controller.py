@@ -57,6 +57,10 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
+        self.network.send_end_of_task_signal()
+        self.network.send_
+        self.network.send_end_of_task_signal()
+
 
     def __check_infrared_signal(self):
         try:
@@ -144,6 +148,7 @@ class StationController(object):
                                                                   self.navigation_environment.get_grid())
                 _, self.model.planned_path = self.path_converter.convert_path(
                     self.path_calculator.get_calculated_path())
+
 
             return
 
