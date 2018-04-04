@@ -5,13 +5,13 @@ from src.robot.hardware.message_corrupted_exception import MessageCorruptedExcep
 
 class CommandFromStm(object):
 
-    def __init__(self, message: str):
-        self.raw_command = "".join("{:02x}".format(ord(c)) for c in message)
-        self.command = self.raw_command[4:10] + self.raw_command[10:12]
-        self.target = int(self.command[0:2], 16)
-        self.info = int(self.command[2:4], 16)
-        self.info2 = int(self.command[4:6], 16)
-        self.checksum = int(self.command[6:8], 16)
+    def __init__(self, message: bytes):
+        message = bytearray(message)
+        self.command = message
+        self.target = message[0]
+        self.info = message[1]
+        self.info2 = message[2]
+        self.checksum = message[3]
         # self._validate()
 
     def get_country_code(self):
