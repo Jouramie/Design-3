@@ -16,8 +16,7 @@ from src.vision.coordinate_converter import CoordinateConverter
 
 
 class FrameDrawer(object):
-    def __init__(self, cam_param: CameraParameters, coordinate_converter: CoordinateConverter, logger: Logger):
-        self.cam_param = cam_param
+    def __init__(self, coordinate_converter: CoordinateConverter, logger: Logger):
         self.coordinate_converter = coordinate_converter
         self.logger = logger
 
@@ -97,6 +96,6 @@ class FrameDrawer(object):
     def __project_and_draw_real_cube(self, frame, flag_cube: FlagCube) -> None:
         cube_centers = FlagCube.get_3d_corners(flag_cube)
         real_positions = np.array(cube_centers, 'float32')
-        image_positions = self.__project_points(real_positions)
+        image_positions = self.coordinate_converter.project_points(real_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr, thickness=3)

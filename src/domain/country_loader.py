@@ -2,9 +2,9 @@ from pathlib import Path
 
 from PIL import Image
 
-from .objects.flag_cube import FlagCube
 from .objects.color import Color
 from .objects.country import Country
+from .objects.flag_cube import FlagCube
 from .objects.stylized_flag import StylizedFlag
 
 IMAGE_MAX_SIZE = 96

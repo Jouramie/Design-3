@@ -23,6 +23,9 @@ class StationModel(object):
 
         self.robot_is_started = False
         self.robot_is_moving = False
+        self.robot_is_holding_cube = False
+        self.robot_is_grabbing_cube = False
+        self.light_is_lit = False
         self.timer_is_on = False
         self.world_camera_is_on = False
         self.infrared_signal_asked = False

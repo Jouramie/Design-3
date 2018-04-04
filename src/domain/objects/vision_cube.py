@@ -14,6 +14,13 @@ class VisionCube(object):
 
     def get_center(self):
         return self.center
+        self.center = ((self.x + self.w) / 2, (self.y + self.h) / 2)
+
+    def get_3d_corners(self) -> [tuple]:
+        return list(map(self.__to_3d, self.corners))
+
+    def __to_3d(self, corner: tuple) -> tuple:
+        return corner[0], corner[1], 0
 
     def get_corner(self, index):
         return self.corners[index]
@@ -22,14 +29,14 @@ class VisionCube(object):
         self.color = color
 
     def get_area(self):
-        area = (self.x + self.w)*(self.y + self.h)
+        area = (self.x + self.w) * (self.y + self.h)
         return area
 
     def get_horizontal_middle(self):
-        return (self.x + self.w)/2
+        return (self.x + self.w) / 2
 
     def get_vertical_middle(self):
-        return (self.y + self.h)/2
+        return (self.y + self.h) / 2
 
     def get_color(self):
         return self.color
@@ -66,6 +73,29 @@ class VisionCube(object):
             return True
         else:
             return False
+
+    def merge(self, other, table_crop: TableCrop):
+        x = min(self.x, other.x)
+        y = min(self.y, other.y)
+        w = max(self.w, other.w)
+        h = max(self.h, other.h)
+        corners = [(x + table_crop.x_crop, y + table_crop.y_crop_top),
+                   (w + table_crop.x_crop, h + table_crop.y_crop_top)]
+        return VisionCube(self.color, corners)
+
+    def merge_center(self, other, table_crop: TableCrop):
+        self_x_center = self.center[0]
+        self_y_center = self.center[1]
+        other_x_center = other.center[0]
+        other_y_center = other.center[1]
+        new_cube_x_center = round((self_x_center + other_x_center) / 2)
+        new_cube_y_center = round((self_y_center + other_y_center) / 2)
+        new_cube_x = (new_cube_x_center - 10 + table_crop.x_crop)
+        new_cube_y = (new_cube_y_center - 10 + table_crop.y_crop_top)
+        new_cube_w = (new_cube_x_center + 10 + table_crop.x_crop)
+        new_cube_h = (new_cube_y_center + 10 + table_crop.y_crop_top)
+        new_corners = [(new_cube_x, new_cube_y), (new_cube_w, new_cube_h)]
+        return VisionCube(self.color, new_corners)
 
     def __eq__(self, other):
         if self.center == other.center and self.color == other.color and self.corners == other.corners:

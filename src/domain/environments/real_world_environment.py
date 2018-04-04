@@ -1,8 +1,8 @@
-from src.domain.objects.flag_cube import FlagCube
 from src.vision.coordinate_converter import CoordinateConverter
 from .vision_environment import VisionEnvironment
 from ..objects.color import Color
 from ..objects.vision_cube import VisionCube
+from ..objects.flag_cube import FlagCube
 import scipy
 from scipy import spatial
 import numpy as np
@@ -10,7 +10,6 @@ import numpy as np
 class RealWorldEnvironment(object):
     def __init__(self, vision_environment: VisionEnvironment,
                  coordinate_converter: CoordinateConverter, cube_dictionnary: dict):
-        # TODO déplacer dans une factory
         self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
         self.table_config_cubes = cube_dictionnary
         self.cubes = self.convert_vision_cubes_to_real_world_environment_cubes(vision_environment.cubes)
@@ -29,9 +28,9 @@ class RealWorldEnvironment(object):
         """
         for cube in self.cubes:
             if cube.color == color:
-                # TODO remove cube from environments?
+                self.cubes.remove(cube)
                 return cube
-        return None  # TODO raise une exception
+        return None
 
     def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes) -> [FlagCube]:
         real_cubes = []
