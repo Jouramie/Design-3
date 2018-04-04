@@ -1,72 +1,88 @@
 from logging import Logger
 from unittest import TestCase
+from unittest.mock import MagicMock
 
 from src.d3_network.server_network_controller import MockedServerNetworkController
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
-from vision.camera import MockedCamera
-from vision.coordinate_converter import CoordinateConverter
-from vision.robot_detector import MockedRobotDetector
-from vision.table_camera_configuration_factory import TableCameraConfigurationFactory
+from src.vision.camera import MockedCamera
+from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.robot_detector import MockedRobotDetector
+from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
+
+RESOURCES_PATH = {
+    'countries_list': "resources/countries/A-Liste_UTF-16.txt",
+    'country_flag': "resources/countries/Flag_{country}.gif",
+    'camera_calibration':
+        ["resources/calibration/table1_2018-03-21.yml",
+         "resources/calibration/table2_2018-03-21.yml",
+         "resources/calibration/table3_2018-03-21.yml",
+         "resources/calibration/table4_2018-03-01.yml",
+         "resources/calibration/table5_2018-03-21.yml",
+         "resources/calibration/table6_2018-03-21.yml"],
+    'world_calibration':
+        ["",
+         "resources/calibration/world_calibration_2.npy",
+         "resources/calibration/world_calibration_3.npy",
+         "resources/calibration/world_calibration_4.npy",
+         "",
+         "resources/calibration/world_calibration_6.npy"]
+
+}
 
 SCENARIO_1 = {
+    'config': {
+        'table_number': 4,
+        'resources_path': RESOURCES_PATH,
+        'camera': {
+            'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
+        },
+        'robot': {
+            'update_robot': False
+        }
+    }
+}
+
+SCENARIO_2 = {
+    'network_country_code': 31,
+    'infrared_signal_asked': True,
 
     'config': {
         'table_number': 4,
-        'resources_path': {
-            'countries_list': "resources/countries/A-Liste_UTF-16.txt",
-            'country_flag': "resources/countries/Flag_{country}.gif",
-            'camera_calibration':
-                ["resources/calibration/table1_2018-03-21.yml",
-                 "resources/calibration/table2_2018-03-21.yml",
-                 "resources/calibration/table3_2018-03-21.yml",
-                 "resources/calibration/table4_2018-03-01.yml",
-                 "resources/calibration/table5_2018-03-21.yml",
-                 "resources/calibration/table6_2018-03-21.yml"],
-            'world_calibration':
-                ["",
-                 "resources/calibration/world_calibration_2.npy",
-                 "resources/calibration/world_calibration_3.npy",
-                 "resources/calibration/world_calibration_4.npy",
-                 "",
-                 "resources/calibration/world_calibration_6.npy"]
-        },
+        'resources_path': RESOURCES_PATH,
         'camera': {
-            'use_mocked_camera': True,
             'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
-            'camera_id': 1,
-            'image_width': 1600,
-            'image_height': 1200,
-            'image_save_dir': "fig/{date}"
-        },
-        'network': {
-            'use_mocked_network': True,
-            'port': 0
         },
         'robot': {
-            'use_mocked_robot_detector': True,
             'update_robot': False
-
         }
     }
 }
 
 
-class TestScenarioRobotController(TestCase):
+class TestScenarioStationController(TestCase):
 
     def setUp(self):
         self.logger = Logger("TestScenarioRobotController")
         pass
 
     def test_scenario1(self):
-        # given scenario 1
         station_model, station_controller = self.__create_station_controller(SCENARIO_1)
 
-        # when
         station_controller.update()
 
-        # then
+        self.assertTrue(station_model.infrared_signal_asked)
+
+    def test_scenario2(self):
+        station_model, station_controller = self.__create_station_controller(SCENARIO_2)
+
+        station_controller.update()
+
+        self.assertEqual('Burundi', station_model.country.name)
+        self.assertEqual('WHITE', station_model.next_cube.color.name)
         self.assertIsNotNone(station_model.planned_path)
+        self.assertTrue(station_model.robot_is_moving)
+        self.assertTrue(station_model.robot_is_grabbing_cube)
 
     def __create_station_controller(self, scenario: dict) -> (StationModel, StationController):
         station_model = StationModel()
@@ -84,7 +100,13 @@ class TestScenarioRobotController(TestCase):
 
         station_controller = StationController(station_model, server_network_controller, camera, coordinate_converter,
                                                robot_detector, self.logger, scenario['config'])
+        station_controller.frame_drawer = MagicMock()
 
-        # TODO configurer le controller et le model
+        if 'network_country_code' in scenario:
+            server_network_controller.COUNTRY_CODE = scenario['network_country_code']
+        if 'infrared_signal_asked' in scenario:
+            station_model.infrared_signal_asked = scenario['infrared_signal_asked']
+
+        station_controller.start_robot()
 
         return station_model, station_controller

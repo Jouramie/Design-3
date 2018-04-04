@@ -57,7 +57,7 @@ class StationController(object):
         self.network.host_network()
         self.network.send_start_command()
 
-    def __check_infrared_signal(self):
+    def __check_infrared_signal(self) -> int:
         try:
             return self.network.check_infrared_signal()
         except MessageNotReceivedYet:
@@ -153,7 +153,7 @@ class StationController(object):
                 # TODO Envoyer la commande de drop du cube
                 self.logger.info("Dropping cube.")
                 self.__select_next_cube_color()
-                # self.model.robot_is_moving = True
+                self.model.robot_is_moving = True
                 self.model.robot_is_holding_cube = False
 
             else:
@@ -161,7 +161,7 @@ class StationController(object):
                     self.logger.info("Entering new step, moving to grab the cube.")
                     # TODO Envoyer la commande de déplacement au robot
                     # TODO Envoyer la commande de grab du cube
-                    # self.model.robot_is_moving = True
+                    self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True
 
@@ -190,7 +190,7 @@ class StationController(object):
                         self.path_calculator.get_calculated_path())
                     # TODO Envoyer la commande de déplacement au robot
                     self.logger.info("Path calculated, moving.")
-                    # self.model.robot_is_moving = True
+                    self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
         else:
             if self.model.light_is_lit:
@@ -200,5 +200,5 @@ class StationController(object):
                 self.logger.info("Entering new step, exiting zone to light led.")
                 # TODO Calculer le path vers l'exterieur de la zone
                 # TODO Envoyer la commande de déplacement + led
-                # self.model.robot_is_moving = True
+                self.model.robot_is_moving = True
                 self.model.light_is_lit = True
