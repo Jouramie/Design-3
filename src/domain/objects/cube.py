@@ -19,14 +19,14 @@ class Cube(object):
         self.color = color
 
     def get_area(self):
-        area = (self.x + self.w)*(self.y + self.h)
+        area = (self.x + self.w) * (self.y + self.h)
         return area
 
     def get_horizontal_middle(self):
-        return (self.x + self.w)/2
+        return (self.x + self.w) / 2
 
     def get_vertical_middle(self):
-        return (self.y + self.h)/2
+        return (self.y + self.h) / 2
 
     def get_color(self):
         return self.color
@@ -66,15 +66,14 @@ class Cube(object):
         self_y_center = self.center[1]
         other_x_center = other.center[0]
         other_y_center = other.center[1]
-        new_cube_x_center = round((self_x_center+other_x_center)/2)
-        new_cube_y_center = round((self_y_center+other_y_center)/2)
+        new_cube_x_center = round((self_x_center + other_x_center) / 2)
+        new_cube_y_center = round((self_y_center + other_y_center) / 2)
         new_cube_x = (new_cube_x_center - 10 + table_crop.x_crop)
         new_cube_y = (new_cube_y_center - 10 + table_crop.y_crop_top)
         new_cube_w = (new_cube_x_center + 10 + table_crop.x_crop)
         new_cube_h = (new_cube_y_center + 10 + table_crop.y_crop_top)
         new_corners = [(new_cube_x, new_cube_y), (new_cube_w, new_cube_h)]
         return Cube(self.color, new_corners)
-
 
     def __eq__(self, other):
         if self.center == other.center and self.color == other.color and self.corners == other.corners:

@@ -86,7 +86,8 @@ class StationController(object):
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
-        self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
+        self.logger.info(
+            "Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
 
     def __select_next_cube_color(self):
         cube_index = self.model.current_cube_index
@@ -95,9 +96,7 @@ class StationController(object):
             if flag_cube.color is not Color.TRANSPARENT:
                 self.model.current_cube_index = cube_index + 1
                 self.model.next_cube = flag_cube
-                self.logger.info(
-                    "Found " + str(self.model.country) + " flag: "
-                    + str(self.model.country.stylized_flag.flag_cubes[cube_index]))
+                self.logger.info("New cube color {}".format(self.model.next_cube.color.name))
                 break
             else:
                 cube_index = cube_index + 1
@@ -136,6 +135,10 @@ class StationController(object):
             self.model.infrared_signal_asked = True
             return
 
+        if self.model.robot_is_moving:
+            # TODO Envoyer update de position ?
+            return
+
         if self.model.country_code is None:
             country_received = self.__check_infrared_signal()
 
@@ -143,54 +146,62 @@ class StationController(object):
                 self.model.country_code = country_received
                 self.__find_country()
                 self.__select_next_cube_color()
-                target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
-                if target_cube is None:
-                    self.logger.warning("The target cube is None. Cannot continue, exiting.")
-                    return
+            else:
+                return
 
-                if self.model.robot is None:
-                    self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
-                    return
+        if not self.model.flag_is_finish:
+            if self.model.robot_is_holding_cube:
+                self.logger.info("Entering new step, moving to target_zone to place cube.")
+                # TODO Calculer le path vers la place dans le drapeau
+                # TODO Envoyer la commande de déplacement au robot
+                self.logger.info("Dropping cube.")
+                self.__select_next_cube_color()
+                # self.model.robot_is_moving = True
+                self.model.robot_is_holding_cube = False
 
-                target_position = (target_cube.center[0],
-                                   target_cube.center[1] + max(self.model.robot.height, self.model.robot.width) + 10)
-                is_possible = self.path_calculator.calculate_path(
-                    self.model.robot.center, target_position, self.navigation_environment.get_grid())
+            else:
+                if self.model.robot_going_to_cube:
+                    self.logger.info("Entering new step, moving to cube.")
+                    # TODO send move command
+                    # TODO grab
+                    # self.model.robot_is_moving = True
+                    self.model.robot_going_to_cube = False
+                    self.model.robot_is_holding_cube = True
 
-                if not is_possible:
-                    self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
-                    return
+                else:
+                    self.logger.info("Entering new step, travel to grab cube.")
+                    target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
+                    if target_cube is None:
+                        self.logger.warning("The target cube is None. Cannot continue, exiting.")
+                        return
 
-                _, self.model.planned_path = self.path_converter.convert_path(
-                    self.path_calculator.get_calculated_path())
+                    if self.model.robot is None:
+                        self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
+                        return
 
-            return
+                    target_position = (target_cube.center[0],
+                                       target_cube.center[1] + max(self.model.robot.height,
+                                                                   self.model.robot.width) + 10)
+                    is_possible = self.path_calculator.calculate_path(
+                        self.model.robot.center, target_position, self.navigation_environment.get_grid())
 
-        """
-        # Verifier message du robot
-            # Si mouvement terminé
-                # robot_is_moving = false
+                    if not is_possible:
+                        self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
+                        return
 
-        # Si robot en mouvement
-            # Envoyer update de position
-            # return
-
-        # Si il reste des cubes a placer
-            # Sinon
-                # Si cube dans préhenseur
-                    # Calculer le path vers la place dans le drapeau
-                    # Envoyer la commande de déplacement au robot
-                    # robot_is_moving = true
-                # Sinon
-                    # Choisir un cube
-                    # Calculer le path vers le cube
-                    # Envoyer la commande de déplacement au robot
-                    # robot_is_moving = true
-        # Sinon
-            # Si le robot a fini d'allumer la led
-                # soft_reset model
-            # Sinon
-                # Calculer le path vers l'exterieur de la zone
-                # Envoyer la commande de déplacement + led
-                # robot_is_moving = true
-        """
+                    _, self.model.planned_path = self.path_converter.convert_path(
+                        self.path_calculator.get_calculated_path())
+                    # TODO Envoyer la commande de déplacement au robot
+                    self.logger.info("Path calculated, moving.")
+                    # self.model.robot_is_moving = True
+                    self.model.robot_going_to_cube = True
+        else:
+            if self.model.light_is_lit:
+                self.logger.info("Entering new step, reseting for next flag.")
+                pass
+            else:
+                self.logger.info("Entering new step, exiting zone to light led.")
+                # TODO Calculer le path vers l'exterieur de la zone
+                # TODO Envoyer la commande de déplacement + led
+                # self.model.robot_is_moving = True
+                self.model.light_is_lit = True
