@@ -118,7 +118,7 @@ class TestRobotController(TestCase):
 
         channel.receive_message.assert_called_once()
 
-    def test_when_receive_movement_command_then_message_sent(self):
+    def test_when_receive_movement_command_then_command_sent_to_stm(self):
         network_ctrl = MagicMock()
         channel = MagicMock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
