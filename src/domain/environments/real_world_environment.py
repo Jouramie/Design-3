@@ -3,7 +3,7 @@ from src.vision.coordinate_converter import CoordinateConverter
 from .vision_environment import VisionEnvironment
 from ..objects.color import Color
 from ..objects.vision_cube import VisionCube
-import scipy
+from scipy import spatial
 import numpy as np
 
 class RealWorldEnvironment(object):
@@ -38,19 +38,22 @@ class RealWorldEnvironment(object):
         cube_pixel_positions_x_list = []
         cube_pixel_positions_y_list = []
         for table_cube in self.table_config_cubes.values():
-            x = table_cube['pixel_x']
-            y = table_cube['pixel_y']
-            cube_pixel_positions_x_list.append(x)
-            cube_pixel_positions_y_list.append(y)
-        a = np.asarray(cube_pixel_positions_x_list)
-        b = np.asarray(cube_pixel_positions_y_list)
-        combined_x_y_arrays = np.dstack([a.ravel(), b.ravel()])[0]
-        tree = scipy.spatial.cKDTree(combined_x_y_arrays)
+            pixel_x = table_cube['pixel_x']
+            pixel_y = table_cube['pixel_y']
+            cube_pixel_positions_x_list.append(pixel_x)
+            cube_pixel_positions_y_list.append(pixel_y)
+        pixel_x_nparray = np.asarray(cube_pixel_positions_x_list)
+        pixel_y_nparray = np.asarray(cube_pixel_positions_y_list)
+        combined_x_y_arrays = np.dstack([pixel_x_nparray.ravel(), pixel_y_nparray.ravel()])[0]
+        tree = spatial.cKDTree(combined_x_y_arrays)
         for vision_cube in vision_cubes:
+            flag_cube = FlagCube
             dist, indexes = tree.query(vision_cube.get_center())
-            print(indexes)
+            table_cube = self.table_config_cubes['cube' + str(indexes)]
+            flag_cube.position = (table_cube['x'], table_cube['y'])
+            flag_cube.color = vision_cube.get_color()
+            real_cubes.append(flag_cube)
 
-
-        #Check which cube is closest
+        return real_cubes
 
 
