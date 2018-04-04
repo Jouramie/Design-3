@@ -102,7 +102,6 @@ class TestRobotController(TestCase):
     def test_when_send_movement_command_then_send_via_channel(self):
         network_ctrl = MagicMock()
         channel = Mock()
-        channel.send_command = Mock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.send_movement_command(StmCommandBuilder().left(2000))
@@ -118,3 +117,12 @@ class TestRobotController(TestCase):
         ctrl.receive_end_of_task_signal()
 
         channel.receive_message.assert_called_once()
+
+    def test_when_receive_movement_command_then_message_sent(self):
+        network_ctrl = MagicMock()
+        channel = MagicMock()
+        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
+
+        ctrl.send_movement_command(StmCommandBuilder().forward(22222))
+
+        channel.send_command.assert_called_once_with(bytearray(b'\x3f\x56\xce'))
