@@ -6,7 +6,7 @@ import numpy as np
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
-from src.domain.objects.cube import Cube
+from src.domain.objects.vision_cube import VisionCube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.robot import Robot
 from src.domain.objects.target_zone import TargetZone
@@ -64,7 +64,7 @@ class FrameDrawer(object):
         for cube in vision_environment.cubes:
             self.__draw_cube(frame, cube)
 
-    def __draw_cube(self, frame, cube: Cube) -> None:
+    def __draw_cube(self, frame, cube: VisionCube) -> None:
         if cube is not None:
             cv2.rectangle(frame, cube.corners[0], cube.corners[1], cube.color.bgr, thickness=3)
 
@@ -93,7 +93,7 @@ class FrameDrawer(object):
                    Color.PINK2.bgr,
                    thickness=3, lineType=cv2.LINE_AA)
 
-    def __project_and_draw_real_cube(self, frame, cube: Cube) -> None:
+    def __project_and_draw_real_cube(self, frame, cube: VisionCube) -> None:
         real_positions = np.array(cube.get_3d_corners(), 'float32')
         image_positions = self.__project_points(real_positions)
 

@@ -1,10 +1,10 @@
-from ..objects.cube import Cube
+from ..objects.vision_cube import VisionCube
 from ..objects.obstacle import Obstacle
 from ..objects.target_zone import TargetZone
 
 
 class VisionEnvironment(object):
-    def __init__(self, cubes: [Cube], obstacles: [Obstacle]):
+    def __init__(self, cubes: [VisionCube], obstacles: [Obstacle]):
         self.cubes = cubes
         self.obstacles = obstacles
 

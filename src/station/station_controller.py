@@ -124,7 +124,8 @@ class StationController(object):
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
 
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
-                                                                     self.coordinate_converter)
+                                                                     self.coordinate_converter,
+                                                                     self.config['cube_positions']['tables']['t2'])
             self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
 
             self.navigation_environment.add_real_world_environment(self.model.real_world_environment)

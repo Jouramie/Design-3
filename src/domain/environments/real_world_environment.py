@@ -1,23 +1,27 @@
+from src.domain.objects.flag_cube import FlagCube
 from src.vision.coordinate_converter import CoordinateConverter
 from .vision_environment import VisionEnvironment
 from ..objects.color import Color
-from ..objects.cube import Cube
-
+from ..objects.vision_cube import VisionCube
+from scipy import spatial
+from scipy.spatial import KDTree
 
 class RealWorldEnvironment(object):
     def __init__(self, vision_environment: VisionEnvironment,
-                 coordinate_converter: CoordinateConverter):
+                 coordinate_converter: CoordinateConverter, cube_dictionnary: dict):
         # TODO déplacer dans une factory
         self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
+        self.table_config_cubes = cube_dictionnary
         self.cubes = self.convert_vision_cubes_to_real_world_environment_cubes(vision_environment.cubes)
         self.target_zone = None
+
 
     def __str__(self):
         return "Cubes: {} \nObstacles: {} \nTarget: {}".format('\n    '.join(str(c) for c in self.cubes),
                                                                '\n    '.join(str(o) for o in self.obstacles),
                                                                str(self.target_zone))
 
-    def find_cube(self, color: Color) -> Cube:
+    def find_cube(self, color: Color) -> VisionCube:
         """Return a cube matching the color in parameter
 
         :param color: The desired color
@@ -29,12 +33,14 @@ class RealWorldEnvironment(object):
                 return cube
         return None  # TODO raise une exception
 
-    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes):
+    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes) -> FlagCube:
         real_cubes = []
-        #Check which cube is closest
+        print(self.table_config_cubes.values())
+        for cube in self.table_config_cubes.values():
+            for vision_cube in vision_cubes:
+                #scipy.spatial.cKDTree
+                print(vision_cube.get_center())
 
-        for vision_cube in vision_cubes:
-            vision_cube
-        return real_cubes
+        #Check which cube is closest
 
 

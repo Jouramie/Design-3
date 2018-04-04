@@ -2,7 +2,7 @@ from logging import Logger
 
 from .navigation_environment_error import NavigationEnvironmentDataError
 from .real_world_environment import RealWorldEnvironment
-from ..objects.cube import Cube
+from ..objects.vision_cube import VisionCube
 from ..objects.obstacle import Obstacle
 from ..path_calculator.grid import Grid
 
@@ -37,7 +37,7 @@ class NavigationEnvironment(object):
         self.add_obstacles(real_world_environment.obstacles)
         self.__add_walls()
 
-    def add_cubes(self, cubes: [Cube]):
+    def add_cubes(self, cubes: [VisionCube]):
         try:
             for cube in cubes:
                 point = cube.center

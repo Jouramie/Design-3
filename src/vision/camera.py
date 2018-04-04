@@ -1,4 +1,4 @@
-import os
+import sys
 import time
 from logging import Logger
 
@@ -115,7 +115,8 @@ def create_real_camera(config: dict, logger: Logger) -> RealCamera:
     capture_object = cv2.VideoCapture(config['camera_id'])
     capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, config['image_width'])
     capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, config['image_height'])
-    if (os == "Windows"):
+    print(sys.platform)
+    if (sys.platform == "win32"):
         # Disable auto-settings of opencv-contrib
         capture_object.set(cv2.CAP_PROP_AUTOFOCUS, False)
         capture_object.set(cv2.CAP_PROP_AUTO_EXPOSURE, False)
@@ -134,7 +135,7 @@ def create_real_camera(config: dict, logger: Logger) -> RealCamera:
 
         # Set focus
         capture_object.set(cv2.CAP_PROP_FOCUS, 24)
-    if (os == "Linux"):
+    if (sys.platform == "linux2"):
         capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
         capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
 

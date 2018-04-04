@@ -2,7 +2,7 @@ from src.vision.table_crop import TableCrop
 from .color import Color
 
 
-class Cube(object):
+class VisionCube(object):
     def __init__(self, color: Color, corners: list):
         self.color = color
         self.corners = corners
@@ -11,6 +11,9 @@ class Cube(object):
         self.y = self.corners[0][1]
         self.h = self.corners[1][1]
         self.center = ((self.x + self.w) / 2, (self.y + self.h) / 2)
+
+    def get_center(self):
+        return self.center
 
     def get_corner(self, index):
         return self.corners[index]
@@ -34,6 +37,18 @@ class Cube(object):
     def set_color(self, new_color):
         self.color = new_color
 
+    def get_x_adjusted(self):
+        return self.x + TableCrop.x_crop
+
+    def get_y_adjusted(self):
+        return self.y + TableCrop.y_crop
+
+    def get_w_adjusted(self):
+        return self.w + TableCrop.w_crop
+
+    def get_h_adjusted(self):
+        return self.h + TableCrop.h_crop
+
     def is_inside(self, other):
         if other.x >= self.x and other.y >= self.y and other.w >= self.w and other.h >= self.h:
             return True
@@ -51,30 +66,6 @@ class Cube(object):
             return True
         else:
             return False
-
-    def merge(self, other, table_crop: TableCrop):
-        x = min(self.x, other.x)
-        y = min(self.y, other.y)
-        w = max(self.w, other.w)
-        h = max(self.h, other.h)
-        corners = [(x + table_crop.x_crop, y + table_crop.y_crop_top),
-                   (w + table_crop.x_crop, h + table_crop.y_crop_top)]
-        return Cube(self.color, corners)
-
-    def merge_center(self, other, table_crop: TableCrop):
-        self_x_center = self.center[0]
-        self_y_center = self.center[1]
-        other_x_center = other.center[0]
-        other_y_center = other.center[1]
-        new_cube_x_center = round((self_x_center+other_x_center)/2)
-        new_cube_y_center = round((self_y_center+other_y_center)/2)
-        new_cube_x = (new_cube_x_center - 10 + table_crop.x_crop)
-        new_cube_y = (new_cube_y_center - 10 + table_crop.y_crop_top)
-        new_cube_w = (new_cube_x_center + 10 + table_crop.x_crop)
-        new_cube_h = (new_cube_y_center + 10 + table_crop.y_crop_top)
-        new_corners = [(new_cube_x, new_cube_y), (new_cube_w, new_cube_h)]
-        return Cube(self.color, new_corners)
-
 
     def __eq__(self, other):
         if self.center == other.center and self.color == other.color and self.corners == other.corners:

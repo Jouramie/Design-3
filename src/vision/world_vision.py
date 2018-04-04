@@ -4,7 +4,7 @@ import cv2
 
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
-from src.domain.objects.cube import Cube
+from src.domain.objects.vision_cube import VisionCube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.target_zone import TargetZone
 from src.vision.table_crop import TableCrop
@@ -131,9 +131,9 @@ class WorldVision:
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, Color.RED)
 
-    def __create_cube(self, contour, color: Color) -> Cube:
+    def __create_cube(self, contour, color: Color) -> VisionCube:
         x, y, w, h = cv2.boundingRect(contour)
-        return Cube(color, [(x, y), (x + w, y + h)])
+        return VisionCube(color, [(x, y), (x + w, y + h)])
 
     def __find_target_zone(self, original_image) -> TargetZone:
         hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)

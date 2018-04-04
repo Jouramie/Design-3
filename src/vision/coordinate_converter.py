@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from src.domain.objects.color import Color
-from src.domain.objects.cube import Cube
+from src.domain.objects.vision_cube import VisionCube
 from src.domain.objects.obstacle import Obstacle
 from .table_camera_configuration import TableCameraConfiguration
 from .transform import Transform
@@ -50,14 +50,8 @@ class CoordinateConverter:
         obstacle_information = world_to_obstacle.to_parameters(True)
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
 
-    def project_cubes(self, cubes: [Cube]) -> [Cube]:
-        projected_cubes = []
-        for cube in cubes:
-            if cube.color is Color.WHITE:
-                projected_cubes.append(self.project_white_cube(cube))
-        return projected_cubes
-
-    def project_white_cube(self, cube: Cube) -> Cube:
+    #TODO check if still useful
+    def project_white_cube(self, cube: VisionCube) -> VisionCube:
         object_points = np.array([(0, 0, 8), (-3.8, 3.8, 8), (3.7, 3.8, 8), (3.7, -3.6, 8), (-3.8, -3.6, 8)], 'float32')
 
         image_points = np.array([cube.center,
@@ -83,5 +77,5 @@ class CoordinateConverter:
         cube_center = (cube_information[0], cube_information[1])
         
         cube_center = (152, -19)
-        return Cube(cube_center, Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4),
-                                               (cube_center[0] + 4, cube_center[1] + 4)])
+        return VisionCube(cube_center, Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4),
+                                                     (cube_center[0] + 4, cube_center[1] + 4)])
