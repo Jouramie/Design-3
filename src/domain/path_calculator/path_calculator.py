@@ -1,6 +1,7 @@
 from logging import Logger
 
 from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
+from .grid import Grid
 
 
 class PathCalculator(object):
@@ -18,17 +19,17 @@ class PathCalculator(object):
         self.__last_node = 0
         self.__current_node = 0
 
-    def calculate_path(self, starting_point: tuple, ending_point: tuple, grid):
-       try:
+    def calculate_path(self, starting_point: tuple, ending_point: tuple, grid: Grid):
+        try:
             starting_point = (round(starting_point[0], 0), round(starting_point[1], 0))
             self.__set_grid(grid)
             self.__path.clear()
             self.__set_neighbor_step_value(ending_point)
             self.__validate_path_exist(starting_point)
             return self.__find_gluttonous_path(starting_point, ending_point)
-       except PathCalculatorError as grid_err:
+        except PathCalculatorError as grid_err:
             self.logger.info(str(grid_err))
-       except PathCalculatorNoPathError as path_err:
+        except PathCalculatorNoPathError as path_err:
             self.logger.info(str(path_err))
 
     def __set_neighbor_step_value(self, ending_point):

@@ -15,27 +15,6 @@ UNASSIGNED_VALUE = -1
 
 
 class TestPathCalculator(TestCase):
-    def test_when_calculate_path_with_invalid_grid_then_exception_raised(self):
-        starting_point = (SOME_VALUE_1, SOME_VALUE_1)
-        ending_point = (SOME_VALUE_2, SOME_VALUE_2)
-        invalid_grid = 0
-        path_calculator = PathCalculator(MagicMock())
-
-        with self.assertRaises(PathCalculatorError):
-            path_calculator.calculate_path(starting_point, ending_point, invalid_grid)
-
-    def test_when_calculate_path_with_invalid_starting_point_then_exception_raised(self):
-        starting_point = (SOME_VALUE_2, SOME_VALUE_1)
-        starting_vertex = MagicMock()
-        starting_vertex.attach_mock(Mock(return_value=UNASSIGNED_VALUE), 'get_step_value')
-        ending_point = (SOME_VALUE_2, SOME_VALUE_1)
-        grid = Mock()
-        path_calculator = PathCalculator(MagicMock())
-        grid.attach_mock(Mock(return_value=starting_vertex), 'get_vertex')
-
-        with self.assertRaises(PathCalculatorNoPathError):
-            path_calculator.calculate_path(starting_point, ending_point, grid)
-
     def test_when_calculate_path_then_validate_path_exist(self):
         starting_point = (SOME_VALUE_2, SOME_VALUE_1)
         starting_vertex = MagicMock()
