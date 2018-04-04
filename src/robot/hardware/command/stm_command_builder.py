@@ -13,7 +13,7 @@ class StmCommandBuilder():
     def rotate_clockwise(self, angle: Angle) -> bytearray:
         return self._move(Target.WHEELS_ROTATE_CLOCKWISE, angle.value)
 
-    def rotate_counter_clockwise(self, angle: Angle):
+    def rotate_counter_clockwise(self, angle: Angle) -> bytearray:
         return self._move(Target.WHEELS_ROTATE_COUNTER_CLOCKWISE, angle.value)
 
     def forward(self, mm_distance: int) -> bytearray:

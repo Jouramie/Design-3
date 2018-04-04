@@ -113,16 +113,17 @@ class SocketServerNetworkController(ServerNetworkController):
     def send_drop_cube_command(self) -> None:
         self._send_command(Command.DROP)
 
-        self._logger.info("Drop cude command sent!")
+        self._logger.info("Drop cube command sent!")
 
     def send_move_command(self, command: bytearray) -> None:
         self._send_command(Command.MOVE, {'msg' : command.decode()})
 
-        self._logger.info("Commmand {} : sent!".format(command))
+        self._logger.info("Commmand {} : sent!".format(command.decode()))
 
 
 class MockedServerNetworkController(ServerNetworkController):
     COUNTRY_CODE = 43
+    COMMAND = bytearray(b'\x21\x00\x5a')
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
@@ -145,7 +146,7 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Infrared signal received! {code}".format(code=MockedServerNetworkController.COUNTRY_CODE))
         return MockedServerNetworkController.COUNTRY_CODE
 
-    def send_end_of_task_signal(self) -> int:
+    def send_end_of_task_signal(self) -> None:
         self._logger.info("End of task signal sent, the led should go on!")
 
     def send_grab_cube(self) -> None:
@@ -155,4 +156,9 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Can i grab a cube command sent!")
 
     def send_drop_cube(self) -> None:
-        self._logger.info("Drop cude command sent!")
+        self._logger.info("Drop cube command sent!")
+
+    def send_move_command(self, command: bytearray) -> None:
+        self._logger.info("Commmand {} : sent!".format(MockedServerNetworkController.COMMAND.decode()))
+
+
