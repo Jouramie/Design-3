@@ -12,6 +12,8 @@ from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
+from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
+from src.robot.hardware.command.stm_command_definition import commands_to_stm
 from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
@@ -63,7 +65,7 @@ class StationController(object):
 
     def interactive_testing(self):
         while True:
-            command = input('enter something : ir, grab, drop or end')
+            command = input('enter something : ir, grab, drop, end or movef, rcc90')
             if command == 'ir':
                 self.network.ask_infrared_signal()
             elif command == 'grab':
@@ -72,6 +74,10 @@ class StationController(object):
                 self.network.send_drop_cube_command()
             elif command == 'end':
                 self.network.send_end_of_task_signal()
+            elif command == 'movef':
+                self.network.send_move_command(StmCommandBuilder().forward(50))
+            elif command == 'rcc90':
+                self.network.send_move_command(StmCommandBuilder().rotate_counter_clockwise(commands_to_stm.Angle.WEST))
 
     def __check_infrared_signal(self):
         try:
