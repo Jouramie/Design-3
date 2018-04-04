@@ -16,15 +16,14 @@ from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
-from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.world_vision import WorldVision
 from .station_model import StationModel
 
 
 class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
-                 table_camera_config: TableCameraConfiguration, coordinate_converter: CoordinateConverter,
-                 robot_detector: RobotDetector, logger: Logger, config: dict):
+                 coordinate_converter: CoordinateConverter, robot_detector: RobotDetector, logger: Logger,
+                 config: dict):
         self.model = model
         self.logger = logger
         self.config = config
@@ -39,11 +38,9 @@ class StationController(object):
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.navigation_environment.create_grid()
 
-        self.table_camera_config = table_camera_config
         self.coordinate_converter = coordinate_converter
         self.robot_detector = robot_detector
-        self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter,
-                                        logger.getChild("FrameDrawer"))
+        self.frame_drawer = FrameDrawer(self.coordinate_converter, logger.getChild("FrameDrawer"))
 
         self.obstacle_pos = []
 
@@ -59,7 +56,7 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
-        self.interactive_testing()
+        #self.interactive_testing()
 
     def interactive_testing(self):
         while True:
@@ -73,7 +70,7 @@ class StationController(object):
             elif command == 'end':
                 self.network.send_end_of_task_signal()
 
-    def __check_infrared_signal(self):
+    def __check_infrared_signal(self) -> int:
         try:
             return self.network.check_infrared_signal()
         except MessageNotReceivedYet:
@@ -94,8 +91,6 @@ class StationController(object):
 
         if self.model.robot is not None:
             self.frame_drawer.draw_robot(frame, self.model.robot)
-
-            # TODO draw navigation grid
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
@@ -131,6 +126,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.vision_environment is None:
+            # self.camera.take_picture()
             self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
                                                                                  self.config['table_number'])
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
@@ -149,7 +145,7 @@ class StationController(object):
             return
 
         if self.model.robot_is_moving:
-            # TODO Envoyer update de position ?
+            # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             return
 
         if self.model.country_code is None:
@@ -167,22 +163,23 @@ class StationController(object):
                 self.logger.info("Entering new step, moving to target_zone to place cube.")
                 # TODO Calculer le path vers la place dans le drapeau
                 # TODO Envoyer la commande de déplacement au robot
+                # TODO Envoyer la commande de drop du cube
                 self.logger.info("Dropping cube.")
                 self.__select_next_cube_color()
-                # self.model.robot_is_moving = True
+                self.model.robot_is_moving = True
                 self.model.robot_is_holding_cube = False
 
             else:
-                if self.model.robot_going_to_cube:
-                    self.logger.info("Entering new step, moving to cube.")
-                    # TODO send move command
-                    # TODO grab
-                    # self.model.robot_is_moving = True
-                    self.model.robot_going_to_cube = False
+                if self.model.robot_is_grabbing_cube:
+                    self.logger.info("Entering new step, moving to grab the cube.")
+                    # TODO Envoyer la commande de déplacement au robot
+                    # TODO Envoyer la commande de grab du cube
+                    self.model.robot_is_moving = True
+                    self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True
 
                 else:
-                    self.logger.info("Entering new step, travel to grab cube.")
+                    self.logger.info("Entering new step, travel to the cube.")
                     target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
                     if target_cube is None:
                         self.logger.warning("The target cube is None. Cannot continue, exiting.")
@@ -195,8 +192,8 @@ class StationController(object):
                     target_position = (target_cube.center[0],
                                        target_cube.center[1] + max(self.model.robot.height,
                                                                    self.model.robot.width) + 10)
-                    is_possible = self.path_calculator.calculate_path(
-                        self.model.robot.center, target_position, self.navigation_environment.get_grid())
+                    is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
+                                                                      self.navigation_environment.get_grid())
 
                     if not is_possible:
                         self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
@@ -206,8 +203,8 @@ class StationController(object):
                         self.path_calculator.get_calculated_path())
                     # TODO Envoyer la commande de déplacement au robot
                     self.logger.info("Path calculated, moving.")
-                    # self.model.robot_is_moving = True
-                    self.model.robot_going_to_cube = True
+                    self.model.robot_is_moving = True
+                    self.model.robot_is_grabbing_cube = True
         else:
             if self.model.light_is_lit:
                 self.logger.info("Entering new step, reseting for next flag.")
@@ -216,5 +213,5 @@ class StationController(object):
                 self.logger.info("Entering new step, exiting zone to light led.")
                 # TODO Calculer le path vers l'exterieur de la zone
                 # TODO Envoyer la commande de déplacement + led
-                # self.model.robot_is_moving = True
+                self.model.robot_is_moving = True
                 self.model.light_is_lit = True

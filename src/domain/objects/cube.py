@@ -10,7 +10,13 @@ class Cube(object):
         self.w = self.corners[1][0]
         self.y = self.corners[0][1]
         self.h = self.corners[1][1]
-        self.center = (self.x + self.w / 2, self.y + self.h / 2)
+        self.center = ((self.x + self.w) / 2, (self.y + self.h) / 2)
+
+    def get_3d_corners(self) -> [tuple]:
+        return list(map(self.__to_3d, self.corners))
+
+    def __to_3d(self, corner: tuple) -> tuple:
+        return corner[0], corner[1], 0
 
     def get_corner(self, index):
         return self.corners[index]
@@ -30,9 +36,6 @@ class Cube(object):
 
     def get_color(self):
         return self.color
-
-    def set_color(self, new_color):
-        self.color = new_color
 
     def is_inside(self, other):
         if other.x >= self.x and other.y >= self.y and other.w >= self.w and other.h >= self.h:

@@ -113,10 +113,9 @@ class SocketServerNetworkController(ServerNetworkController):
         self._logger.info("Drop cude command sent!")
 
 class MockedServerNetworkController(ServerNetworkController):
-    COUNTRY_CODE = 43
-
-    def __init__(self, logger: Logger, port: int, encoder: Encoder):
+    def __init__(self, logger: Logger, port: int = 0, encoder: Encoder = None):
         super().__init__(logger, port, encoder)
+        self.COUNTRY_CODE = 31
 
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
@@ -133,8 +132,8 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Infrared signal asked!")
 
     def check_infrared_signal(self) -> int:
-        self._logger.info("Infrared signal received! {code}".format(code=MockedServerNetworkController.COUNTRY_CODE))
-        return MockedServerNetworkController.COUNTRY_CODE
+        self._logger.info("Infrared signal received! {code}".format(code=self.COUNTRY_CODE))
+        return self.COUNTRY_CODE
 
     def send_end_of_task_signal(self) -> int:
         self._logger.info("End of task signal sent, the led should go on!")
