@@ -43,12 +43,9 @@ class RobotController(object):
         return CommandFromStm(msg)
 
     def send_grab_cube(self) -> bool:
-        if (self.send_ask_if_can_grab_cube() == True):
-            self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
-            feedback = self.receive_command()
-            return self._validate_if_successful(feedback)
-        else:
-            return False
+        self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
+        feedback = self.receive_command()
+        return self._validate_if_successful(feedback)
 
     def send_drop_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
