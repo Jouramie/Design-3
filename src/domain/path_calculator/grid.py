@@ -30,7 +30,7 @@ class Grid:
 
     def __initiate_vertices_neighbors(self, node):
         for direction in Direction:
-            neighbor = (node[0] + direction.value[0], node[1] + direction.value[1])
+            neighbor = (node[0] + direction.direction[0], node[1] + direction.direction[1])
             if self.DEFAULT_OFFSET <= neighbor[0] < self.__height and self.DEFAULT_OFFSET <= neighbor[1] < self.__width:
                 self.__add_edge(node, neighbor)
 
@@ -38,8 +38,10 @@ class Grid:
         self.__vertices_dictionary[origin].add_neighbor(self.__vertices_dictionary[destination], weight)
 
     def get_vertex(self, node):
-        if node in self.__vertices_dictionary:
-            return self.__vertices_dictionary[node]
+        position = (int(node[0]), int(node[1]))
+
+        if position in self.__vertices_dictionary:
+            return self.__vertices_dictionary[position]
         else:
             return None
 
