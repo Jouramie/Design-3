@@ -3,6 +3,7 @@ from queue import Queue
 
 import time
 
+from .hardware.command.stm_command_builder import StmCommandBuilder
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm
 from .hardware.command.not_a_country_command_exception import NotACountryCommandException
@@ -57,9 +58,11 @@ class RobotController(object):
     def _send_seek_flag(self) -> None:
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
-    def send_movement_command_to_stm(self, command: str):
-        self._logger.info('Sending to stm : {}'.format(command))
-        self._channel.send_command(command)
+    def send_movement_command_to_stm(self, movement: dict):
+        if movement['movement'] == 'forward':
+            command_to_stm = StmCommandBuilder().forward(movement['forward'])
+        self._logger.info('Sending to stm : {}'.format(movement))
+        self._channel.send_command(movement)
 
     def _validate_if_successful(self) -> bool:
         return self._validate_target(commands_from_stm.Target.TASK_SUCCESS)
@@ -96,8 +99,8 @@ class RobotController(object):
                 self.send_drop_cube()
             elif msg['command'] == Command.END_SIGNAL:
                 self.send_light_laide_command()
-            elif msg['command'] == Command.MOVE:
-                self.send_movement_command_to_stm(msg['msg'])
+            elif msg['command'] == Command.MOVE_FORWARD:
+                self.send_movement_command_to_stm(msg['mouvement'])
             else:
                 self._logger.info('Received this {} but does not know how to deal with it'.format(msg))
                 raise NotImplementedError("Please do more stuff")

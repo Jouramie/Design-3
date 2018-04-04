@@ -1,6 +1,7 @@
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM
 
+from ..domain.path_calculator.movement import Movement, Rotate
 from .command import Command
 from .encoder import Encoder
 from .network_controller import NetworkController
@@ -39,7 +40,7 @@ class ServerNetworkController(NetworkController):
     def send_drop_cube_command(self) -> None:
         raise NotImplementedError("This is an interface...")
 
-    def send_move_command(self, command: bytearray):
+    def send_move_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
 class SocketServerNetworkController(ServerNetworkController):
@@ -115,17 +116,17 @@ class SocketServerNetworkController(ServerNetworkController):
 
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, command: bytearray) -> None:
-        self._send_command(Command.MOVE, {'msg' : command.decode()})
+    def send_move_command(self, movement: Movement) -> None:
+        self._send_command(Command.MOVE, {'msg' : movement})
 
-        self._logger.info("Commmand {} : sent!".format(command.decode()))
+        self._logger.info("Commmand {} : sent!".format(movement))
 
 
 class MockedServerNetworkController(ServerNetworkController):
     def __init__(self, logger: Logger, port: int = 0, encoder: Encoder = None):
         super().__init__(logger, port, encoder)
         self.COUNTRY_CODE = 31
-        self.COMMAND = bytearray(b'\x21\x00\x5a')
+        self.MOVEMENT = Rotate(30)
 
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
@@ -157,7 +158,7 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_drop_cube(self) -> None:
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, command: bytearray) -> None:
-        self._logger.info("Commmand {} : sent!".format(self.COMMAND.decode()))
+    def send_move_command(self, movement: Movement) -> None:
+        self._logger.info("Commmand {} : sent!".format(self.MOVEMENT))
 
 

@@ -7,4 +7,7 @@ class Command(object):
     CAN_I_GRAB = 'can-i-grab'
     GRAB = 'grab-it'
     DROP = 'drop-it'
-    MOVE = 'move-bitch'
+    MOVE_FORWARD = 'move-forward'
+    MOVE_BACKWARD = 'move-backward'
+    MOVE_ROTATE_CLOCKWISE = 'move-rotate'
+    MOVE_ROTATE_COUNTER_CLOCKWISE = 'move-counter-clockwise'
