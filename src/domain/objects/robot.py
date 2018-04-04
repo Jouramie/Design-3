@@ -5,10 +5,10 @@ import numpy as np
 
 class Robot:
     def __init__(self, center: tuple, orientation: float):
-        self.center = (center[0] + 5, center[1])
+        self.center = (center[0], center[1])
         self.orientation = orientation
         self.height = 22
-        self.width = 34
+        self.width = 22
 
     def get_corners(self):
         half_width = self.width / 2.0

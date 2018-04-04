@@ -1,25 +1,35 @@
+from logging import Logger
+
 from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 
 
 class PathCalculator(object):
     MAX_ITERATIONS = 20000
     UNASSIGNED_VALUE = -1
+    OBSTACLE_VALUE = -2
     STEP_VALUE = 1
     END_POINT_VALUE = 0
     DEFAULT_WEIGHT = 1
     POTENTIAL_WEIGHT = 2
     __path = []
 
-    def __init__(self):
+    def __init__(self, logger: Logger):
+        self.logger = logger
         self.__last_node = 0
         self.__current_node = 0
 
     def calculate_path(self, starting_point: tuple, ending_point: tuple, grid):
-        self.__set_grid(grid)
-        self.__path.clear()
-        self.__set_neighbor_step_value(ending_point)
-        self.__validate_path_exist(starting_point)
-        return self.__find_gluttonous_path(starting_point, ending_point)
+        try:
+            starting_point = (round(starting_point[0], 0), round(starting_point[1], 0))
+            self.__set_grid(grid)
+            self.__path.clear()
+            self.__set_neighbor_step_value(ending_point)
+            self.__validate_path_exist(starting_point)
+            return self.__find_gluttonous_path(starting_point, ending_point)
+        except PathCalculatorError as grid_err:
+            self.logger.info(str(grid_err))
+        except PathCalculatorNoPathError as path_err:
+            self.logger.info(str(path_err))
 
     def __set_neighbor_step_value(self, ending_point):
         processing_node = []
@@ -108,7 +118,8 @@ class PathCalculator(object):
         self.__grid = grid
 
     def __validate_path_exist(self, starting_point):
-        if self.__grid.get_vertex(starting_point).get_step_value() == self.UNASSIGNED_VALUE:
+        if self.__grid.get_vertex(starting_point).get_step_value() == self.UNASSIGNED_VALUE or \
+                self.__grid.get_vertex(starting_point).get_step_value() == self.OBSTACLE_VALUE:
             raise PathCalculatorNoPathError("PathCalculator could not connect start and end point")
 
     def get_calculated_path(self):
