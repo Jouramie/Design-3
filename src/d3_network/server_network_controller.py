@@ -83,7 +83,7 @@ class SocketServerNetworkController(ServerNetworkController):
 
 
 class MockedServerNetworkController(ServerNetworkController):
-    COUNTRY_CODE = 31
+    COUNTRY_CODE = 43
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
