@@ -42,7 +42,9 @@ class RealWorldEnvironment(object):
             y = table_cube['pixel_y']
             cube_pixel_positions_x_list.append(x)
             cube_pixel_positions_y_list.append(y)
-        combined_x_y_arrays = np.dstack([cube_pixel_positions_x_list.ravel(), cube_pixel_positions_y_list.ravel()])[0]
+        a = np.asarray(cube_pixel_positions_x_list)
+        b = np.asarray(cube_pixel_positions_y_list)
+        combined_x_y_arrays = np.dstack([a.ravel(), b.ravel()])[0]
         tree = scipy.spatial.cKDTree(combined_x_y_arrays)
         for vision_cube in vision_cubes:
             dist, indexes = tree.query(vision_cube.get_center())
