@@ -95,22 +95,22 @@ class SocketServerNetworkController(ServerNetworkController):
     def send_end_of_task_signal(self) -> None:
         self._send_command(Command.END_SIGNAL)
 
-        self._logger.info("End of task signal!")
+        self._logger.info("End of task signal sent, the led should go on!")
 
     def send_ask_if_can_grab_cube(self) -> None:
         self._send_command(Command.CAN_I_GRAB)
 
-        self._logger.info("Are you able to grab a cube?!")
+        self._logger.info("Can i grab a cube command sent!")
 
     def send_grab_cube(self) -> None:
         self._send_command(Command.GRAB)
 
-        self._logger.info("Grab it!")
+        self._logger.info("Grab command sent!")
 
     def send_drop_cube(self) -> None:
         self._send_command(Command.DROP)
 
-        self._logger.info("Drop it!")
+        self._logger.info("Drop cude command sent!")
 
 class MockedServerNetworkController(ServerNetworkController):
     COUNTRY_CODE = 31
