@@ -17,7 +17,7 @@ class PathConverter(object):
         self.__movements = []
         self.__segments = []
 
-    def convert_path(self, path, robot: Robot):
+    def convert_path(self, path, robot: Robot, final_direction_desired: Direction=None):
         self.__movements = []
         self.__segments = []
         path_cycle = cycle(path)
@@ -55,7 +55,7 @@ class PathConverter(object):
                 current_length = current_direction.length_to_add()
 
             if current_node == path[-2]:
-                self.__add_movements(current_length, current_direction, None)
+                self.__add_movements(current_length, current_direction, final_direction_desired)
                 self.__add_segments(starting_point, next_node)
                 break
 

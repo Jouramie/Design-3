@@ -4,6 +4,7 @@ from logging import Logger
 
 import numpy as np
 
+from src.domain.path_calculator.direction import Direction
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
@@ -17,6 +18,7 @@ from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
+from src.domain.path_calculator.movement import Rotate
 from .station_model import StationModel
 
 
@@ -140,7 +142,28 @@ class StationController(object):
         self.__draw_environment(self.model.frame)
 
         if not self.model.infrared_signal_asked:
+            self.logger.info("Entering new step, asking country-code.")
+
+            if self.model.robot is None:
+                self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
+                return
+            self.logger.info("Robot: {}".format(self.model.robot))
+
+            target_position = (6, 36)
+            is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
+                                                              self.navigation_environment.get_grid())
+
+            if not is_possible:
+                self.logger.warning("Path to infra-red reception is not possible.\n Target: {}".format(target_position))
+                return
+
+            movements, self.model.planned_path = self.path_converter.convert_path(
+                self.path_calculator.get_calculated_path(), self.model.robot, Direction.SOUTH)
+            self.logger.info("Path planned: {}".format(movements))
+            # TODO Envoyer les commandes de déplacement au robot
+
             self.network.ask_infrared_signal()
+            self.model.robot_is_moving = True
             self.model.infrared_signal_asked = True
             return
 
@@ -190,9 +213,12 @@ class StationController(object):
                         return
                     self.logger.info("Robot: {}".format(self.model.robot))
 
+                    
+
                     target_position = (target_cube.center[0],
                                        target_cube.center[1] + max(self.model.robot.height,
                                                                    self.model.robot.width) + 10)
+
                     is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
                                                                       self.navigation_environment.get_grid())
 
@@ -203,9 +229,7 @@ class StationController(object):
                     movements, self.model.planned_path = self.path_converter.convert_path(
                         self.path_calculator.get_calculated_path(), self.model.robot)
                     self.logger.info("Path planned: {}".format(movements))
-                    self.logger.info("Path planned: {}".format(self.model.planned_path))
                     # TODO Envoyer la commande de déplacement au robot
-                    self.logger.info("Path calculated, moving.")
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
         else:
