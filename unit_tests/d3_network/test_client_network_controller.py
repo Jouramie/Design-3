@@ -64,7 +64,7 @@ class TestClientNetworkController(TestCase):
         self.assertEqual(2, client.recv.call_count)
 
     @patch('src.d3_network.client_network_controller.socket')
-    def test_given_paired_network_controller_when_wait_message_then_retrieve_message(self, socket):
+    def test_given_paired_network_controller_when_wait_message_then_decode_message(self, socket):
         encoder = MagicMock()
         encoder.attach_mock(Mock(return_value={'command': Command.INFRARED_SIGNAL}), 'decode')
         received_bytes = b"{'msg': 'infrared-signal'}"
