@@ -56,9 +56,9 @@ class StationController(object):
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
-        self.network.send_end_of_task_signal()
         self.network.send_start_command()
-        self.network.ask_infrared_signal()
+        # self.network.ask_infrared_signal()
+        # self.network.send_end_of_task_signal()
         self.interactive_testing()
 
 
