@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from src.domain.country_loader import CountryLoader
 from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.stylized_flag import StylizedFlag

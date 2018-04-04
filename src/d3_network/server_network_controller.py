@@ -113,6 +113,8 @@ class SocketServerNetworkController(ServerNetworkController):
         self._logger.info("Drop it!")
 
 class MockedServerNetworkController(ServerNetworkController):
+    COUNTRY_CODE = 31
+
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
 
@@ -131,5 +133,5 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Infrared signal asked!")
 
     def check_infrared_signal(self) -> int:
-        self._logger.info("Infrared signal received! {code}".format(code=43))
-        return 43
+        self._logger.info("Infrared signal received! {code}".format(code=MockedServerNetworkController.COUNTRY_CODE))
+        return MockedServerNetworkController.COUNTRY_CODE

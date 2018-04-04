@@ -3,7 +3,7 @@ import cv2.aruco as aruco
 import numpy as np
 import yaml
 
-from src.vision.camera_parameters import CameraParameters
+from src.vision.camera_parameters import *
 from src.vision.transform import Transform
 
 if __name__ == '__main__':
@@ -18,8 +18,7 @@ if __name__ == '__main__':
     OUTPUT_FILE = config["output_file"]
 
     img = cv2.imread(IMAGE_PATH, 1)
-    cam_param = CameraParameters()
-    cam_param.readFromFile(CAMERA_CALIBRATION)
+    cam_param = create_camera_parameters_from_file(CAMERA_CALIBRATION)
     marker_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
     parameters = aruco.DetectorParameters_create()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
