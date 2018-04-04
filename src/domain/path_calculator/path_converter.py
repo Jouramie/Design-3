@@ -27,31 +27,31 @@ class PathConverter(object):
         current_length = 0
         next_node = next(path_cycle)
 
-        try:
-            while True and iteration < self.MAX_ITERATION:
-                iteration += 1
-                current_node, next_node = next_node, next(path_cycle)
-                new_dir = tuple(numpy.subtract(next_node, current_node))
-                if current_dir is None:
-                    current_dir = new_dir
-                    starting_point = current_node
+        #try:
+        while True and iteration < self.MAX_ITERATION:
+            iteration += 1
+            current_node, next_node = next_node, next(path_cycle)
+            new_dir = tuple(numpy.subtract(next_node, current_node))
+            if current_dir is None:
+                current_dir = new_dir
+                starting_point = current_node
 
-                if current_dir != new_dir:
-                    self.__add_command(current_length, current_dir)
-                    self.__add_segments(starting_point, current_node)
-                    current_dir = new_dir
-                    starting_point = current_node
-                    current_length = Direction.length_to_add(self.__find_direction_name(current_dir))
-                else:
-                    current_length += Direction.length_to_add(self.__find_direction_name(current_dir))
+            if current_dir != new_dir:
+                self.__add_command(current_length, current_dir)
+                self.__add_segments(starting_point, current_node)
+                current_dir = new_dir
+                starting_point = current_node
+                current_length = Direction.length_to_add(self.__find_direction_name(current_dir))
+            else:
+                current_length += Direction.length_to_add(self.__find_direction_name(current_dir))
 
-                if current_node == self.__path[-2]:
-                    self.__add_command(current_length, current_dir)
-                    self.__add_segments(starting_point, next_node)
-                    break
-        except PathConverterError as err:
-            self.logger.info(str(err))
-            return 0
+            if current_node == self.__path[-2]:
+                self.__add_command(current_length, current_dir)
+                self.__add_segments(starting_point, next_node)
+                break
+        #except PathConverterError as err:
+        #    self.logger.info(str(err))
+        #    return 0
 
         if iteration == self.MAX_ITERATION:
             self.logger.info("PathConverter MAX_ITERATION REACH")
