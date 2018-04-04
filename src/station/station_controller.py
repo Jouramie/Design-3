@@ -188,6 +188,7 @@ class StationController(object):
                     if self.model.robot is None:
                         self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                         return
+                    self.logger.info("Robot: {}".format(self.model.robot))
 
                     target_position = (target_cube.center[0],
                                        target_cube.center[1] + max(self.model.robot.height,
@@ -199,9 +200,9 @@ class StationController(object):
                         self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
                         return
 
-                    mouvements, self.model.planned_path = self.path_converter.convert_path(
-                        self.path_calculator.get_calculated_path())
-                    self.logger.info("Path planned: {}".format(mouvements))
+                    movements, self.model.planned_path = self.path_converter.convert_path(
+                        self.path_calculator.get_calculated_path(), self.model.robot)
+                    self.logger.info("Path planned: {}".format(movements))
                     self.logger.info("Path planned: {}".format(self.model.planned_path))
                     # TODO Envoyer la commande de déplacement au robot
                     self.logger.info("Path calculated, moving.")

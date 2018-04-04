@@ -4,67 +4,79 @@ from logging import Logger
 import numpy
 
 from .direction import Direction
-from .path_calculator_error import PathConverterError
+from .movement import Rotate, Forward
+from ..objects.robot import Robot
+
+MAX_ITERATION = 10000
 
 
 class PathConverter(object):
-    MAX_ITERATION = 10000
-    __commands = []
-    __segments = []
-    __path = []
 
     def __init__(self, logger: Logger):
         self.logger = logger
-
-    def convert_path(self, path):
-        self.__path = path
-        self.__commands = []
+        self.__movements = []
         self.__segments = []
-        starting_point = ()
+
+    def convert_path(self, path, robot: Robot):
+        self.__movements = []
+        self.__segments = []
+        path_cycle = cycle(path)
+
         iteration = 0
-        path_cycle = cycle(self.__path)
-        current_dir = None
         current_length = 0
+
+        starting_point = None
+        current_direction: Direction = None
+
         next_node = next(path_cycle)
 
-        try:
-            while True and iteration < self.MAX_ITERATION:
-                iteration += 1
-                current_node, next_node = next_node, next(path_cycle)
-                new_dir = tuple(numpy.subtract(next_node, current_node))
-                if current_dir is None:
-                    current_dir = new_dir
-                    starting_point = current_node
+        # TODO placer le robot sur la position de départ
 
-                if current_dir != new_dir:
-                    self.__add_command(current_length, current_dir)
-                    self.__add_segments(starting_point, current_node)
-                    current_dir = new_dir
-                    starting_point = current_node
-                    current_length = Direction.length_to_add(self.__find_direction_name(current_dir))
-                else:
-                    current_length += Direction.length_to_add(self.__find_direction_name(current_dir))
+        while iteration < MAX_ITERATION:
+            iteration += 1
 
-                if current_node == self.__path[-2]:
-                    self.__add_command(current_length, current_dir)
-                    self.__add_segments(starting_point, next_node)
-                    break
-        except PathConverterError as err:
-            self.logger.info(str(err))
+            current_node, next_node = next_node, next(path_cycle)
+            new_dir = tuple(numpy.subtract(next_node, current_node))
+            new_direction = Direction.find_direction(new_dir)
 
-        if iteration == self.MAX_ITERATION:
+            if current_direction is None:
+                if robot.orientation != new_direction.angle:
+                    self.__add_rotation(robot.orientation, new_direction.angle)
+                current_direction = new_direction
+                starting_point = current_node
+
+            if current_direction == new_direction:
+                current_length += current_direction.length_to_add()
+            else:
+                self.__add_movements(current_length, current_direction, new_direction)
+                self.__add_segments(starting_point, current_node)
+                current_direction = new_direction
+                starting_point = current_node
+                current_length = current_direction.length_to_add()
+
+            if current_node == path[-2]:
+                self.__add_movements(current_length, current_direction, None)
+                self.__add_segments(starting_point, next_node)
+                break
+
+        if iteration == MAX_ITERATION:
             self.logger.info("PathConverter MAX_ITERATION REACH")
 
-        return self.__commands, self.__segments
+        return self.__movements, self.__segments
 
     def __add_segments(self, starting_point, ending_point):
         self.__segments.append((starting_point, ending_point))
 
-    def __add_command(self, length, direction):
-        self.__commands.append((length, self.__find_direction_name(direction)))
+    def __add_movements(self, length, current_direction, new_direction):
+        self.__movements.append(Forward(length))
+        if new_direction is not None:
+            self.__add_rotation(current_direction.angle, new_direction.angle)
 
-    def __find_direction_name(self, direction):
-        try:
-            return Direction(direction).name
-        except ValueError:
-            raise PathConverterError("Invalid direction %s, in path %s" % (str(direction), str(self.__path)))
+    def __add_rotation(self, old_angle, new_angle):
+        delta_angle = new_angle - old_angle
+        if (180 >= delta_angle >= 0) or (-180 <= delta_angle <= 0):
+            self.__movements.append(Rotate(delta_angle))
+        elif delta_angle > 180:
+            self.__movements.append(Rotate(delta_angle - 360))
+        elif delta_angle < -180:
+            self.__movements.append(Rotate(delta_angle + 360))

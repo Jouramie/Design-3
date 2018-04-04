@@ -14,7 +14,7 @@ robot:
   distance_between_robot_center_and_cube_center: 18 #cm
 
 station:
-  table_number: 4
+  table_number: 2
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
     country_flag: "resources/countries/Flag_{country}.gif"
@@ -35,7 +35,7 @@ station:
       - "resources/calibration/world_calibration_6.npy"
   camera:
     use_mocked_camera: true
-    mocked_camera_image_path: "fig/saved_images/table4/08h55m49s.jpg"
+    mocked_camera_image_path: "fig/saved_images/table2/00h02m31s.jpg"
     camera_id: 1
     image_width: 1600
     image_height: 1200
@@ -44,5 +44,5 @@ station:
     use_mocked_network: true
     port: *port
   robot:
-    use_mocked_robot_detector: true
+    use_mocked_robot_detector: false
     update_robot: false
