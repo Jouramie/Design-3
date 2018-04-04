@@ -113,7 +113,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.vision_environment is None:
-            self.camera.take_picture()
+            # self.camera.take_picture()
             self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
                                                                                  self.config['table_number'])
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
