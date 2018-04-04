@@ -1,19 +1,17 @@
-import time
-from queue import Queue
 from logging import Logger
+from queue import Queue
 
+from .hardware.channel import Channel
+from .hardware.command.command_from_stm import CommandFromStm
 from .hardware.command.not_a_country_command_exception import NotACountryCommandException
 from .hardware.command.stm_command_definition import commands_from_stm
 from .hardware.command.stm_command_definition import commands_to_stm
-from .hardware.channel import Channel
-from .hardware.command.command_from_stm import CommandFromStm
 from ..d3_network.client_network_controller import ClientNetworkController
-from ..d3_network.ip_provider import IpProvider
 from ..d3_network.command import Command
+from ..d3_network.ip_provider import IpProvider
 
 
 class RobotController(object):
-
     def __init__(self, logger: Logger, ip_provider: IpProvider, network: ClientNetworkController, channel: Channel):
         self._logger = logger
         self._ip_provider = ip_provider
@@ -105,8 +103,5 @@ class RobotController(object):
     def _main_loop(self) -> None:
         self.start()
         while not self.task_done:
-            msg = self._network.wait_message()
-            if msg is not None:
-                self._network_queue.put(msg)
+            self._network_queue.put(self._network.wait_message())
             self.execute()
-

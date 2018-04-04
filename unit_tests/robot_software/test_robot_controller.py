@@ -1,14 +1,13 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock
 
 from src.robot import robot_controller
-from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
 from src.robot.hardware.command.not_a_country_command_exception import NotACountryCommandException
+from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
 from src.robot.hardware.command.stm_command_definition import commands_to_stm, commands_from_stm
 
 
 class TestRobotController(TestCase):
-
     def test_when_start_controller_then_get_host_ip(self):
         network_scanner = MagicMock()
         ctrl = robot_controller.RobotController(MagicMock(), network_scanner, MagicMock(), MagicMock())
@@ -47,7 +46,6 @@ class TestRobotController(TestCase):
 
         channel.receive_message.assert_called_once()
 
-
     def test_when_receive_wrong_country_code_then_raise_not_a_country_command_exception(self):
         network_ctrl = MagicMock()
         channel = Mock()
@@ -55,7 +53,6 @@ class TestRobotController(TestCase):
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         self.assertRaises(NotACountryCommandException, ctrl._execute_flag_sequence())
-
 
     def test_when_send_grab_cube_then_send_via_channel(self):
         network_ctrl = MagicMock()

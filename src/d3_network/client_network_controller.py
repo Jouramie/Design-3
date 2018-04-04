@@ -9,7 +9,6 @@ from .network_exception import NetworkException, WrongCommand, MessageNotReceive
 
 
 class ClientNetworkController(NetworkController):
-
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
         self._socket = socket(AF_INET, SOCK_STREAM)
