@@ -102,6 +102,7 @@ class TestRobotController(TestCase):
     def test_when_send_movement_command_then_send_via_channel(self):
         network_ctrl = MagicMock()
         channel = Mock()
+        channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.send_movement_command(StmCommandBuilder().left(2000))
@@ -120,7 +121,8 @@ class TestRobotController(TestCase):
 
     def test_when_receive_movement_command_then_command_sent_to_stm(self):
         network_ctrl = MagicMock()
-        channel = MagicMock()
+        channel = Mock()
+        channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.send_movement_command(StmCommandBuilder().forward(22222))
