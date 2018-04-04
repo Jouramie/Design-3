@@ -1,11 +1,11 @@
 from logging import Logger
 
-from src.domain.objects.flag_cube import FlagCube
 from .navigation_environment_error import NavigationEnvironmentDataError
 from .real_world_environment import RealWorldEnvironment
 from ..objects.vision_cube import VisionCube
 from ..objects.obstacle import Obstacle
 from ..path_calculator.grid import Grid
+from src.domain.objects.flag_cube import FlagCube
 
 
 class NavigationEnvironment(object):
@@ -36,7 +36,7 @@ class NavigationEnvironment(object):
     def add_real_world_environment(self, real_world_environment: RealWorldEnvironment):
         self.add_cubes(real_world_environment.cubes)
         self.add_obstacles(real_world_environment.obstacles)
-        #self.__add_walls()
+        self.__add_walls()
 
     def add_cubes(self, cubes: [FlagCube]):
         try:

@@ -2,8 +2,8 @@ from src.domain.objects.color import Color
 
 
 class FlagCube(object):
-    def __init__(self, position: tuple, color: Color):
-        self.position = position
+    def __init__(self, center: tuple, color: Color):
+        self.position = center
         self.color = color
 
     def get_3d_corners(self):

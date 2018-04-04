@@ -94,8 +94,9 @@ class FrameDrawer(object):
                    Color.PINK2.bgr,
                    thickness=3, lineType=cv2.LINE_AA)
 
-    def __project_and_draw_real_cube(self, frame, cube: FlagCube) -> None:
-        real_positions = np.array(cube.get_3d_corners(), 'float32')
+    def __project_and_draw_real_cube(self, frame, flag_cube: FlagCube) -> None:
+        cube_centers = FlagCube.get_3d_corners(flag_cube)
+        real_positions = np.array(cube_centers, 'float32')
         image_positions = self.__project_points(real_positions)
 
-        cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), cube.color.bgr, thickness=3)
+        cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr, thickness=3)

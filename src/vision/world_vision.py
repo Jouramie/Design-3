@@ -28,7 +28,6 @@ class WorldVision:
         options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 4: TableCrop.TABLE4, 6: TableCrop.TABLE6}
         table_crop = options[table]
         cropped_image = self.__crop_environment(frame, table_crop)
-        #cv2.imshow("table", cropped_image)
 
         cubes = []
         obstacles = []
@@ -55,7 +54,6 @@ class WorldVision:
 
         return VisionEnvironment(cubes, obstacles)
 
-    # TODO vérifier que ça marche
     def __validate_cube_is_present(self, frame, color: Color, cubes):
         for cube in self.__find_color_cubes(frame, color):
             cubes.append(cube)
@@ -120,7 +118,6 @@ class WorldVision:
         mask = red_mask + red2_mask
 
         image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        cv2.imshow("image", image_with_contours)
 
         height, width, _ = frame.shape
 
