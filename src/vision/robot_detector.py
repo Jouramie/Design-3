@@ -57,5 +57,9 @@ class VisionRobotDetector(RobotDetector):
 
 
 class MockedRobotDetector(RobotDetector):
+    def __init__(self, robot_position=(10, 10), robot_direction=10):
+        self.robot_position = robot_position
+        self.robot_direction = robot_direction
+
     def detect(self, img):
-        return Robot((0, 0), 0)
+        return Robot(self.robot_position, self.robot_direction)

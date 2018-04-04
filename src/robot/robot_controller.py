@@ -58,8 +58,8 @@ class RobotController(object):
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
     def send_movement_command_to_stm(self, command: str):
-        self._logger.info('Sending to stm : {}'.format(command.encode()))
-        self._channel.send_command(command.encode())
+        self._logger.info('Sending to stm : {}'.format(command))
+        self._channel.send_command(command)
 
     def _validate_if_successful(self) -> bool:
         return self._validate_target(commands_from_stm.Target.TASK_SUCCESS)
