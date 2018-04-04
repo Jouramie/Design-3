@@ -105,9 +105,9 @@ class TestRobotController(TestCase):
         channel.send_command = Mock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command(StmCommandBuilder().forward(5))
+        ctrl.send_movement_command(StmCommandBuilder().left(2000))
 
-        channel.send_command.assert_called_once_with(bytearray(b'\x33\x05\xff'))
+        channel.send_command.assert_called_once_with(bytearray(b'\x31\x07\xd0'))
 
     def test_when_receive_successful_end_of_task_then_message_received_correclty(self):
         network_ctrl = MagicMock()
