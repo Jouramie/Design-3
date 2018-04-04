@@ -44,7 +44,6 @@ class PathCalculator(object):
             self.__find_nodes()
 
         if self.__current_node != ending_point:
-            print(iteration_count)
             return False
         else:
             return True

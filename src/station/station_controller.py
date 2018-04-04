@@ -74,15 +74,12 @@ class StationController(object):
             self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
 
         if self.model.planned_path is not None and self.model.planned_path:
-            # self.logger.info("Planned path " + str(self.model.planned_path))
             self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
 
         if self.model.real_path is not None and self.model.real_path:
-            # self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
         if self.model.robot is not None:
-            # self.logger.info("Robot " + str(self.model.robot))
             self.frame_drawer.draw_robot(frame, self.model.robot)
 
         # TODO draw navigation grid
