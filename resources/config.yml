@@ -44,3 +44,33 @@ station:
     use_mocked_network: true
     port: *port
   update_robot: false
+
+cube_positions:
+  table2:
+    cube1:
+      x:166.5
+      y:84.5
+    cube2:
+      x:180.5
+      y:84.5
+    cube3:
+      x:203.5
+      y:60.5
+    cube4:
+      x:203.5
+      y:46.5
+    cube5:
+      x:203.5
+      y:32.5
+    cube6:
+      x:203.5
+      y:18.5
+    cube7:
+      x:203.5
+      y:4.5
+    cube8:
+      x:180.5
+      y:-19.5
+    cube1:
+      x:166.5
+      y:-19.5

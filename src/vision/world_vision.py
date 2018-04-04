@@ -48,6 +48,7 @@ class WorldVision:
             for corner in cube.corners:
                 new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
+            print(cube)
 
         for obstacle in obstacles:
             obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + table_crop.y_crop_top))
@@ -58,38 +59,17 @@ class WorldVision:
     def __validate_cube_is_present(self, frame, color: Color, cubes):
         for cube in self.__find_color_cubes(frame, color):
             cubes.append(cube)
-        for i in range(0, 1):
-            for cube in cubes:
-                if cube.color == color:
-                    break
-                else:
-                    for cube in self.__find_color_cubes(frame, color):
-                        cubes.append(cube)
         return cubes
 
     def __validate_white_cube_is_present(self, frame, cubes):
         color = Color.WHITE
         for cube in self.__find_color_cubes(frame, color):
             cubes.append(cube)
-        for i in range(0, 1):
-            for cube in cubes:
-                if cube.color == color:
-                    break
-                else:
-                    for cube in self.__find_white_cubes(frame):
-                        cubes.append(cube)
         return cubes
 
     def __validate_red_cube_is_present(self, frame, cubes):
         for cube in self.__find_red_cubes(frame):
             cubes.append(cube)
-        for i in range(0, 1):
-            for cube in cubes:
-                if cube.color == Color.RED:
-                    break
-                else:
-                    for cube in self.__find_red_cubes(frame):
-                        cubes.append(cube)
         return cubes
 
     def __find_color_cubes(self, frame, color: Color):
@@ -202,8 +182,6 @@ class WorldVision:
             for contour in contours[0]:
                 x = contour[0]
                 if x > 0.4 * width:
-                    print(width)
-                    print(x)
                     yield self.__create_obstacle(contour)
 
     def __create_obstacle(self, contour) -> Obstacle:
