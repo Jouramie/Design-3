@@ -37,33 +37,32 @@ class NavigationEnvironment(object):
         self.__add_walls()
 
     def add_cubes(self, cubes: [Cube]):
-        try:
-            for cube in cubes:
-                point = cube.center
-                for x in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
+        for cube in cubes:
+            point = cube.center
+            for x in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
+                                                                             self.BIGGEST_ROBOT_RADIUS + 1):
+                for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
                                                                                  self.BIGGEST_ROBOT_RADIUS + 1):
-                    for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
-                                                                                     self.BIGGEST_ROBOT_RADIUS + 1):
+                    try:
                         self.__set_obstacle_point(x, y, point)
 
-        except NavigationEnvironmentDataError as err:
-            self.logger.info(str(err))
-            return False
-        return True
+                    except NavigationEnvironmentDataError as err:
+                        #self.logger.info(str(err))
+                        pass
 
     # TODO clean way to add robot dimension to obstacle, radius? orientation? position?
     # Biggest robot radius for now
 
     def add_obstacles(self, obstacles: [Obstacle]):
         for obstacle in obstacles:
-            try:
-                point = (int(obstacle.center[0]), int(obstacle.center[1]))
-                for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
-                                                                                  self.BIGGEST_ROBOT_RADIUS + 1):
-                    # TODO Test and chose the best shape
-                    # Square seems to give path with less segment, but a little bit of space is lost on diagonal
-                    # Square shape obstacle
-                    for y in range(-self.OBSTACLE_RADIUS, self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
+            point = (int(obstacle.center[0]), int(obstacle.center[1]))
+            for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
+                                                                              self.BIGGEST_ROBOT_RADIUS + 1):
+                # TODO Test and chose the best shape
+                # Square seems to give path with less segment, but a little bit of space is lost on diagonal
+                # Square shape obstacle
+                for y in range(-self.OBSTACLE_RADIUS, self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
+                    try:
                         self.__set_obstacle_point(x, y, point)
 
                     # Round shaped circle obstacle
@@ -83,10 +82,9 @@ class NavigationEnvironment(object):
             #   self.__set_obstacle_point(x, 7, point)
             #  self.__set_obstacle_point(-x, -7, point)
 
-            except NavigationEnvironmentDataError as err:
-                self.logger.info(str(err))
-                return False
-        return True
+                    except NavigationEnvironmentDataError as err:
+                        #self.logger.info(str(err))
+                        pass
 
     def __add_walls(self):
         no_go_size = self.BIGGEST_ROBOT_RADIUS + 1

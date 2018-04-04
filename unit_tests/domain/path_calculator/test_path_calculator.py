@@ -19,7 +19,7 @@ class TestPathCalculator(TestCase):
         starting_point = (SOME_VALUE_1, SOME_VALUE_1)
         ending_point = (SOME_VALUE_2, SOME_VALUE_2)
         invalid_grid = 0
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
 
         with self.assertRaises(PathCalculatorError):
             path_calculator.calculate_path(starting_point, ending_point, invalid_grid)
@@ -30,7 +30,7 @@ class TestPathCalculator(TestCase):
         starting_vertex.attach_mock(Mock(return_value=UNASSIGNED_VALUE), 'get_step_value')
         ending_point = (SOME_VALUE_2, SOME_VALUE_1)
         grid = Mock()
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
         grid.attach_mock(Mock(return_value=starting_vertex), 'get_vertex')
 
         with self.assertRaises(PathCalculatorNoPathError):
@@ -41,19 +41,19 @@ class TestPathCalculator(TestCase):
         starting_vertex = MagicMock()
         ending_point = (SOME_VALUE_2, SOME_VALUE_1)
         grid = Mock()
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
         grid.attach_mock(Mock(return_value=starting_vertex), 'get_vertex')
 
         path_calculator.calculate_path(starting_point, ending_point, grid)
 
-        starting_vertex.get_step_value.assert_called_once()
+        self.assertEquals(2, starting_vertex.get_step_value.call_count)
 
     def test_when_calculate_path_then_set_ending_point_step_value(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
         starting_point = (SOME_VALUE_0, SOME_VALUE_0)
         ending_point = (SOME_VALUE_1, SOME_VALUE_0)
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
 
         path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
         expected = environment.get_grid().get_vertex(ending_point).get_step_value() + 1
@@ -65,7 +65,7 @@ class TestPathCalculator(TestCase):
         environment.create_grid()
         starting_point = (SOME_VALUE_0, SOME_VALUE_0)
         ending_point = (SOME_VALUE_1, SOME_VALUE_0)
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
 
         path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
         expected = END_POINT_VALUE
@@ -77,7 +77,7 @@ class TestPathCalculator(TestCase):
         environment.create_grid()
         starting_point = (SOME_VALUE_1, SOME_VALUE_0)
         ending_point = (SOME_VALUE_0, SOME_VALUE_0)
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
 
         path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
         expected = [starting_point, ending_point]
@@ -89,7 +89,7 @@ class TestPathCalculator(TestCase):
         environment.create_grid()
         starting_point = (0, 0)
         ending_point = (10, 0)
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
 
         path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
         expected = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0)]
@@ -101,7 +101,7 @@ class TestPathCalculator(TestCase):
         environment.create_grid()
         starting_point = (0, 0)
         ending_point = (10, 10)
-        path_calculator = PathCalculator()
+        path_calculator = PathCalculator(MagicMock())
 
         path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
         expected = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10)]
@@ -111,20 +111,23 @@ class TestPathCalculator(TestCase):
     def test_when_obstacle_then_goes_around_it(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
-        environment.add_obstacles([Obstacle((0, 0), 7)])
-        starting_point_next_to_obstacle = (-8, 1)
-        ending_point_next_to_obstacle = (8, 0)
-        path_calculator = PathCalculator()
+        environment.add_obstacles([Obstacle((50, 50), 7)])
+        starting_point_next_to_obstacle = (50 - 23 - 7 - 1, 51)
+        ending_point_next_to_obstacle = (50 + 23 + 7, 50)
+        path_calculator = PathCalculator(MagicMock())
 
         path_calculator.calculate_path(starting_point_next_to_obstacle, ending_point_next_to_obstacle,
                                        environment.get_grid())
-        expected = [(-8, 1), (-9, 2), (-9, 3), (-8, 4), (-8, 5), (-7, 6), (-6, 7), (-5, 8), (-4, 8), (-3, 9), (-2, 9),
-                    (-1, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 8), (5, 8), (6, 7), (7, 6), (8, 5), (8, 4), (9, 3),
-                    (9, 2), (9, 1), (9, 0), (9, -1), (8, 0)]
 
-        expected_square = [(-8, 1), (-9, 2), (-9, 3), (-9, 4), (-9, 5), (-9, 6), (-9, 7), (-9, 8), (-8, 9), (-7, 9),
-                         (-6, 9), (-5, 9), (-4, 9), (-3, 9), (-2, 9), (-1, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 9),
-                         (5, 9), (6, 9), (7, 9), (8, 9), (9, 8), (9, 7), (9, 6), (9, 5), (9, 4), (9, 3), (9, 2), (9, 1),
-                         (9, 0), (9, -1), (8, 0)]
+        expected_square = [(19, 51), (18, 50), (18, 49), (18, 48), (18, 47), (18, 46), (18, 45), (18, 44), (18, 43),
+                           (18, 42), (19, 41), (20, 41), (21, 41), (22, 41), (23, 41), (24, 41), (25, 41), (26, 41),
+                           (27, 41), (28, 41), (29, 41), (30, 41), (31, 41), (32, 41), (33, 41), (34, 41), (35, 41),
+                           (36, 41), (37, 41), (38, 41), (39, 41), (40, 41), (41, 41), (42, 41), (43, 41), (44, 41),
+                           (45, 41), (46, 41), (47, 41), (48, 41), (49, 41), (50, 41), (51, 41), (52, 41), (53, 41),
+                           (54, 41), (55, 41), (56, 41), (57, 41), (58, 41), (59, 41), (60, 41), (61, 41), (62, 41),
+                           (63, 41), (64, 41), (65, 41), (66, 41), (67, 41), (68, 41), (69, 41), (70, 41), (71, 41),
+                           (72, 41), (73, 41), (74, 41), (75, 41), (76, 41), (77, 41), (78, 41), (79, 41), (80, 41),
+                           (81, 41), (82, 42), (82, 43), (82, 44), (82, 45), (82, 46), (82, 47), (82, 48), (82, 49),
+                           (82, 50), (82, 51), (82, 52), (81, 51)]
 
         self.assertEqual(expected_square, path_calculator.get_calculated_path())
