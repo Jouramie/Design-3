@@ -3,7 +3,7 @@ from enum import Enum
 
 class TableCrop(Enum):
     TABLE1 = (0, 210, 210)
-    TABLE2 = (32, 230, 230)
+    TABLE2 = (30, 230, 230)
     TABLE3 = (12, 210, 210)
     TABLE4 = (12, 228, 224)
     TABLE6 = (12, 228, 224)

@@ -28,6 +28,7 @@ class WorldVision:
         options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 4: TableCrop.TABLE4, 6: TableCrop.TABLE6}
         table_crop = options[table]
         cropped_image = self.__crop_environment(frame, table_crop)
+        #cv2.imshow("table", cropped_image)
 
         cubes = []
         obstacles = []
@@ -62,7 +63,7 @@ class WorldVision:
 
     def __validate_white_cube_is_present(self, frame, cubes):
         color = Color.WHITE
-        for cube in self.__find_color_cubes(frame, color):
+        for cube in self.__find_white_cubes(frame):
             cubes.append(cube)
         return cubes
 
@@ -104,7 +105,7 @@ class WorldVision:
             y = contour[0][0][1]
             if cv2.contourArea(contour) > 600:
                 if ((0.8 * width < x < 0.92 * width) and (y <= 0.09 * height) or
-                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
+                        ((0.96 * width < x < width) and (0.10 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, color)
 
@@ -119,6 +120,7 @@ class WorldVision:
         mask = red_mask + red2_mask
 
         image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        cv2.imshow("image", image_with_contours)
 
         height, width, _ = frame.shape
 

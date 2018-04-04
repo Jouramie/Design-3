@@ -3,6 +3,7 @@ from src.vision.coordinate_converter import CoordinateConverter
 from .vision_environment import VisionEnvironment
 from ..objects.color import Color
 from ..objects.vision_cube import VisionCube
+import scipy
 from scipy import spatial
 import numpy as np
 
