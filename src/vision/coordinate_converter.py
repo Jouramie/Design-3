@@ -81,7 +81,6 @@ class CoordinateConverter:
 
         cube_information = world_to_cube.to_parameters(True)
         cube_center = (cube_information[0], cube_information[1])
-        
+
         cube_center = (152, -19)
-        return Cube(cube_center, Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4),
-                                               (cube_center[0] + 4, cube_center[1] + 4)])
+        return Cube(Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4), (cube_center[0] + 4, cube_center[1] + 4)])
