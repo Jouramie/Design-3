@@ -10,7 +10,7 @@ class Cube(object):
         self.w = self.corners[1][0]
         self.y = self.corners[0][1]
         self.h = self.corners[1][1]
-        self.center = (self.x + self.w / 2, self.y + self.h / 2)
+        self.center = ((self.x + self.w) / 2, (self.y + self.h) / 2)
 
     def get_3d_corners(self) -> [tuple]:
         return list(map(self.__to_3d, self.corners))

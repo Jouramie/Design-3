@@ -38,8 +38,10 @@ class Grid:
         self.__vertices_dictionary[origin].add_neighbor(self.__vertices_dictionary[destination], weight)
 
     def get_vertex(self, node):
-        if node in self.__vertices_dictionary:
-            return self.__vertices_dictionary[node]
+        position = (int(node[0]), int(node[1]))
+
+        if position in self.__vertices_dictionary:
+            return self.__vertices_dictionary[position]
         else:
             return None
 
