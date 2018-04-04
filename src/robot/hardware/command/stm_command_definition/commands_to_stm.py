@@ -35,11 +35,11 @@ class Command(Enum):
 
 
 class Angle(Enum):
-    NORTH = 90
-    NORTH_WEST = 135
-    WEST = 180
-    SOUTH_WEST = 225
-    SOUTH = 270
-    SOUTH_EAST = 315
-    EAST = 0
-    NORTH_EAST = 45
+    NORTH = 0x5a        # 90
+    NORTH_WEST = 0x87   # 135
+    WEST = 0xb4         # 180
+    SOUTH_WEST = 0xe1   # 225
+    SOUTH = 0x10e       # 270
+    SOUTH_EAST = 0x13b  # 315
+    EAST = 0x0          # 0
+    NORTH_EAST = 0x2d   # 45

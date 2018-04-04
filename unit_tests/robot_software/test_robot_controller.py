@@ -42,7 +42,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=bytearray(b'\xb0\x43\x12\xfb'))
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl._execute_flag_sequence()
+        ctrl.execute_flag_sequence()
 
         channel.receive_message.assert_called_once()
 
@@ -52,7 +52,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        self.assertRaises(NotACountryCommandException, ctrl._execute_flag_sequence())
+        self.assertRaises(NotACountryCommandException, ctrl.execute_flag_sequence())
 
     def test_when_send_grab_cube_then_send_via_channel(self):
         network_ctrl = MagicMock()
@@ -105,7 +105,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command(StmCommandBuilder().left(2000))
+        ctrl.send_movement_command_to_stm(StmCommandBuilder().left(2000))
 
         channel.send_command.assert_called_once_with(bytearray(b'\x31\x07\xd0'))
 
@@ -125,6 +125,6 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command(StmCommandBuilder().forward(22222))
+        ctrl.send_movement_command_to_stm(StmCommandBuilder().forward(22222))
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3f\x56\xce'))

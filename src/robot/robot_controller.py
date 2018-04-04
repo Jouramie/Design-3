@@ -54,10 +54,11 @@ class RobotController(object):
         self._channel.send_command(commands_to_stm.Command.LIGHT_IT_UP.value)
         self.task_done = True
 
-    def send_seek_flag(self) -> None:
+    def _send_seek_flag(self) -> None:
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
-    def send_movement_command(self, command: str) -> bool:
+    def send_movement_command_to_stm(self, command: str):
+        self._logger.info('Sending to stm : {}'.format(command.encode()))
         self._channel.send_command(command.encode())
 
     def _validate_if_successful(self) -> bool:
@@ -72,7 +73,8 @@ class RobotController(object):
             self._logger.info('Command Unsuccessfull, target was {}'.format(feedback_from_stm.target))
             return False
 
-    def _execute_flag_sequence(self) -> None:
+    def execute_flag_sequence(self) -> None:
+        self._send_seek_flag()
         command = self.receive_stm_command()
         try:
             self._logger.info('Received country number : {}'.format(command.get_country_code()))
@@ -85,8 +87,7 @@ class RobotController(object):
             msg = self._network_queue.get()
             self._logger.info('Executing this command : {}'.format(msg))
             if msg['command'] == Command.INFRARED_SIGNAL:
-                self.send_seek_flag()
-                self._execute_flag_sequence()
+                self.execute_flag_sequence()
             elif msg['command'] == Command.CAN_I_GRAB:
                 self.send_ask_if_can_grab_cube()
             elif msg['command'] == Command.GRAB:
@@ -96,7 +97,7 @@ class RobotController(object):
             elif msg['command'] == Command.END_SIGNAL:
                 self.send_light_laide_command()
             elif msg['command'] == Command.MOVE:
-                self.send_movement_command(msg['msg'])
+                self.send_movement_command_to_stm(msg['msg'])
             else:
                 self._logger.info('Received this {} but does not know how to deal with it'.format(msg))
                 raise NotImplementedError("Please do more stuff")
