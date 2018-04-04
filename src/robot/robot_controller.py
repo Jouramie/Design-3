@@ -27,10 +27,10 @@ class RobotController(object):
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
 
     def receive_end_of_task_signal(self) -> bool:
-        msg = self.receive_command()
+        msg = self.receive_stm_command()
         return self._validate_if_successful(msg)
 
-    def receive_command(self):
+    def receive_stm_command(self):
         msg = None
         while msg is None or msg == "b''" or msg == "b'ff'":
             msg = self._channel.receive_message()
@@ -39,17 +39,17 @@ class RobotController(object):
 
     def send_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
-        feedback = self.receive_command()
+        feedback = self.receive_stm_command()
         return self._validate_if_successful(feedback)
 
     def send_drop_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
-        feedback = self.receive_command()
+        feedback = self.receive_stm_command()
         return self._validate_if_successful(feedback)
 
     def send_ask_if_can_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.CAN_GRAB_CUBE.value)
-        feedback = self.receive_command()
+        feedback = self.receive_stm_command()
         return self._validate_if_successful(feedback)
 
     def send_light_laide_command(self) -> None:
@@ -74,7 +74,7 @@ class RobotController(object):
             return False
 
     def _execute_flag_sequence(self) -> None:
-        command = self.receive_command()
+        command = self.receive_stm_command()
         try:
             self._logger.info('Received country number : {}'.format(command.get_country_code()))
             self._network.send_infrared_ask(command.get_country_code())
