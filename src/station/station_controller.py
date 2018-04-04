@@ -76,6 +76,12 @@ class StationController(object):
                 self.network.send_end_of_task_signal()
             elif command == 'movef':
                 self.network.send_move_command(StmCommandBuilder().forward(300))
+            elif command == 'mover':
+                self.network.send_move_command(StmCommandBuilder().right(100))
+            elif command == 'movel':
+                self.network.send_move_command(StmCommandBuilder().left(100))
+            elif command == 'moveb':
+                self.network.send_move_command(StmCommandBuilder().backward(300))
             elif command == 'rcc90':
                 self.network.send_move_command(StmCommandBuilder().rotate_counter_clockwise(commands_to_stm.Angle.WEST))
 
