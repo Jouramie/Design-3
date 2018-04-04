@@ -71,7 +71,6 @@ class ClientNetworkController(NetworkController):
     def wait_message(self) -> dict:
         self._logger.info('Waiting for a command.')
         msg = None
-        timeout = 5
         while msg is None:
             try:
                 msg = self._receive_message()
