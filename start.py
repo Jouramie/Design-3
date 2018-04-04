@@ -102,8 +102,8 @@ def start_station(config: dict, logger: logging.Logger) -> None:
         robot_detector = VisionRobotDetector(table_camera_config.camera_parameters, coordinate_converter)
 
     try:
-        app = App(network_controller, camera, table_camera_config, coordinate_converter, robot_detector,
-                  logger.getChild("main_controller"), config)
+        app = App(network_controller, camera, coordinate_converter, robot_detector, logger.getChild("main_controller"),
+                  config)
         sys.exit(app.exec_())
     finally:
         if not config['network']['use_mocked_network']:

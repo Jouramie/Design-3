@@ -84,3 +84,14 @@ class CoordinateConverter:
 
         cube_center = (152, -19)
         return Cube(Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4), (cube_center[0] + 4, cube_center[1] + 4)])
+
+    def project_points(self, points):
+        camera_to_world_parameters = self.get_camera_to_world().to_parameters()
+        camera_to_world_tvec = np.array(
+            [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
+        camera_to_world_rvec = np.array(
+            [camera_to_world_parameters[3], camera_to_world_parameters[4], camera_to_world_parameters[5]])
+        projected_points, _ = cv2.projectPoints(points, camera_to_world_rvec, camera_to_world_tvec,
+                                                self.camera_parameters.camera_matrix, self.camera_parameters.distortion)
+
+        return projected_points

@@ -16,15 +16,14 @@ from src.vision.camera import Camera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
-from src.vision.table_camera_configuration import TableCameraConfiguration
 from src.vision.world_vision import WorldVision
 from .station_model import StationModel
 
 
 class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
-                 table_camera_config: TableCameraConfiguration, coordinate_converter: CoordinateConverter,
-                 robot_detector: RobotDetector, logger: Logger, config: dict):
+                 coordinate_converter: CoordinateConverter, robot_detector: RobotDetector, logger: Logger,
+                 config: dict):
         self.model = model
         self.logger = logger
         self.config = config
@@ -39,11 +38,9 @@ class StationController(object):
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.navigation_environment.create_grid()
 
-        self.table_camera_config = table_camera_config
         self.coordinate_converter = coordinate_converter
         self.robot_detector = robot_detector
-        self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter,
-                                        logger.getChild("FrameDrawer"))
+        self.frame_drawer = FrameDrawer(self.coordinate_converter, logger.getChild("FrameDrawer"))
 
         self.obstacle_pos = []
 
@@ -160,16 +157,16 @@ class StationController(object):
                 self.model.robot_is_holding_cube = False
 
             else:
-                if self.model.robot_going_to_cube:
-                    self.logger.info("Entering new step, moving to cube.")
+                if self.model.robot_is_grabbing_cube:
+                    self.logger.info("Entering new step, moving to grab the cube.")
                     # TODO send move command
                     # TODO grab
                     # self.model.robot_is_moving = True
-                    self.model.robot_going_to_cube = False
+                    self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True
 
                 else:
-                    self.logger.info("Entering new step, travel to grab cube.")
+                    self.logger.info("Entering new step, travel to the cube.")
                     target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
                     if target_cube is None:
                         self.logger.warning("The target cube is None. Cannot continue, exiting.")
@@ -194,7 +191,7 @@ class StationController(object):
                     # TODO Envoyer la commande de déplacement au robot
                     self.logger.info("Path calculated, moving.")
                     # self.model.robot_is_moving = True
-                    self.model.robot_going_to_cube = True
+                    self.model.robot_is_grabbing_cube = True
         else:
             if self.model.light_is_lit:
                 self.logger.info("Entering new step, reseting for next flag.")
