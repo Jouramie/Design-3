@@ -2,7 +2,7 @@ from src.vision.table_crop import TableCrop
 from .color import Color
 
 
-class Cube:
+class Cube(object):
     def __init__(self, color: Color, corners: list):
         self.color = color
         self.corners = corners
@@ -82,5 +82,5 @@ class Cube:
         else:
             return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Center: {} Color: {}".format(str(self.center), self.color.name)

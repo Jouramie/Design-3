@@ -10,5 +10,5 @@ class VisionEnvironment(object):
 
     def __str__(self):
         return "Cubes: {} \nObstacles: {}".format('\n    '.join(str(c) for c in self.cubes),
-                                                               '\n    '.join(str(o) for o in self.obstacles))
+                                                  '\n    '.join(str(o) for o in self.obstacles))
 
