@@ -114,7 +114,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value="b'\xfc\x12\x34\xbe'")
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.receive_end_of_task_signal()
+        ctrl._validate_if_successful()
 
         channel.receive_message.assert_called_once()
 

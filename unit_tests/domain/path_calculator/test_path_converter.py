@@ -71,7 +71,7 @@ class TestPathConverter(TestCase):
 
     def test_when_convert_example_path_then_received_corresponding_commands(self):
         self.path = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9), (3, 8)]
-        expected = [(5.656, 'SOUTH_WEST'), (4, 'SOUTH'), (1, 'EAST'), (1.414, 'NORTH_EAST')], \
+        expected = [(16, 'SOUTH_WEST'), (40, 'SOUTH'), (10, 'EAST'), (4, 'NORTH_EAST')], \
                    [((1, 1), (5, 5)), ((5, 5), (5, 9)), ((5, 9), (4, 9)), ((4, 9), (3, 8))]
 
         self.assertEqual(expected, self.path_converter.convert_path(self.path))

@@ -29,8 +29,7 @@ class RobotController(object):
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
 
     def receive_end_of_task_signal(self) -> bool:
-        msg = self.receive_stm_command()
-        return self._validate_if_successful(msg)
+        return self._validate_if_successful()
 
     def receive_stm_command(self):
         msg = None
@@ -41,18 +40,15 @@ class RobotController(object):
 
     def send_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
-        feedback = self.receive_stm_command()
-        return self._validate_if_successful(feedback)
+        return self._validate_if_successful()
 
     def send_drop_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
-        feedback = self.receive_stm_command()
-        return self._validate_if_successful(feedback)
+        return self._validate_if_successful()
 
     def send_ask_if_can_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.CAN_GRAB_CUBE.value)
-        feedback = self.receive_stm_command()
-        return self._validate_if_successful(feedback)
+        return self._validate_if_successful()
 
     def send_light_laide_command(self) -> None:
         self._channel.send_command(commands_to_stm.Command.LIGHT_IT_UP.value)
@@ -61,14 +57,16 @@ class RobotController(object):
     def send_seek_flag(self) -> None:
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
-    def send_movement_command(self, command: bytearray) -> None:
+    def send_movement_command(self, command: bytearray) -> bool:
         self._channel.send_command(command)
+        return self._validate_if_successful()
 
-    def _validate_if_successful(self, command: CommandFromStm) -> bool:
-        return self._validate_target(command, commands_from_stm.Target.TASK_SUCCESS)
+    def _validate_if_successful(self) -> bool:
+        return self._validate_target(commands_from_stm.Target.TASK_SUCCESS)
 
-    def _validate_target(self, command: CommandFromStm, target: commands_from_stm.Target) -> bool:
-        if command.target == target:
+    def _validate_target(self, target: commands_from_stm.Target) -> bool:
+        feedback_from_stm = self.receive_stm_command()
+        if feedback_from_stm.target == target:
             self._logger.info('Command successfull')
             return True
         else:
