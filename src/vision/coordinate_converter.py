@@ -51,39 +51,8 @@ class CoordinateConverter:
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
 
     def project_cubes(self, cubes: [Cube]) -> [Cube]:
-        projected_cubes = []
-        for cube in cubes:
-            if cube.color is Color.WHITE:
-                projected_cubes.append(self.project_white_cube(cube))
-        return projected_cubes
-
-    def project_white_cube(self, cube: Cube) -> Cube:
-        object_points = np.array([(0, 0, 8), (-3.8, 3.8, 8), (3.7, 3.8, 8), (3.7, -3.6, 8), (-3.8, -3.6, 8)], 'float32')
-
-        image_points = np.array([cube.center,
-                                 (cube.corners[0][0], cube.corners[0][1]),
-                                 (cube.corners[1][0], cube.corners[0][1]),
-                                 (cube.corners[1][0], cube.corners[1][1]),
-                                 (cube.corners[0][0], cube.corners[1][1])])
-
-        _, rotation_vector, translation_vector = cv2.solvePnP(object_points, image_points,
-                                                              self.camera_parameters.camera_matrix,
-                                                              self.camera_parameters.distortion)
-
-        camera_to_cube = Transform.from_parameters(np.asscalar(translation_vector[0]),
-                                                   np.asscalar(translation_vector[1]),
-                                                   np.asscalar(translation_vector[2]),
-                                                   np.asscalar(rotation_vector[0]),
-                                                   np.asscalar(rotation_vector[1]),
-                                                   np.asscalar(rotation_vector[2]))
-
-        world_to_cube = self.world_from_camera(camera_to_cube)
-
-        cube_information = world_to_cube.to_parameters(True)
-        cube_center = (cube_information[0], cube_information[1])
-
         cube_center = (152, -19)
-        return Cube(Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4), (cube_center[0] + 4, cube_center[1] + 4)])
+        return [Cube(Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4), (cube_center[0] + 4, cube_center[1] + 4)])]
 
     def project_points(self, points):
         camera_to_world_parameters = self.get_camera_to_world().to_parameters()

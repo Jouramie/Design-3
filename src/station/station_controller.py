@@ -179,8 +179,8 @@ class StationController(object):
                     target_position = (target_cube.center[0],
                                        target_cube.center[1] + max(self.model.robot.height,
                                                                    self.model.robot.width) + 10)
-                    is_possible = self.path_calculator.calculate_path(
-                        self.model.robot.center, target_position, self.navigation_environment.get_grid())
+                    is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
+                                                                      self.navigation_environment.get_grid())
 
                     if not is_possible:
                         self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
