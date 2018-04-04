@@ -9,7 +9,7 @@ class RealWorldEnvironment(object):
                  coordinate_converter: CoordinateConverter):
         # TODO déplacer dans une factory
         self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
-        self.cubes = coordinate_converter.project_cubes(vision_environment.cubes)
+        self.cubes = self.convert_vision_cubes_to_real_world_environment_cubes(vision_environment.cubes)
         self.target_zone = None
 
     def __str__(self):
@@ -28,3 +28,13 @@ class RealWorldEnvironment(object):
                 # TODO remove cube from environments?
                 return cube
         return None  # TODO raise une exception
+
+    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes):
+        real_cubes = []
+        #Check which cube is closest
+
+        for vision_cube in vision_cubes:
+            vision_cube
+        return real_cubes
+
+

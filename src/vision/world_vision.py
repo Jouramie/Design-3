@@ -48,7 +48,6 @@ class WorldVision:
             for corner in cube.corners:
                 new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
             cube.corners = new_corners
-            print(cube)
 
         for obstacle in obstacles:
             obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + table_crop.y_crop_top))
