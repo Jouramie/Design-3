@@ -5,22 +5,21 @@ from .channel_exception import ChannelException
 
 
 class Channel(object):
-
     def __init__(self, serial):
         self.serial = serial
 
-    def receive_message(self):
+    def receive_message(self) -> str:
         if self.serial.is_open:
-            return str(self.serial.readline())
+            return self.serial.readline()
         else:
             raise ChannelException('Serial connection not opened')
 
-    def send_command(self, message: bytes):
+    def send_command(self, message: bytes) -> None:
         message = bytearray(message)
         message.append(self.calculate_checksum(message))
         self.serial.write(message)
 
-    def ask_repeat(self):
+    def ask_repeat(self) -> None:
         self.send_command(commands_to_stm.Command.SEND_AGAIN.value)
 
     @staticmethod
@@ -30,7 +29,7 @@ class Channel(object):
         return checksum
 
 
-def create_channel(port: str):
+def create_channel(port: str) -> Channel:
     ser = serial.Serial()
     ser.port = port
     ser.baudrate = 115200
