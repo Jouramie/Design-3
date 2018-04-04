@@ -116,7 +116,7 @@ class SocketServerNetworkController(ServerNetworkController):
         self._logger.info("Drop cude command sent!")
 
     def send_move_command(self, command: bytearray) -> None:
-        self._send_command(Command.MOVE, {'msg' : str(command)})
+        self._send_command(Command.MOVE, {'msg' : command.decode()})
 
 
 class MockedServerNetworkController(ServerNetworkController):
