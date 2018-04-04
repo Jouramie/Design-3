@@ -87,7 +87,7 @@ class RobotController(object):
             self._logger.info('Received country number : {}'.format(command.get_country_code()))
             self._network.send_infrared_ask(command.get_country_code())
         except NotACountryCommandException:
-            self._logger.info('Expected a country number but received : {}'.format(command.raw_command))
+            self._logger.info('Expected a country number but received : {}'.format(command.command))
 
     def execute(self):
         if not self._network_queue.empty():
