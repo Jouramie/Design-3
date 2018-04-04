@@ -38,7 +38,7 @@ class ClientNetworkController(NetworkController):
                 msg = self._receive_message()
             except MessageNotReceivedYet:
                 self._logger.info('Waiting for start command.')
-                sleep(1)
+            sleep(1)
 
         self._logger.info(msg)
 
