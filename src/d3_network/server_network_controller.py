@@ -27,6 +27,17 @@ class ServerNetworkController(NetworkController):
     def check_infrared_signal(self) -> int:
         raise NotImplementedError("This is an interface...")
 
+    def send_end_of_task_signal(self) -> int:
+        raise NotImplementedError("This is an interface...")
+
+    def send_ask_if_can_grab_cube(self) -> None:
+        raise NotImplementedError("This is an interface...")
+
+    def send_grab_cube(self) -> None:
+        raise NotImplementedError("This is an interface...")
+
+    def send_drop_cube(self) -> None:
+        raise NotImplementedError("This is an interface...")
 
 class SocketServerNetworkController(ServerNetworkController):
 
@@ -81,6 +92,25 @@ class SocketServerNetworkController(ServerNetworkController):
         self._logger.info("Infrared signal received! {code}".format(code=country_code))
         return country_code
 
+    def send_end_of_task_signal(self) -> None:
+        self._send_command(Command.END_SIGNAL)
+
+        self._logger.info("End of task signal sent, the led should go on!")
+
+    def send_ask_if_can_grab_cube(self) -> None:
+        self._send_command(Command.CAN_I_GRAB)
+
+        self._logger.info("Can i grab a cube command sent!")
+
+    def send_grab_cube(self) -> None:
+        self._send_command(Command.GRAB)
+
+        self._logger.info("Grab command sent!")
+
+    def send_drop_cube(self) -> None:
+        self._send_command(Command.DROP)
+
+        self._logger.info("Drop cude command sent!")
 
 class MockedServerNetworkController(ServerNetworkController):
     COUNTRY_CODE = 43
@@ -105,3 +135,15 @@ class MockedServerNetworkController(ServerNetworkController):
     def check_infrared_signal(self) -> int:
         self._logger.info("Infrared signal received! {code}".format(code=MockedServerNetworkController.COUNTRY_CODE))
         return MockedServerNetworkController.COUNTRY_CODE
+
+    def send_end_of_task_signal(self) -> int:
+        self._logger.info("End of task signal sent, the led should go on!")
+
+    def send_grab_cube(self) -> None:
+        self._logger.info("Grab command sent!")
+
+    def send_ask_if_can_grab_cube(self) -> None:
+        self._logger.info("Can i grab a cube command sent!")
+
+    def send_drop_cube(self) -> None:
+        self._logger.info("Drop cude command sent!")

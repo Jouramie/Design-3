@@ -59,6 +59,19 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
+        self.interactive_testing()
+
+    def interactive_testing(self):
+        while True:
+            command = input('enter something : ir, grab, drop or end')
+            if command == 'ir':
+                self.network.ask_infrared_signal()
+            elif command == 'grab':
+                self.network.send_grab_cube()
+            elif command == 'drop':
+                self.network.send_drop_cube()
+            elif command == 'end':
+                self.network.send_end_of_task_signal()
 
     def __check_infrared_signal(self):
         try:
@@ -82,7 +95,7 @@ class StationController(object):
         if self.model.robot is not None:
             self.frame_drawer.draw_robot(frame, self.model.robot)
 
-        # TODO draw navigation grid
+            # TODO draw navigation grid
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
