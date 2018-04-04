@@ -134,6 +134,7 @@ class StationController(object):
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
                                                                      self.coordinate_converter,
                                                                      self.config['cube_positions']['tables']['t2'])
+
             self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
 
             self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
@@ -190,9 +191,9 @@ class StationController(object):
                         self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                         return
 
-                    target_position = (target_cube.center[0],
-                                       target_cube.center[1] + max(self.model.robot.height,
-                                                                   self.model.robot.width) + 10)
+                    target_position = (int(target_cube.center[0]),
+                                       int(target_cube.center[1] + max(self.model.robot.height,
+                                                                   self.model.robot.width) + 10))
                     is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
                                                                       self.navigation_environment.get_grid())
 

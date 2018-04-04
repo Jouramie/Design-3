@@ -50,10 +50,6 @@ class CoordinateConverter:
         obstacle_information = world_to_obstacle.to_parameters(True)
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
 
-    def project_cubes(self, cubes: [VisionCube]) -> [VisionCube]:
-        cube_center = (152, -19)
-        return [VisionCube(Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4), (cube_center[0] + 4, cube_center[1] + 4)])]
-
     def project_points(self, points):
         camera_to_world_parameters = self.get_camera_to_world().to_parameters()
         camera_to_world_tvec = np.array(

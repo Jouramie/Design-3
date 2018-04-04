@@ -30,6 +30,73 @@ RESOURCES_PATH = {
 
 }
 
+CUBE_POSITION = {
+    'tables':{
+      'target_zone': {
+        'x': 66.2,
+        'y': 66.2
+      },
+      't2':{
+        'cube0':{
+          'x': 166.5,
+          'y': 84.5,
+          'pixel_x': 1360,
+          'pixel_y': 240
+        },
+        'cube1':{
+          'x': 180.5,
+          'y': 84.5,
+          'pixel_x': 1453,
+          'pixel_y': 240
+        },
+        'cube2':{
+          'x': 203.5,
+          'y': 60.5,
+          'pixel_x': 1575,
+          'pixel_y': 402
+        },
+        'cube3':{
+          'x': 203.5,
+          'y': 46.5,
+          'pixel_x': 1575,
+          'pixel_y': 501
+        },
+        'cube4':{
+          'x': 203.5,
+          'y': 32.5,
+          'pixel_x': 1575,
+          'pixel_y': 600
+        },
+        'cube5':{
+          'x': 203.5,
+          'y': 18.5,
+          'pixel_x': 1575,
+          'pixel_y': 700
+        },
+        'cube6': {
+          'x': 203.5,
+          'y': 4.5,
+          'pixel_x': 1575,
+          'pixel_y': 800
+        },
+          'cube7':{
+          'x': 180.5,
+          'y': -19.5,
+          'pixel_x': 1424,
+          'pixel_y': 960
+          },
+        'cube8' : {
+          'x': 166.5,
+          'y': -19.5,
+          'pixel_x': 1350,
+          'pixel_y': 960
+        }
+      }
+    }
+}
+
+
+
 SCENARIO_1 = {
     'config': {
         'table_number': 4,
@@ -39,7 +106,8 @@ SCENARIO_1 = {
         },
         'robot': {
             'update_robot': False
-        }
+        },
+        'cube_positions': CUBE_POSITION
     }
 }
 
@@ -55,7 +123,8 @@ SCENARIO_2 = {
         },
         'robot': {
             'update_robot': False
-        }
+        },
+        'cube_positions': CUBE_POSITION
     }
 }
 

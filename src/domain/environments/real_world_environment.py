@@ -20,7 +20,7 @@ class RealWorldEnvironment(object):
                                                                '\n    '.join(str(o) for o in self.obstacles),
                                                                str(self.target_zone))
 
-    def find_cube(self, color: Color) -> VisionCube:
+    def find_cube(self, color: Color) -> FlagCube:
         """Return a cube matching the color in parameter
 
         :param color: The desired color
@@ -28,7 +28,6 @@ class RealWorldEnvironment(object):
         """
         for cube in self.cubes:
             if cube.color == color:
-                self.cubes.remove(cube)
                 return cube
         return None
 
@@ -46,11 +45,11 @@ class RealWorldEnvironment(object):
         combined_x_y_arrays = np.dstack([pixel_x_nparray.ravel(), pixel_y_nparray.ravel()])[0]
         tree = spatial.cKDTree(combined_x_y_arrays)
         for vision_cube in vision_cubes:
-            flag_cube = FlagCube
             dist, indexes = tree.query(vision_cube.get_center())
             table_cube = self.table_config_cubes['cube' + str(indexes)]
-            flag_cube.position = (table_cube['x'], table_cube['y'])
-            flag_cube.color = vision_cube.get_color()
+            position = (table_cube['x'], table_cube['y'])
+            color = vision_cube.get_color()
+            flag_cube = FlagCube(position, color)
             real_cubes.append(flag_cube)
 
         return real_cubes

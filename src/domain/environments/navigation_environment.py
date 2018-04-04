@@ -41,7 +41,7 @@ class NavigationEnvironment(object):
     def add_cubes(self, cubes: [FlagCube]):
         try:
             for cube in cubes:
-                point = cube.position
+                point = cube.center
                 for x in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
                     for y in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
                         self.__set_obstacle_point(x, y, point)
