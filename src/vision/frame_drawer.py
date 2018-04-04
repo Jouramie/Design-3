@@ -10,7 +10,6 @@ from src.domain.objects.cube import Cube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.robot import Robot
 from src.domain.objects.target_zone import TargetZone
-from src.vision.camera_parameters import CameraParameters
 from src.vision.coordinate_converter import CoordinateConverter
 
 

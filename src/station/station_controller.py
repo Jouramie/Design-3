@@ -113,6 +113,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.vision_environment is None:
+            self.camera.take_picture()
             self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
                                                                                  self.config['table_number'])
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
@@ -158,8 +159,8 @@ class StationController(object):
             else:
                 if self.model.robot_is_grabbing_cube:
                     self.logger.info("Entering new step, moving to grab the cube.")
-                # TODO Envoyer la commande de déplacement au robot
-                # TODO Envoyer la commande de grab du cube
+                    # TODO Envoyer la commande de déplacement au robot
+                    # TODO Envoyer la commande de grab du cube
                     # self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True

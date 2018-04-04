@@ -31,9 +31,6 @@ class Cube(object):
     def get_color(self):
         return self.color
 
-    def set_color(self, new_color):
-        self.color = new_color
-
     def is_inside(self, other):
         if other.x >= self.x and other.y >= self.y and other.w >= self.w and other.h >= self.h:
             return True
