@@ -8,8 +8,7 @@ from src.robot.hardware.command.stm_command_definition import commands_to_stm, c
 
 
 class TestRobotController(TestCase):
-    @patch('src.robot.robot_controller.time')
-    def test_when_start_controller_then_get_host_ip(self, time):
+    def test_when_start_controller_then_get_host_ip(self):
         network_scanner = MagicMock()
         ctrl = robot_controller.RobotController(MagicMock(), network_scanner, MagicMock(), MagicMock())
 
@@ -17,8 +16,7 @@ class TestRobotController(TestCase):
 
         network_scanner.get_host_ip.assert_called_once()
 
-    @patch('src.robot.robot_controller.time')
-    def test_given_host_ip_when_start_controller_then_pair_with_host(self, time):
+    def test_given_host_ip_when_start_controller_then_pair_with_host(self):
         host_ip = '10.42.0.78'
         network_scanner = Mock()
         network_scanner.attach_mock(Mock(return_value=host_ip), 'get_host_ip')
@@ -30,8 +28,7 @@ class TestRobotController(TestCase):
 
         network_ctrl.pair_with_host.assert_called_once_with(host_ip)
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_start_controller_then_wait_start_command(self, time):
+    def test_when_start_controller_then_wait_start_command(self):
         network_ctrl = MagicMock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
 
@@ -39,8 +36,7 @@ class TestRobotController(TestCase):
 
         network_ctrl.wait_start_command.assert_called_once()
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_receive_country_code_then_return_country_code(self, time):
+    def test_when_receive_country_code_then_return_country_code(self):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.receive_message = Mock(return_value="b'\xb0\x43\x12\xfb'")
@@ -50,8 +46,7 @@ class TestRobotController(TestCase):
 
         channel.receive_message.assert_called_once()
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_receive_wrong_country_code_then_raise_not_a_country_command_exception(self, time):
+    def test_when_receive_wrong_country_code_then_raise_not_a_country_command_exception(self):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.receive_message = Mock(return_value="b'\xb1\x43\x12\xfa'")
@@ -59,8 +54,7 @@ class TestRobotController(TestCase):
 
         self.assertRaises(NotACountryCommandException, ctrl._execute_flag_sequence())
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_send_grab_cube_then_send_via_channel(self, time):
+    def test_when_send_grab_cube_then_send_via_channel(self):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.send_command = Mock()
@@ -72,8 +66,7 @@ class TestRobotController(TestCase):
 
         channel.send_command.assert_called_once_with(commands_to_stm.Command.GRAB_CUBE.value)
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_send_grab_cube_and_not_ready_then_return_false(self, time):
+    def test_when_send_grab_cube_and_not_ready_then_return_false(self):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.send_command = Mock()
@@ -84,8 +77,7 @@ class TestRobotController(TestCase):
 
         self.assertEqual(False, ctrl.send_grab_cube())
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_send_drop_cube_then_send_via_channel(self, time):
+    def test_when_send_drop_cube_then_send_via_channel(self):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.send_command = Mock()
@@ -96,8 +88,7 @@ class TestRobotController(TestCase):
 
         channel.send_command.assert_called_once_with(commands_to_stm.Command.DROP_CUBE.value)
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_ask_if_can_grab_cube_then_send_via_channel(self, time):
+    def test_when_ask_if_can_grab_cube_then_send_via_channel(self):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.send_command = Mock()
@@ -108,8 +99,7 @@ class TestRobotController(TestCase):
 
         channel.send_command.assert_called_once_with(commands_to_stm.Command.CAN_GRAB_CUBE.value)
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_send_movement_command_then_send_via_channel(self, time):
+    def test_when_send_movement_command_then_send_via_channel(self):
         network_ctrl = MagicMock()
         channel = Mock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
@@ -118,8 +108,7 @@ class TestRobotController(TestCase):
 
         channel.send_command.assert_called_once_with(bytearray(b'\x31\x07\xd0'))
 
-    @patch('src.robot.robot_controller.time')
-    def test_when_receive_successful_end_of_task_then_message_received_correclty(self, time):
+    def test_when_receive_successful_end_of_task_then_message_received_correclty(self):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.receive_message = Mock(return_value="b'\xfc\x12\x34\xbe'")
