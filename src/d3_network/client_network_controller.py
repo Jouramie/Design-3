@@ -73,7 +73,7 @@ class ClientNetworkController(NetworkController):
         self._logger.info('Waiting for a command.')
         msg = None
         timeout = 5
-        while msg is None or timeout < 15:
+        while msg is None:
             try:
                 msg = self._receive_message()
             except MessageNotReceivedYet:
