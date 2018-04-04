@@ -5,3 +5,4 @@ pytest
 opencv-contrib-python
 pyserial
 Pillow
+scipy

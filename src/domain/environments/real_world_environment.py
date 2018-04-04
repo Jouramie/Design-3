@@ -3,8 +3,8 @@ from src.vision.coordinate_converter import CoordinateConverter
 from .vision_environment import VisionEnvironment
 from ..objects.color import Color
 from ..objects.vision_cube import VisionCube
-from scipy import spatial
-from scipy.spatial import KDTree
+import scipy
+import numpy as np
 
 class RealWorldEnvironment(object):
     def __init__(self, vision_environment: VisionEnvironment,
@@ -35,11 +35,19 @@ class RealWorldEnvironment(object):
 
     def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes) -> FlagCube:
         real_cubes = []
-        print(self.table_config_cubes.values())
-        for cube in self.table_config_cubes.values():
-            for vision_cube in vision_cubes:
-                #scipy.spatial.cKDTree
-                print(vision_cube.get_center())
+        cube_pixel_positions_x_list = []
+        cube_pixel_positions_y_list = []
+        for table_cube in self.table_config_cubes.values():
+            x = table_cube['pixel_x']
+            y = table_cube['pixel_y']
+            cube_pixel_positions_x_list.append(x)
+            cube_pixel_positions_y_list.append(y)
+        combined_x_y_arrays = np.dstack([cube_pixel_positions_x_list.ravel(), cube_pixel_positions_y_list.ravel()])[0]
+        tree = scipy.spatial.cKDTree(combined_x_y_arrays)
+        for vision_cube in vision_cubes:
+            dist, indexes = tree.query(vision_cube.get_center())
+            print(indexes)
+
 
         #Check which cube is closest
 
