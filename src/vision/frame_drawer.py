@@ -63,7 +63,6 @@ class FrameDrawer(object):
             self.__draw_obstacle(frame, obstacle)
         for cube in vision_environment.cubes:
             self.__draw_cube(frame, cube)
-        self.__draw_target_zone(frame, vision_environment.target_zone)
 
     def __draw_cube(self, frame, cube: Cube) -> None:
         if cube is not None:

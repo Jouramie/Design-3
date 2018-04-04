@@ -1,121 +1,175 @@
+from logging import Logger
+
 import cv2
-import numpy as np
 
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
 from src.domain.objects.cube import Cube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.target_zone import TargetZone
-from .vision_exception import VisionException
+from src.vision.table_crop import TableCrop
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
 
 THICKNESS = 2
 
 
-class DummyWorldVision:
-    def __init__(self, camera):
-        self.camera = camera
-
+class MockedWorldVision:
     def create_environment(self) -> VisionEnvironment:
-        return VisionEnvironment([], [Obstacle((1043.5, 850.0), 52.9)],
-                                 TargetZone((), []))  # TODO Hardcoder de quoi de plus complet
+        return VisionEnvironment([], [Obstacle((1043.5, 850.0), 52.9)], TargetZone((), []))
 
 
 class WorldVision:
-    def __init__(self):
-        pass
+    def __init__(self, logger: Logger, config: dict):
+        self.logger = logger
+        self.config = config
 
-    def create_environment(self, frame):
-        # cropped_image = self.__crop_environment(image_location)
-        # cropped_image_copy = copy.copy(cropped_image)
+    def create_environment(self, frame, table):
+        options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 4: TableCrop.TABLE4, 6: TableCrop.TABLE6}
+        table_crop = options[table]
+        cropped_image = self.__crop_environment(frame, table_crop)
 
         cubes = []
         obstacles = []
 
-        for cube in self.__find_color_cubes(frame, Color.BLUE):
-            cubes.append(cube)
+        cubes = self.__validate_red_cube_is_present(cropped_image, cubes)
+        cubes = self.__validate_cube_is_present(cropped_image, Color.BLUE, cubes)
+        cubes = self.__validate_cube_is_present(cropped_image, Color.GREEN, cubes)
+        cubes = self.__validate_cube_is_present(cropped_image, Color.YELLOW, cubes)
+        cubes = self.__validate_white_cube_is_present(cropped_image, cubes)
+        cubes = self.__validate_cube_is_present(cropped_image, Color.BLACK, cubes)
 
-        for cube in self.__find_color_cubes(frame, Color.GREEN):
-            cubes.append(cube)
-
-        for cube in self.__find_color_cubes(frame, Color.RED):
-            cubes.append(cube)
-
-        for cube in self.__find_color_cubes(frame, Color.YELLOW):
-            cubes.append(cube)
-
-        for cube in self.__find_black_cubes(frame):
-            cubes.append(cube)
-
-        for cube in self.__find_white_cube(frame):
-            cubes.append(cube)
-
-        target_zone = self.__find_target_zone(frame)
-
-        for obstacle in self.__find_obstacles(frame):
+        for obstacle in self.__find_obstacles(cropped_image):
             obstacles.append(obstacle)
 
-        return VisionEnvironment(cubes, obstacles, target_zone)
+        for cube in cubes:
+            cube.center = (cube.center[0], cube.center[1] + table_crop.y_crop_top)
+            new_corners = []
+            for corner in cube.corners:
+                new_corners.append((corner[0], corner[1] + table_crop.y_crop_top))
+            cube.corners = new_corners
 
-    def __find_color_cubes(self, original_image, color: Color):
-        image = cv2.medianBlur(original_image, 5)
-        image = cv2.GaussianBlur(image, (5, 5), 0)
+        for obstacle in obstacles:
+            obstacle.center = (int(obstacle.center[0]), int(obstacle.center[1] + table_crop.y_crop_top))
 
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        return VisionEnvironment(cubes, obstacles)
+
+    # TODO vérifier que ça marche
+    def __validate_cube_is_present(self, frame, color: Color, cubes):
+        for cube in self.__find_color_cubes(frame, color):
+            cubes.append(cube)
+        for i in range(0, 1):
+            for cube in cubes:
+                if cube.color == color:
+                    break
+                else:
+                    for cube in self.__find_color_cubes(frame, color):
+                        cubes.append(cube)
+        return cubes
+
+    def __validate_white_cube_is_present(self, frame, cubes):
+        color = Color.WHITE
+        for cube in self.__find_color_cubes(frame, color):
+            cubes.append(cube)
+        for i in range(0, 1):
+            for cube in cubes:
+                if cube.color == color:
+                    break
+                else:
+                    for cube in self.__find_white_cubes(frame):
+                        cubes.append(cube)
+        return cubes
+
+    def __validate_red_cube_is_present(self, frame, cubes):
+        for cube in self.__find_red_cubes(frame):
+            cubes.append(cube)
+        for i in range(0, 1):
+            for cube in cubes:
+                if cube.color == Color.RED:
+                    break
+                else:
+                    for cube in self.__find_red_cubes(frame):
+                        cubes.append(cube)
+        return cubes
+
+    def __find_color_cubes(self, frame, color: Color):
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(hsv, color.lower_bound, color.upper_bound)
 
         image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
+        height, width, _ = frame.shape
+
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if 400 > cv2.arcLength(contour, True) > 200:
-                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
+            if cv2.contourArea(contour) > 1000:
+                if ((0.8 * width < x < 0.92 * width) and (y <= 0.10 * height) or
+                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
+                        ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, color)
 
-    def __find_black_cubes(self, original_image):
-        image = cv2.medianBlur(original_image, 5)
-        image = cv2.GaussianBlur(image, (5, 5), 0)
-        kernel = np.ones((5, 5), np.uint8)
+    def __find_white_cubes(self, frame):
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-        image = cv2.dilate(image, kernel, iterations=1)
-        image = cv2.erode(image, kernel, iterations=1)
+        color = Color.WHITE
+        mask = cv2.inRange(hsv, color.lower_bound, color.upper_bound)
 
-        _, thresh = cv2.threshold(image, 50, 255, cv2.THRESH_BINARY_INV)
-        image_with_contours, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+        height, width, _ = frame.shape
 
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if cv2.arcLength(contour, True) > 200:
-                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
-                    yield self.__create_cube(contour, Color.BLACK)
+            if cv2.contourArea(contour) > 600:
+                if ((0.8 * width < x < 0.92 * width) and (y <= 0.09 * height) or
+                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
+                        ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
+                    yield self.__create_cube(contour, color)
 
-    def __find_white_cube(self, original_image) -> [Cube]:
-        image = cv2.medianBlur(original_image, 5)
-        image = cv2.GaussianBlur(image, (5, 5), 0)
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    def __find_red_cubes(self, frame):
+        red = Color.RED
+        red2 = Color.RED2
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        mask = cv2.inRange(hsv, Color.WHITE.lower_bound, Color.WHITE.upper_bound)
+        red_mask = cv2.inRange(hsv, red.lower_bound, red.upper_bound)
+        red2_mask = cv2.inRange(hsv, red2.lower_bound, red2.upper_bound)
 
-        img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        mask = red_mask + red2_mask
+
+        image_with_contours, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+        height, width, _ = frame.shape
 
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if 400 > cv2.arcLength(contour, True) > 100:
-                if (x > 1040 and y < 50) or (1450 < x) or (x > 1040 and y > 640):
-                    yield self.__create_cube(contour, Color.WHITE)
+            if cv2.contourArea(contour) > 1000:
+                if ((0.8 * width < x < 0.92 * width) and (y <= 0.8 * height) or
+                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
+                        ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
+                    yield self.__create_cube(contour, Color.RED)
 
     def __create_cube(self, contour, color: Color) -> Cube:
         x, y, w, h = cv2.boundingRect(contour)
-        center = (x + w / 2, y + h / 2)
-        return Cube(center, color, [(x, y), (x + w, y + h)])
+        return Cube(color, [(x, y), (x + w, y + h)])
 
     def __find_target_zone(self, original_image) -> TargetZone:
+        hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
+
+        mask = cv2.inRange(hsv_image, Color.TARGET_ZONE_GREEN.lower_bound, Color.TARGET_ZONE_GREEN.upper_bound)
+
+        img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+        for shape in contours:
+            x = shape[0][0][0]
+            if cv2.arcLength(shape, True) > 2000 and x > 50:
+                return self.__create_target_zone(shape)
+            else:
+                break
+
         hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(hsv_image, Color.GREEN.lower_bound, Color.GREEN.upper_bound)
@@ -124,8 +178,10 @@ class WorldVision:
 
         for shape in contours:
             x = shape[0][0][0]
-            if cv2.arcLength(shape, True) > 2000 and x > 50:
+            if cv2.arcLength(shape, True) > 3000 and x > 50:
                 return self.__create_target_zone(shape)
+            else:
+                break
 
     def __create_target_zone(self, contour) -> TargetZone:
         x, y, w, h = cv2.boundingRect(contour)
@@ -133,37 +189,34 @@ class WorldVision:
         corners = [(x, y), (x + w, y + h)]
         return TargetZone(center, corners)
 
-    def __find_obstacles(self, original_image) -> [Obstacle]:
-        im = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+    def __find_obstacles(self, frame) -> [Obstacle]:
+        im = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        height, width, _ = frame.shape
 
         im = cv2.GaussianBlur(im, (5, 5), 0)
 
-        contours = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=50, maxRadius=80)
+        contours = cv2.HoughCircles(im, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=50, maxRadius=60)
 
         if contours is not None:
             for contour in contours[0]:
-                yield self.__create_obstacle(contour)
+                x = contour[0]
+                if x > 0.4 * width:
+                    print(width)
+                    print(x)
+                    yield self.__create_obstacle(contour)
 
     def __create_obstacle(self, contour) -> Obstacle:
         center = (contour[0], contour[1])
         radius = contour[2]
         return Obstacle(center, radius)
 
-    def __crop_environment(self, frame):
-        original_image = frame
+    def __crop_environment(self, frame, table_crop):
+        x = 0
+        w = 1600 - table_crop.x_crop
+        y = table_crop.y_crop_top
+        h = 1200 - table_crop.y_crop_top - table_crop.y_crop_bot
 
-        image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-        _, threshold = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
-        image_with_contours, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-        crop_img = None
-
-        for contour in contours:
-            if cv2.arcLength(contour, True) > 3000:
-                x, y, w, h = cv2.boundingRect(contour)
-                crop_img = original_image[y:y + h, x:x + w]
-
-        if crop_img is None:
-            raise VisionException('Impossible to crop image.')
+        crop_img = frame[y:y + h, x:x + w]
 
         return crop_img

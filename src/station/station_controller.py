@@ -33,7 +33,7 @@ class StationController(object):
         self.camera = camera
 
         self.country_loader = CountryLoader(config)
-        self.world_vision = WorldVision()
+        self.world_vision = WorldVision(logger, config)
         self.path_calculator = PathCalculator()
         self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
@@ -119,8 +119,8 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.vision_environment is None:
-            # self.model.frame = self.camera.take_picture()
-            self.model.vision_environment = self.world_vision.create_environment(self.model.frame)
+            self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
+                                                                                 self.config['table_number'])
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
 
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
