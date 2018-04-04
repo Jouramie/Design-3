@@ -59,10 +59,7 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
-        # self.network.ask_infrared_signal()
-        # self.network.send_end_of_task_signal()
         self.interactive_testing()
-
 
     def interactive_testing(self):
         while True:
@@ -98,11 +95,12 @@ class StationController(object):
         if self.model.robot is not None:
             self.frame_drawer.draw_robot(frame, self.model.robot)
 
-        # TODO draw navigation grid
+            # TODO draw navigation grid
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
-        self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
+        self.logger.info(
+            "Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
 
     def __select_next_cube_color(self):
         cube_index = self.model.current_cube_index
@@ -179,7 +177,6 @@ class StationController(object):
 
                 _, self.model.planned_path = self.path_converter.convert_path(
                     self.path_calculator.get_calculated_path())
-
 
             return
 
