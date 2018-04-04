@@ -42,10 +42,10 @@ class RobotController(object):
         self._logger.info('Received from STM : {}'.format(msg))
         return CommandFromStm(msg)
 
-    def send_grab_cube(self) -> bool:
+    def send_grab_cube(self):
         self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
         feedback = self.receive_command()
-        return self._validate_if_successful(feedback)
+        self._validate_if_successful(feedback)
 
     def send_drop_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.DROP_CUBE.value)
