@@ -1,5 +1,6 @@
 from logging import Logger
 
+from src.domain.objects.flag_cube import FlagCube
 from .navigation_environment_error import NavigationEnvironmentDataError
 from .real_world_environment import RealWorldEnvironment
 from ..objects.vision_cube import VisionCube
@@ -35,12 +36,12 @@ class NavigationEnvironment(object):
     def add_real_world_environment(self, real_world_environment: RealWorldEnvironment):
         self.add_cubes(real_world_environment.cubes)
         self.add_obstacles(real_world_environment.obstacles)
-        self.__add_walls()
+        #self.__add_walls()
 
-    def add_cubes(self, cubes: [VisionCube]):
+    def add_cubes(self, cubes: [FlagCube]):
         try:
             for cube in cubes:
-                point = cube.center
+                point = cube.position
                 for x in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
                     for y in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
                         self.__set_obstacle_point(x, y, point)

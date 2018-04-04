@@ -6,5 +6,8 @@ class FlagCube(object):
         self.position = position
         self.color = color
 
+    def get_3d_corners(self):
+        return [(self.position[0] + 4, self.position[1] + 4, 0), (self.position[0] - 4, self.position[1] - 4, 0)]
+
     def __eq__(self, other):
         return self.position == other.position and self.color == other.color

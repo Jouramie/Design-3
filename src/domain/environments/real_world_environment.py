@@ -16,7 +16,6 @@ class RealWorldEnvironment(object):
         self.cubes = self.convert_vision_cubes_to_real_world_environment_cubes(vision_environment.cubes)
         self.target_zone = None
 
-
     def __str__(self):
         return "Cubes: {} \nObstacles: {} \nTarget: {}".format('\n    '.join(str(c) for c in self.cubes),
                                                                '\n    '.join(str(o) for o in self.obstacles),
@@ -34,7 +33,7 @@ class RealWorldEnvironment(object):
                 return cube
         return None  # TODO raise une exception
 
-    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes) -> FlagCube:
+    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes) -> [FlagCube]:
         real_cubes = []
         cube_pixel_positions_x_list = []
         cube_pixel_positions_y_list = []
