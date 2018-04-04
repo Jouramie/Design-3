@@ -59,7 +59,6 @@ class RobotController(object):
 
     def send_movement_command(self, command: str) -> bool:
         self._channel.send_command(command.encode())
-        return self._validate_if_successful()
 
     def _validate_if_successful(self) -> bool:
         return self._validate_target(commands_from_stm.Target.TASK_SUCCESS)
@@ -70,7 +69,7 @@ class RobotController(object):
             self._logger.info('Command successfull')
             return True
         else:
-            self._logger.info('Command Unsuccessfull')
+            self._logger.info('Command Unsuccessfull, target was {}'.format(feedback_from_stm.target))
             return False
 
     def _execute_flag_sequence(self) -> None:
