@@ -104,11 +104,9 @@ class RobotController(object):
 
     def _main_loop(self) -> None:
         self.start()
-        time.sleep(2)
         while not self.task_done:
             msg = self._network.wait_message()
             if msg is not None:
                 self._network_queue.put(msg)
             self.execute()
-        time.sleep(1000)
 
