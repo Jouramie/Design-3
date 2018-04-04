@@ -10,5 +10,6 @@ class VisionEnvironment(object):
         self.target_zone = target_zone
 
     def __str__(self):
-        return "Cubes: {} \nObstacles: {} \nTarget: {}".format('', ', '.join(str(o) for o in self.obstacles),
+        return "Cubes: {} \nObstacles: {} \nTarget: {}".format('\n    '.join(str(c) for c in self.cubes),
+                                                               '\n    '.join(str(o) for o in self.obstacles),
                                                                str(self.target_zone))

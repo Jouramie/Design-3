@@ -2,7 +2,7 @@ from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathErro
 
 
 class PathCalculator(object):
-    MAX_ITERATIONS = 100000
+    MAX_ITERATIONS = 20000
     UNASSIGNED_VALUE = -1
     STEP_VALUE = 1
     END_POINT_VALUE = 0

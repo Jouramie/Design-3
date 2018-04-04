@@ -23,7 +23,8 @@ from .station_model import StationModel
 
 class StationController(object):
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
-                 table_camera_config: TableCameraConfiguration, logger: Logger, config: dict):
+                 table_camera_config: TableCameraConfiguration, coordinate_converter: CoordinateConverter,
+                 robot_detector: RobotDetector, logger: Logger, config: dict):
         self.model = model
         self.logger = logger
         self.config = config
@@ -39,9 +40,10 @@ class StationController(object):
         self.navigation_environment.create_grid()
 
         self.table_camera_config = table_camera_config
-        self.coordinate_converter = CoordinateConverter(self.table_camera_config.world_to_camera)
-        self.robot_detector = RobotDetector(self.table_camera_config.cam_param, self.coordinate_converter)
-        self.frame_drawer = FrameDrawer(self.table_camera_config.cam_param, self.coordinate_converter)
+        self.coordinate_converter = coordinate_converter
+        self.robot_detector = robot_detector
+        self.frame_drawer = FrameDrawer(self.table_camera_config.camera_parameters, self.coordinate_converter,
+                                        logger.getChild("FrameDrawer"))
 
         self.obstacle_pos = []
 
@@ -51,7 +53,7 @@ class StationController(object):
         self.model.robot_is_started = True
         self.model.start_time = time.time()
 
-        if self.config['update_robot']:
+        if self.config['robot']['update_robot']:
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
         self.logger.info("Waiting for robot to connect.")
@@ -65,23 +67,20 @@ class StationController(object):
             return None
 
     def __draw_environment(self, frame):
-        if self.model.robot is not None:
-            # self.logger.info("Robot " + str(self.model.robot))
-            self.frame_drawer.draw_robot(frame, self.model.robot)
-
-        if self.model.planned_path is not None and self.model.planned_path:
-            # self.logger.info("Planned path " + str(self.model.planned_path))
-            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
-
-        if self.model.real_path is not None and self.model.real_path:
-            # self.logger.info("Real path " + str(self.model.real_path))
-            self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
-
         if self.model.vision_environment is not None:
             self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
 
         if self.model.real_world_environment is not None:
             self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
+
+        if self.model.planned_path is not None and self.model.planned_path:
+            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
+
+        if self.model.real_path is not None and self.model.real_path:
+            self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
+
+        if self.model.robot is not None:
+            self.frame_drawer.draw_robot(frame, self.model.robot)
 
         # TODO draw navigation grid
 
@@ -113,22 +112,24 @@ class StationController(object):
             robot_center_3d = self.model.robot.get_center_3d()
             self.model.real_path.append(np.float32(robot_center_3d))
 
-        self.__draw_environment(self.model.frame)
-
         if not self.model.robot_is_started:
+            self.__draw_environment(self.model.frame)
             return
 
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.vision_environment is None:
+            # self.model.frame = self.camera.take_picture()
             self.model.vision_environment = self.world_vision.create_environment(self.model.frame)
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
 
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
-                                                                     self.table_camera_config,
                                                                      self.coordinate_converter)
+            self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
 
             self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
+
+        self.__draw_environment(self.model.frame)
 
         if not self.model.infrared_signal_asked:
             self.network.ask_infrared_signal()
@@ -143,9 +144,23 @@ class StationController(object):
                 self.__find_country()
                 self.__select_next_cube_color()
                 target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
-                # TODO find path to cube using path finding
-                is_possible = self.path_calculator.calculate_path((0, 0), (200, 0),
-                                                                  self.navigation_environment.get_grid())
+                if target_cube is None:
+                    self.logger.warning("The target cube is None. Cannot continue, exiting.")
+                    return
+
+                if self.model.robot is None:
+                    self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
+                    return
+
+                target_position = (target_cube.center[0],
+                                   target_cube.center[1] + max(self.model.robot.height, self.model.robot.width) + 10)
+                is_possible = self.path_calculator.calculate_path(
+                    self.model.robot.center, target_position, self.navigation_environment.get_grid())
+
+                if not is_possible:
+                    self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
+                    return
+
                 _, self.model.planned_path = self.path_converter.convert_path(
                     self.path_calculator.get_calculated_path())
 
