@@ -66,5 +66,5 @@ class StationView(QMainWindow):
         self.ui.CountryName.setText(self.model.country.name)
 
     def __display_next_cube_color(self):
-        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube_color.name + ';')
+        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube.color.name.lower() + ';')
         self.ui.cube_label.show()

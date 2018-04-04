@@ -103,18 +103,23 @@ class StationController(object):
 
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
-        self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.colors))
+        self.logger.info("Found " + str(self.model.country) + " flag: " + str(self.model.country.stylized_flag.flag_cubes))
 
-    def __select_next_cube_color(self) -> None:
-        """Choose the next color to be placed in the flag
-
-        """
-
-        # TODO pas retourner tout le temps le premier cube de couleur de la liste
-        for color in self.model.country.stylized_flag.colors:
-            if color is not Color.TRANSPARENT:
-                self.model.next_cube_color = color
+    def __select_next_cube_color(self):
+        cube_index = self.model.current_cube_index
+        while cube_index < 9:
+            flag_cube = self.model.country.stylized_flag.flag_cubes[cube_index]
+            if flag_cube.color is not Color.TRANSPARENT:
+                self.model.current_cube_index = cube_index + 1
+                self.model.next_cube = flag_cube
+                self.logger.info(
+                    "Found " + str(self.model.country) + " flag: "
+                    + str(self.model.country.stylized_flag.flag_cubes[cube_index]))
                 break
+            else:
+                cube_index = cube_index + 1
+        if cube_index >= 9:
+            self.model.flag_is_finish = True
 
     def update(self):
         self.model.frame = self.camera.get_frame()
@@ -153,8 +158,7 @@ class StationController(object):
                 self.model.country_code = country_received
                 self.__find_country()
                 self.__select_next_cube_color()
-                target_cube = self.model.real_world_environment.find_cube(self.model.next_cube_color)
-
+                target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
                 # TODO find path to cube using path finding
                 is_possible = self.path_calculator.calculate_path((0, 0), (200, 0),
                                                                   self.navigation_environment.get_grid())
