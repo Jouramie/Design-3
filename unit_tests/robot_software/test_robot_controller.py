@@ -12,7 +12,7 @@ class TestRobotController(TestCase):
         network_scanner = MagicMock()
         ctrl = robot_controller.RobotController(MagicMock(), network_scanner, MagicMock(), MagicMock())
 
-        ctrl.start()
+        ctrl._start()
 
         network_scanner.get_host_ip.assert_called_once()
 
@@ -24,7 +24,7 @@ class TestRobotController(TestCase):
         network_ctrl.attach_mock(Mock(return_value=dict({'command': 'end-signal'})), 'wait_message')
         ctrl = robot_controller.RobotController(MagicMock(), network_scanner, network_ctrl, MagicMock())
 
-        ctrl.start()
+        ctrl._start()
 
         network_ctrl.pair_with_host.assert_called_once_with(host_ip)
 
@@ -32,7 +32,7 @@ class TestRobotController(TestCase):
         network_ctrl = MagicMock()
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
 
-        ctrl.start()
+        ctrl._start()
 
         network_ctrl.wait_start_command.assert_called_once()
 

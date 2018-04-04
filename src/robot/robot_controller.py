@@ -1,6 +1,8 @@
 from logging import Logger
 from queue import Queue
 
+import time
+
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm
 from .hardware.command.not_a_country_command_exception import NotACountryCommandException
@@ -20,7 +22,7 @@ class RobotController(object):
         self._network_queue = Queue()
         self.task_done = False
 
-    def start(self) -> None:
+    def _start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
         self._network.pair_with_host(host_ip)
         self._network.wait_start_command()
@@ -100,8 +102,9 @@ class RobotController(object):
                 self._logger.info('Received this {} but does not know how to deal with it'.format(msg))
                 raise NotImplementedError("Please do more stuff")
 
-    def _main_loop(self) -> None:
-        self.start()
+    def main_loop(self) -> None:
+        self._start()
         while not self.task_done:
+            time.sleep(2)
             self._network_queue.put(self._network.wait_message())
             self.execute()
