@@ -1,30 +1,35 @@
 import serial
 
+from src.robot.hardware.command.stm_command_definition import commands_to_stm
 from .channel_exception import ChannelException
 
 
-class Channel:
-
+class Channel(object):
     def __init__(self, serial):
         self.serial = serial
 
-    def listen(self):
+    def receive_message(self) -> str:
         if self.serial.is_open:
-            return str(self.serial.readline())
+            return self.serial.readline()
         else:
             raise ChannelException('Serial connection not opened')
 
-    def write(self, message: bytes):
+    def send_command(self, message: bytes) -> None:
         message = bytearray(message)
-        total = 0
-        for h in message:
-            total += h
-        checksum = 0x100 - total
-        message.append(checksum)
+        message.append(self.calculate_checksum(message))
         self.serial.write(message)
 
+    def ask_repeat(self) -> None:
+        self.send_command(commands_to_stm.Command.SEND_AGAIN.value)
 
-def create_channel(port: str):
+    @staticmethod
+    def calculate_checksum(message: bytes) -> int:
+        message = bytearray(message)
+        checksum = (0x100 - message[0] - message[1] - message[2]) & 0x0FF
+        return checksum
+
+
+def create_channel(port: str) -> Channel:
     ser = serial.Serial()
     ser.port = port
     ser.baudrate = 115200

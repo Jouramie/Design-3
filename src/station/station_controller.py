@@ -56,8 +56,21 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
+        #self.interactive_testing()
 
-    def __check_infrared_signal(self):
+    def interactive_testing(self):
+        while True:
+            command = input('enter something : ir, grab, drop or end')
+            if command == 'ir':
+                self.network.ask_infrared_signal()
+            elif command == 'grab':
+                self.network.send_grab_cube()
+            elif command == 'drop':
+                self.network.send_drop_cube()
+            elif command == 'end':
+                self.network.send_end_of_task_signal()
+
+    def __check_infrared_signal(self) -> int:
         try:
             return self.network.check_infrared_signal()
         except MessageNotReceivedYet:
@@ -153,7 +166,7 @@ class StationController(object):
                 # TODO Envoyer la commande de drop du cube
                 self.logger.info("Dropping cube.")
                 self.__select_next_cube_color()
-                # self.model.robot_is_moving = True
+                self.model.robot_is_moving = True
                 self.model.robot_is_holding_cube = False
 
             else:
@@ -161,7 +174,7 @@ class StationController(object):
                     self.logger.info("Entering new step, moving to grab the cube.")
                     # TODO Envoyer la commande de déplacement au robot
                     # TODO Envoyer la commande de grab du cube
-                    # self.model.robot_is_moving = True
+                    self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True
 
@@ -186,11 +199,13 @@ class StationController(object):
                         self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
                         return
 
-                    _, self.model.planned_path = self.path_converter.convert_path(
+                    mouvements, self.model.planned_path = self.path_converter.convert_path(
                         self.path_calculator.get_calculated_path())
+                    self.logger.info("Path planned: {}".format(mouvements))
+                    self.logger.info("Path planned: {}".format(self.model.planned_path))
                     # TODO Envoyer la commande de déplacement au robot
                     self.logger.info("Path calculated, moving.")
-                    # self.model.robot_is_moving = True
+                    self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
         else:
             if self.model.light_is_lit:
@@ -200,5 +215,5 @@ class StationController(object):
                 self.logger.info("Entering new step, exiting zone to light led.")
                 # TODO Calculer le path vers l'exterieur de la zone
                 # TODO Envoyer la commande de déplacement + led
-                # self.model.robot_is_moving = True
+                self.model.robot_is_moving = True
                 self.model.light_is_lit = True

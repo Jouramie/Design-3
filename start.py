@@ -71,7 +71,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
                                                                            encoder.DictionaryEncoder())
     try:
         channel = create_channel(config['serial']['port'])
-        robot_controller.RobotController(logger, scanner, network_controller, channel).start()
+        robot_controller.RobotController(logger, scanner, network_controller, channel).main_loop()
     finally:
         if network_controller._socket is not None:
             network_controller._socket.close()
@@ -82,7 +82,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 def start_station(config: dict, logger: logging.Logger) -> None:
     if config['network']['use_mocked_network']:
         network_controller = server_network_controller.MockedServerNetworkController(
-            logger.getChild("network_controller"), config['network']['port'], encoder.Encoder())
+            logger.getChild("network_controller"))
     else:
         network_controller = server_network_controller.SocketServerNetworkController(
             logger.getChild("network_controller"), config['network']['port'], encoder.DictionaryEncoder())
