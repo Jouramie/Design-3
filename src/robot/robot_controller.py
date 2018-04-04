@@ -57,8 +57,8 @@ class RobotController(object):
     def send_seek_flag(self) -> None:
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
-    def send_movement_command(self, command: bytearray) -> bool:
-        self._channel.send_command(command)
+    def send_movement_command(self, command: str) -> bool:
+        self._channel.send_command(command.encode())
         return self._validate_if_successful()
 
     def _validate_if_successful(self) -> bool:
