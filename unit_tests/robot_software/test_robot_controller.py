@@ -80,9 +80,8 @@ class TestRobotController(TestCase):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.send_command = Mock()
-        channel.receive_message = Mock(return_value="b'\xfc\x12\x34\xbe'")
+        channel.receive_message = Mock(return_value="b'\xec\x12\x34\xce'")
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-        ctrl.send_ask_if_can_grab_cube = Mock(return_value=False)
 
         ctrl.send_grab_cube()
 
