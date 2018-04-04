@@ -118,6 +118,8 @@ class SocketServerNetworkController(ServerNetworkController):
     def send_move_command(self, command: bytearray) -> None:
         self._send_command(Command.MOVE, {'msg' : command.decode()})
 
+        self._logger.info("Commmand {} : sent!".format(command))
+
 
 class MockedServerNetworkController(ServerNetworkController):
     COUNTRY_CODE = 43
