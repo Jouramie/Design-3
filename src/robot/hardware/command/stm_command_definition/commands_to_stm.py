@@ -28,7 +28,7 @@ class Command(Enum):
     GRAB_CUBE = bytearray(b'\x6c\x12\x23')
     DROP_CUBE = bytearray(b'\xdc\x12\x23')
     CAN_GRAB_CUBE = bytearray(b'\xc4\x12\x34')
-    THE_END = bytearray(b'\xee\x12\x34')
+    LIGHT_IT_UP = bytearray(b'\xee\x12\x34')
     SEEK_FLAG = bytearray(b'\x12\x34\x56')
 
     SEND_AGAIN = bytearray(b'\x46\x41\x12')

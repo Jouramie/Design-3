@@ -52,8 +52,8 @@ class RobotController(object):
         feedback = self.receive_command()
         return self._validate_if_successful(feedback)
 
-    def send_end_signal(self) -> None:
-        self._channel.send_command(commands_to_stm.Command.THE_END.value)
+    def send_light_laide_command(self) -> None:
+        self._channel.send_command(commands_to_stm.Command.LIGHT_IT_UP.value)
         self.task_done = True
 
     def send_seek_flag(self) -> None:
@@ -70,7 +70,7 @@ class RobotController(object):
             self._logger.info('Command successfull')
             return True
         else:
-            self._logger.info('Command UNsuccessfull')
+            self._logger.info('Command Unsuccessfull')
             return False
 
     def _execute_flag_sequence(self) -> None:
@@ -95,7 +95,7 @@ class RobotController(object):
             elif msg['command'] == Command.DROP:
                 self.send_drop_cube()
             elif msg['command'] == Command.END_SIGNAL:
-                self.send_end_signal()
+                self.send_light_laide_command()
             else:
                 self._logger.info('Received this {} but does not know how to deal with it'.format(msg))
                 raise NotImplementedError("Please do more stuff")
