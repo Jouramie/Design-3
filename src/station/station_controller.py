@@ -33,7 +33,7 @@ class StationController(object):
 
         self.country_loader = CountryLoader(config)
         self.world_vision = WorldVision(logger, config)
-        self.path_calculator = PathCalculator()
+        self.path_calculator = PathCalculator(logger)
         self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.navigation_environment.create_grid()
