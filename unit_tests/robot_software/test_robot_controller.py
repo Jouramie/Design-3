@@ -93,7 +93,7 @@ class TestRobotController(TestCase):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.send_command = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Command.END_OF_TASK.value)
+        channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.send_drop_cube()
@@ -105,7 +105,7 @@ class TestRobotController(TestCase):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.send_command = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Command.END_OF_TASK.value)
+        channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
         ctrl.send_ask_if_can_grab_cube()

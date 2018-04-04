@@ -10,4 +10,4 @@ class Target(Enum):
 
 class Command(Enum):
 
-    END_OF_TASK = "b'\xfc\x12\x34\xbe'"
+    SUCCESSFULL_TASK = "b'\xfc\x12\x34\xbe'"

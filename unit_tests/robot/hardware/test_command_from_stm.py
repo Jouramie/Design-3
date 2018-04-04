@@ -12,12 +12,12 @@ class TestCommandFromStm(TestCase):
         self.assertEqual(command.command, 'fc1234be')
 
     def test_when_create_command_then_target_tracked(self):
-        command = CommandFromStm(commands_from_stm.Command.END_OF_TASK.value)
+        command = CommandFromStm(commands_from_stm.Command.SUCCESSFULL_TASK.value)
 
         self.assertEqual(command.target, commands_from_stm.Target.TASK_SUCCESS.value)
 
     def test_when_create_command_validate(self):
-        command = CommandFromStm(commands_from_stm.Command.END_OF_TASK.value)
+        command = CommandFromStm(commands_from_stm.Command.SUCCESSFULL_TASK.value)
 
         self.assertEqual(True, command._validate())
 
