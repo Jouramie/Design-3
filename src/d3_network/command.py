@@ -7,3 +7,4 @@ class Command(object):
     CAN_I_GRAB = 'can-i-grab'
     GRAB = 'grab-it'
     DROP = 'drop-it'
+    MOVE = 'move-bitch'

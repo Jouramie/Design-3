@@ -96,6 +96,8 @@ class RobotController(object):
                 self.send_drop_cube()
             elif msg['command'] == Command.END_SIGNAL:
                 self.send_end_signal()
+            elif msg['command'] == Command.MOVE:
+                self.send_movement_command(msg['msg'])
             else:
                 self._logger.info('Received this {} but does not know how to deal with it'.format(msg))
                 raise NotImplementedError("Please do more stuff")

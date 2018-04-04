@@ -67,9 +67,9 @@ class StationController(object):
             if command == 'ir':
                 self.network.ask_infrared_signal()
             elif command == 'grab':
-                self.network.send_grab_cube()
+                self.network.send_grab_cube_command()
             elif command == 'drop':
-                self.network.send_drop_cube()
+                self.network.send_drop_cube_command()
             elif command == 'end':
                 self.network.send_end_of_task_signal()
 
