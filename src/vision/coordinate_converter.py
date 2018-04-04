@@ -51,8 +51,7 @@ class CoordinateConverter:
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
 
     def project_cubes(self, cubes: [Cube]) -> [Cube]:
-        cube_center = (152, -19)
-        return [Cube(Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4), (cube_center[0] + 4, cube_center[1] + 4)])]
+        return [Cube(Color.WHITE, [(148, -23), (156, -15)])]
 
     def project_points(self, points):
         camera_to_world_parameters = self.get_camera_to_world().to_parameters()
