@@ -6,10 +6,12 @@ from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.objects.obstacle import Obstacle
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
+from src.domain.path_calculator.grid import Grid
 
 SOME_VALUE_0 = 0
 SOME_VALUE_1 = 1
 SOME_VALUE_2 = 2
+SOME_OBSTACLE_LOCATION = 50
 END_POINT_VALUE = 0
 UNASSIGNED_VALUE = -1
 
@@ -90,9 +92,12 @@ class TestPathCalculator(TestCase):
     def test_when_obstacle_then_goes_around_it(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
-        environment.add_obstacles([Obstacle((50, 50), 7)])
-        starting_point_next_to_obstacle = (50 - 23 - 7 - 1, 51)
-        ending_point_next_to_obstacle = (50 + 23 + 7, 50)
+        environment.add_obstacles([Obstacle((SOME_OBSTACLE_LOCATION, SOME_OBSTACLE_LOCATION),
+                                            NavigationEnvironment.OBSTACLE_RADIUS)])
+        starting_point_next_to_obstacle = (SOME_OBSTACLE_LOCATION + Grid.DEFAULT_OFFSET -
+                                           NavigationEnvironment.OBSTACLE_RADIUS - 1, SOME_OBSTACLE_LOCATION + 1)
+        ending_point_next_to_obstacle = (SOME_OBSTACLE_LOCATION - Grid.DEFAULT_OFFSET +
+                                         NavigationEnvironment.OBSTACLE_RADIUS, SOME_OBSTACLE_LOCATION)
         path_calculator = PathCalculator(MagicMock())
 
         path_calculator.calculate_path(starting_point_next_to_obstacle, ending_point_next_to_obstacle,
