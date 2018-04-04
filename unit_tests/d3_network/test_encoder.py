@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from src.d3_network.encoder import DictionaryEncoder
 from src.d3_network.command import Command
+from src.d3_network.encoder import DictionaryEncoder
 from src.d3_network.network_exception import MessageNotReceivedYet
 
 
@@ -54,9 +54,3 @@ class TestDictionaryEncoder(TestCase):
 
         self.assertEqual(first_message, {'msg': 'hello world'})
         self.assertEqual(second_message, {'command': 'start'})
-
-
-
-
-
-

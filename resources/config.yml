@@ -35,15 +35,17 @@ station:
       - "resources/calibration/world_calibration_6.npy"
   camera:
     use_mocked_camera: false
-    mocked_camera_image_path: "fig/saved_images/table5/13h48m53s.jpg"
-    camera_id: 0
+    mocked_camera_image_path: "fig/saved_images/table4/08h55m49s.jpg"
+    camera_id: 1
     image_width: 1600
     image_height: 1200
     image_save_dir: "fig/{date}"
   network:
     use_mocked_network: true
     port: *port
-  update_robot: false
+  robot:
+    use_mocked_robot_detector: true
+    update_robot: false
 
 cube_positions:
   table2:
