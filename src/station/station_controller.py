@@ -79,8 +79,6 @@ class StationController(object):
         if self.model.robot is not None:
             self.frame_drawer.draw_robot(frame, self.model.robot)
 
-        # TODO draw navigation grid
-
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
         self.logger.info(
@@ -133,7 +131,7 @@ class StationController(object):
             return
 
         if self.model.robot_is_moving:
-            # TODO Envoyer update de position ?
+            # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             return
 
         if self.model.country_code is None:
@@ -151,6 +149,7 @@ class StationController(object):
                 self.logger.info("Entering new step, moving to target_zone to place cube.")
                 # TODO Calculer le path vers la place dans le drapeau
                 # TODO Envoyer la commande de déplacement au robot
+                # TODO Envoyer la commande de drop du cube
                 self.logger.info("Dropping cube.")
                 self.__select_next_cube_color()
                 # self.model.robot_is_moving = True
@@ -159,8 +158,8 @@ class StationController(object):
             else:
                 if self.model.robot_is_grabbing_cube:
                     self.logger.info("Entering new step, moving to grab the cube.")
-                    # TODO send move command
-                    # TODO grab
+                # TODO Envoyer la commande de déplacement au robot
+                # TODO Envoyer la commande de grab du cube
                     # self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True

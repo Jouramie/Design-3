@@ -5,9 +5,7 @@ from ..objects.cube import Cube
 
 
 class RealWorldEnvironment(object):
-    def __init__(self, vision_environment: VisionEnvironment,
-                 coordinate_converter: CoordinateConverter):
-        # TODO déplacer dans une factory
+    def __init__(self, vision_environment: VisionEnvironment, coordinate_converter: CoordinateConverter):
         self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
         self.cubes = coordinate_converter.project_cubes(vision_environment.cubes)
         self.target_zone = None
@@ -25,6 +23,6 @@ class RealWorldEnvironment(object):
         """
         for cube in self.cubes:
             if cube.color == color:
-                # TODO remove cube from environments?
+                self.cubes.remove(cube)
                 return cube
-        return None  # TODO raise une exception
+        return None
