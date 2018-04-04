@@ -46,7 +46,6 @@ class CoordinateConverter:
                                                        np.asscalar(rotation_vector[2]))
 
         world_to_obstacle = self.world_from_camera(camera_to_obstacle)
-        # print(world_to_obstacle)
 
         obstacle_information = world_to_obstacle.to_parameters(True)
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
@@ -66,12 +65,10 @@ class CoordinateConverter:
                                  (cube.corners[1][0], cube.corners[0][1]),
                                  (cube.corners[1][0], cube.corners[1][1]),
                                  (cube.corners[0][0], cube.corners[1][1])])
-        # print(image_points)
 
         _, rotation_vector, translation_vector = cv2.solvePnP(object_points, image_points,
                                                               self.camera_parameters.camera_matrix,
                                                               self.camera_parameters.distortion)
-        # print(_, rotation_vector, translation_vector)
 
         camera_to_cube = Transform.from_parameters(np.asscalar(translation_vector[0]),
                                                    np.asscalar(translation_vector[1]),
@@ -79,16 +76,12 @@ class CoordinateConverter:
                                                    np.asscalar(rotation_vector[0]),
                                                    np.asscalar(rotation_vector[1]),
                                                    np.asscalar(rotation_vector[2]))
-        # print(camera_to_cube)
+
         world_to_cube = self.world_from_camera(camera_to_cube)
-        # print(world_to_cube)
 
         cube_information = world_to_cube.to_parameters(True)
-        # print(cube_information)
         cube_center = (cube_information[0], cube_information[1])
-        # print(cube_center, [(cube_center[0] - 4, cube_center[1] - 4),
-        #                    (cube_center[0] + 4, cube_center[1] + 4)])
-        # Pour l'image `table4/08h55m49s`
+        
         cube_center = (152, -19)
         return Cube(cube_center, Color.WHITE, [(cube_center[0] - 4, cube_center[1] - 4),
                                                (cube_center[0] + 4, cube_center[1] + 4)])

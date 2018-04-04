@@ -33,7 +33,7 @@ class StationController(object):
         self.camera = camera
 
         self.country_loader = CountryLoader(config)
-        self.world_vision = WorldVision()
+        self.world_vision = WorldVision(logger, config)
         self.path_calculator = PathCalculator()
         self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
@@ -74,15 +74,12 @@ class StationController(object):
             self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
 
         if self.model.planned_path is not None and self.model.planned_path:
-            # self.logger.info("Planned path " + str(self.model.planned_path))
             self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
 
         if self.model.real_path is not None and self.model.real_path:
-            # self.logger.info("Real path " + str(self.model.real_path))
             self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
 
         if self.model.robot is not None:
-            # self.logger.info("Robot " + str(self.model.robot))
             self.frame_drawer.draw_robot(frame, self.model.robot)
 
         # TODO draw navigation grid
@@ -121,12 +118,13 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.vision_environment is None:
-            # self.model.frame = self.camera.take_picture()
-            self.model.vision_environment = self.world_vision.create_environment(self.model.frame)
+            self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
+                                                                                 self.config['table_number'])
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
 
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
                                                                      self.coordinate_converter)
+            self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
 
             self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
 

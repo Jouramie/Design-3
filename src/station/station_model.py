@@ -1,6 +1,7 @@
-from src.domain.objects.flag_cube import FlagCube
+from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.country import Country
+from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.robot import Robot
 
 
@@ -18,7 +19,7 @@ class StationModel(object):
 
         self.robot: Robot = None
         self.vision_environment: VisionEnvironment = None
-        self.real_world_environment = None
+        self.real_world_environment: RealWorldEnvironment = None
 
         self.robot_is_started = False
         self.robot_is_moving = False

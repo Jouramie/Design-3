@@ -10,6 +10,7 @@ class RealWorldEnvironment(object):
         # TODO déplacer dans une factory
         self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
         self.cubes = coordinate_converter.project_cubes(vision_environment.cubes)
+        self.target_zone = None
 
     def __str__(self):
         return "Cubes: {} \nObstacles: {} \nTarget: {}".format('\n    '.join(str(c) for c in self.cubes),
