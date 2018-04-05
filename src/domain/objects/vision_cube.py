@@ -44,18 +44,6 @@ class VisionCube(object):
     def set_color(self, new_color):
         self.color = new_color
 
-    def get_x_adjusted(self):
-        return self.x + TableCrop.x_crop
-
-    def get_y_adjusted(self):
-        return self.y + TableCrop.y_crop
-
-    def get_w_adjusted(self):
-        return self.w + TableCrop.w_crop
-
-    def get_h_adjusted(self):
-        return self.h + TableCrop.h_crop
-
     def is_inside(self, other):
         if other.x >= self.x and other.y >= self.y and other.w >= self.w and other.h >= self.h:
             return True

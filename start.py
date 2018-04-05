@@ -95,7 +95,7 @@ def start_station(config: dict, logger: logging.Logger) -> None:
     else:
         camera = create_real_camera(config['camera'], logger.getChild("camera"))
 
-    coordinate_converter = CoordinateConverter(table_camera_config)
+    coordinate_converter = CoordinateConverter(table_camera_config, config['cube_positions']['tables']['t2'])
     if config['robot']['use_mocked_robot_detector']:
         robot_detector = MockedRobotDetector()
     else:

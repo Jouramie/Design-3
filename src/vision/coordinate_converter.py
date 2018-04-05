@@ -1,17 +1,20 @@
 import cv2
 import numpy as np
+from scipy import spatial
 
 from src.domain.objects.color import Color
 from src.domain.objects.vision_cube import VisionCube
 from src.domain.objects.obstacle import Obstacle
 from .table_camera_configuration import TableCameraConfiguration
 from .transform import Transform
+from src.domain.objects.flag_cube import FlagCube
 
 
 class CoordinateConverter:
-    def __init__(self, table_camera_config: TableCameraConfiguration):
+    def __init__(self, table_camera_config: TableCameraConfiguration, cube_dictionary: dict):
         self.world_to_camera = table_camera_config.world_to_camera
         self.camera_parameters = table_camera_config.camera_parameters
+        self.table_config_cubes = cube_dictionary
 
     def world_from_camera(self, camera_to_object: Transform):
         return self.world_to_camera.combine(camera_to_object, True)
@@ -60,3 +63,28 @@ class CoordinateConverter:
                                                 self.camera_parameters.camera_matrix, self.camera_parameters.distortion)
 
         return projected_points
+
+    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes) -> [FlagCube]:
+        real_cubes = []
+        cube_pixel_positions_x_list = []
+        cube_pixel_positions_y_list = []
+        for table_cube in self.table_config_cubes.values():
+            pixel_x = table_cube['pixel_x']
+            pixel_y = table_cube['pixel_y']
+            cube_pixel_positions_x_list.append(pixel_x)
+            cube_pixel_positions_y_list.append(pixel_y)
+        pixel_x_nparray = np.asarray(cube_pixel_positions_x_list)
+        pixel_y_nparray = np.asarray(cube_pixel_positions_y_list)
+        combined_x_y_arrays = np.dstack([pixel_x_nparray.ravel(), pixel_y_nparray.ravel()])[0]
+        tree = spatial.cKDTree(combined_x_y_arrays)
+        for vision_cube in vision_cubes:
+            dist, indexes = tree.query(vision_cube.get_center())
+            table_cube = self.table_config_cubes['cube' + str(indexes)]
+            position = (table_cube['x'], table_cube['y'])
+            color = vision_cube.get_color()
+            flag_cube = FlagCube(position, color)
+            real_cubes.append(flag_cube)
+
+        return real_cubes
+
+

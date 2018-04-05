@@ -6,6 +6,7 @@ from ..objects.vision_cube import VisionCube
 from ..objects.obstacle import Obstacle
 from ..path_calculator.grid import Grid
 from src.domain.objects.flag_cube import FlagCube
+from ..path_calculator.path_calculator import PathCalculator
 
 
 class NavigationEnvironment(object):
@@ -13,11 +14,9 @@ class NavigationEnvironment(object):
     DEFAULT_WIDTH = 111
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
-    OBSTACLE_VALUE = -2
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 7
-    # TODO Validate
-    BIGGEST_ROBOT_RADIUS = 21
+    BIGGEST_ROBOT_RADIUS = 23
 
     __width = 0
     __height = 0
@@ -39,35 +38,35 @@ class NavigationEnvironment(object):
         self.__add_walls()
 
     def add_cubes(self, cubes: [FlagCube]):
-        try:
-            for cube in cubes:
-                point = cube.center
-                for x in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
-                    for y in range(-self.CUBE_HALF_SIZE, self.CUBE_HALF_SIZE + 1):
+        for cube in cubes:
+            point = cube.center
+            for x in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
+                                                                             self.BIGGEST_ROBOT_RADIUS + 1):
+                for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
+                                                                                 self.BIGGEST_ROBOT_RADIUS + 1):
+                    try:
                         self.__set_obstacle_point(x, y, point)
 
-        except NavigationEnvironmentDataError as err:
-            self.logger.info(str(err))
-            return False
-        return True
+                    except NavigationEnvironmentDataError as err:
+                        #self.logger.info(str(err))
+                        pass
 
     # TODO clean way to add robot dimension to obstacle, radius? orientation? position?
+    # Biggest robot radius for now
 
     def add_obstacles(self, obstacles: [Obstacle]):
         for obstacle in obstacles:
-            try:
-                point = (int(obstacle.center[0]), int(obstacle.center[1]))
-                for x in range(-7, 8):
-
-                    # TODO Test and chose the best shape
-                    # Square seems to give path with less segment, but a little bit of space is lost on diagonal
-                    # Square shape obstacle
-
-                    for y in range(-7, 8):
+            point = (int(obstacle.center[0]), int(obstacle.center[1]))
+            for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
+                                                                              self.BIGGEST_ROBOT_RADIUS + 1):
+                # TODO Test and chose the best shape
+                # Square seems to give path with less segment, but a little bit of space is lost on diagonal
+                # Square shape obstacle
+                for y in range(-self.OBSTACLE_RADIUS, self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
+                    try:
                         self.__set_obstacle_point(x, y, point)
 
                     # Round shaped circle obstacle
-
             #                for y in range(-2, 3):
             #                   self.__set_obstacle_point(x, y, point)
             #          for x in range(-6, 7):
@@ -84,10 +83,9 @@ class NavigationEnvironment(object):
             #   self.__set_obstacle_point(x, 7, point)
             #  self.__set_obstacle_point(-x, -7, point)
 
-            except NavigationEnvironmentDataError as err:
-                self.logger.info(str(err))
-                return False
-        return True
+                    except NavigationEnvironmentDataError as err:
+                        #self.logger.info(str(err))
+                        pass
 
     def __add_walls(self):
         no_go_size = self.BIGGEST_ROBOT_RADIUS + 1
@@ -117,14 +115,14 @@ class NavigationEnvironment(object):
         self.__add_grid_obstacle(perimeter_point)
 
     def __add_grid_obstacle(self, point):
-        self.__grid.get_vertex(point).set_step_value(self.OBSTACLE_VALUE)
+        self.__grid.get_vertex(point).set_step_value(PathCalculator.OBSTACLE_VALUE)
         for connection in self.__grid.get_vertex(point).get_connections():
             self.__grid.get_vertex(connection.get_id()).set_new_weight(
                 self.__grid.get_vertex(point), self.INFINITY_WEIGHT)
             for connection_decay in self.__grid.get_vertex(connection.get_id()).get_connections():
                 if not self.__grid.get_vertex(
-                        connection_decay.get_id()).get_step_value() == self.OBSTACLE_VALUE and \
-                        not self.__grid.get_vertex(connection.get_id()).get_step_value() == self.OBSTACLE_VALUE:
+                        connection_decay.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE and \
+                        not self.__grid.get_vertex(connection.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE:
                     self.__grid.get_vertex(connection_decay.get_id()).set_new_weight(
                         self.__grid.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
 

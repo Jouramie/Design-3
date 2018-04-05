@@ -33,7 +33,7 @@ class StationController(object):
 
         self.country_loader = CountryLoader(config)
         self.world_vision = WorldVision(logger, config)
-        self.path_calculator = PathCalculator()
+        self.path_calculator = PathCalculator(logger)
         self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.navigation_environment.create_grid()
@@ -125,15 +125,14 @@ class StationController(object):
 
         self.model.passed_time = time.time() - self.model.start_time
 
-        if self.model.vision_environment is None:
+        if self.model.real_world_environment is None:
             # self.camera.take_picture()
             self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
                                                                                  self.config['table_number'])
             self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
 
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
-                                                                     self.coordinate_converter,
-                                                                     self.config['cube_positions']['tables']['t2'])
+                                                                     self.coordinate_converter)
 
             self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
 
@@ -190,6 +189,7 @@ class StationController(object):
                     if self.model.robot is None:
                         self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                         return
+                    self.logger.info("Robot: {}".format(self.model.robot))
 
                     target_position = (int(target_cube.center[0]),
                                        int(target_cube.center[1] + max(self.model.robot.height,
@@ -201,8 +201,10 @@ class StationController(object):
                         self.logger.warning("Path to the cube is not possible.\n Target: {}".format(target_position))
                         return
 
-                    _, self.model.planned_path = self.path_converter.convert_path(
-                        self.path_calculator.get_calculated_path())
+                    movements, self.model.planned_path = self.path_converter.convert_path(
+                        self.path_calculator.get_calculated_path(), self.model.robot)
+                    self.logger.info("Path planned: {}".format(movements))
+                    self.logger.info("Path planned: {}".format(self.model.planned_path))
                     # TODO Envoyer la commande de déplacement au robot
                     self.logger.info("Path calculated, moving.")
                     self.model.robot_is_moving = True

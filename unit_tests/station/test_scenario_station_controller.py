@@ -3,6 +3,10 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from src.d3_network.server_network_controller import MockedServerNetworkController
+from src.domain.environments.real_world_environment import RealWorldEnvironment
+from src.domain.objects.color import Color
+from src.domain.objects.flag_cube import FlagCube
+from src.domain.objects.obstacle import Obstacle
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
 from src.vision.camera import MockedCamera
@@ -114,6 +118,10 @@ SCENARIO_1 = {
 SCENARIO_2 = {
     'network_country_code': 31,
     'infrared_signal_asked': True,
+    'real_world': {
+        'cubes': [FlagCube((152, -19), Color.WHITE)],
+        'obstacles': [Obstacle((97.45940399169922, 1.5616950988769531), 7)]
+    },
 
     'config': {
         'table_number': 4,
@@ -163,7 +171,7 @@ class TestScenarioStationController(TestCase):
         table_camera_config = table_camera_config_factory.create(scenario['config']['table_number'])
 
         camera = MockedCamera(scenario['config']['camera']['mocked_camera_image_path'], self.logger)
-        coordinate_converter = CoordinateConverter(table_camera_config)
+        coordinate_converter = CoordinateConverter(table_camera_config, scenario['config']['cube_positions']['tables']['t2'])
 
         robot_detector = MockedRobotDetector()
 
@@ -175,6 +183,10 @@ class TestScenarioStationController(TestCase):
             server_network_controller.COUNTRY_CODE = scenario['network_country_code']
         if 'infrared_signal_asked' in scenario:
             station_model.infrared_signal_asked = scenario['infrared_signal_asked']
+        if 'real_world' in scenario:
+            real_world = RealWorldEnvironment(MagicMock(), MagicMock())
+            real_world.cubes = scenario['real_world']['cubes']
+            real_world.obstacles = scenario['real_world']['obstacles']
 
         station_controller.start_robot()
 
