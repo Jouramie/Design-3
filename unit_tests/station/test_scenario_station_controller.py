@@ -100,8 +100,8 @@ CUBE_POSITION = {
 }
 
 
-
 SCENARIO_1 = {
+    'network_country_code': 31,
     'config': {
         'table_number': 4,
         'resources_path': RESOURCES_PATH,
@@ -109,7 +109,10 @@ SCENARIO_1 = {
             'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
         },
         'robot': {
-            'update_robot': False
+            'update_robot': False,
+            'use_mocked_robot_detector': False,
+            'mocked_robot_position': [15, 15],
+            'mocked_robot_orientation': 45
         },
         'cube_positions': CUBE_POSITION
     }
@@ -130,7 +133,10 @@ SCENARIO_2 = {
             'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
         },
         'robot': {
-            'update_robot': False
+            'update_robot': False,
+            'use_mocked_robot_detector': False,
+            'mocked_robot_position': [15, 15],
+            'mocked_robot_orientation': 45
         },
         'cube_positions': CUBE_POSITION
     }
@@ -163,7 +169,7 @@ class TestScenarioStationController(TestCase):
 
     def __create_station_controller(self, scenario: dict) -> (StationModel, StationController):
         station_model = StationModel()
-        server_network_controller = MockedServerNetworkController(self.logger)
+        server_network_controller = MockedServerNetworkController(self.logger, scenario['network_country_code'])
 
         table_camera_config_factory = TableCameraConfigurationFactory(
             scenario['config']['resources_path']['camera_calibration'],
@@ -173,14 +179,15 @@ class TestScenarioStationController(TestCase):
         camera = MockedCamera(scenario['config']['camera']['mocked_camera_image_path'], self.logger)
         coordinate_converter = CoordinateConverter(table_camera_config, scenario['config']['cube_positions']['tables']['t2'])
 
-        robot_detector = MockedRobotDetector()
+        robot_detector = MockedRobotDetector(
+            (scenario['config']['robot']['mocked_robot_position'][0],
+             scenario['config']['robot']['mocked_robot_position'][1]),
+            scenario['config']['robot']['mocked_robot_orientation'])
 
         station_controller = StationController(station_model, server_network_controller, camera, coordinate_converter,
                                                robot_detector, self.logger, scenario['config'])
         station_controller.frame_drawer = MagicMock()
 
-        if 'network_country_code' in scenario:
-            server_network_controller.COUNTRY_CODE = scenario['network_country_code']
         if 'infrared_signal_asked' in scenario:
             station_model.infrared_signal_asked = scenario['infrared_signal_asked']
         if 'real_world' in scenario:
