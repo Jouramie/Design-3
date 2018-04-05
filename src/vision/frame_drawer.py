@@ -88,6 +88,7 @@ class FrameDrawer(object):
             self.__project_and_draw_real_obstacle(frame, obstacle)
         for cube in real_world_environment.cubes:
             self.__project_and_draw_real_cube(frame, cube)
+        self.__project_and_draw_target_zone(frame)
 
     def __project_and_draw_real_obstacle(self, frame, obstacle: Obstacle) -> None:
         real_positions = np.array([(obstacle.center[0], obstacle.center[1], 0.0),
@@ -104,4 +105,12 @@ class FrameDrawer(object):
         image_positions = self.coordinate_converter.project_points(real_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr,
+                      thickness=3)
+
+    def __project_and_draw_target_zone(self, frame):
+        target_zone_corners = [(0.0, 0.0, 0), (66.2, 66.2, 0)]
+        real_positions = np.array(target_zone_corners, 'float32')
+        image_positions = self.coordinate_converter.project_points(real_positions)
+
+        cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), Color.TARGET_ZONE_GREEN.bgr,
                       thickness=3)

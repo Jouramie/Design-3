@@ -54,8 +54,7 @@ station:
   cube_positions:
     tables:
       target_zone:
-        x: 66.2
-        y: 66.2
+        length: 66.2
       t2:
         cube0:
           x: 166.5
