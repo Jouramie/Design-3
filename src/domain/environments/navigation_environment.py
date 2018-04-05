@@ -58,30 +58,10 @@ class NavigationEnvironment(object):
             point = (int(obstacle.center[0]), int(obstacle.center[1]))
             for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
                                                                               self.BIGGEST_ROBOT_RADIUS + 1):
-                # TODO Test and chose the best shape
-                # Square seems to give path with less segment, but a little bit of space is lost on diagonal
                 # Square shape obstacle
                 for y in range(-self.OBSTACLE_RADIUS, self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
                     try:
                         self.__set_obstacle_point(x, y, point)
-
-                    # Round shaped circle obstacle
-                    #                for y in range(-2, 3):
-                    #                   self.__set_obstacle_point(x, y, point)
-                    #          for x in range(-6, 7):
-                    #             for y in range(3, 5):
-                    #                self.__set_obstacle_point(x, y, point)
-                    #               self.__set_obstacle_point(-x, -y, point)
-                    #      for x in range(-5, 6):
-                    #         self.__set_obstacle_point(x, 5, point)
-                    #        self.__set_obstacle_point(-x, -5, point)
-                    #   for x in range(-4, 5):
-                    #      self.__set_obstacle_point(x, 6, point)
-                    #     self.__set_obstacle_point(-x, -6, point)
-                    # for x in range(-2, 3):
-                    #   self.__set_obstacle_point(x, 7, point)
-                    #  self.__set_obstacle_point(-x, -7, point)
-
                     except NavigationEnvironmentDataError as err:
                         # self.logger.info(str(err))
                         pass
@@ -134,23 +114,3 @@ class NavigationEnvironment(object):
 
     def get_grid(self):
         return self.__grid
-
-    def print_grid_steps(self):
-        for y in range(self.__height):
-            for x in range(self.__width):
-                self.logger.info(str(self.__grid.get_vertex((x, y)).get_step_value()) + " ")
-            self.logger.info('\n')
-
-    def print_grid_connections(self):
-        for y in range(self.__height):
-            for x in range(self.__width):
-                self.logger.info(str(self.__grid.get_vertex((x, y)).get_id()) + " Edges::")
-                for connection in self.__grid.get_vertex((x, y)).get_connections():
-                    self.logger.info(str(connection.get_id()) + " W=")
-                    self.logger.info(str(self.__grid.get_vertex((x, y)).get_neighbor_weight(
-                        self.__grid.get_vertex(connection.get_id()))) + " : ")
-                self.logger.info('\n')
-        return
-
-    def reset_to_default(self):
-        self.__grid.reset_graph()

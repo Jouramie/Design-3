@@ -10,7 +10,7 @@ class StationModel(object):
         self.start_time = 0
         self.passed_time = 0
 
-        self.country: Country = "Country not yet selected"
+        self.country: Country = None
         self.country_code: int = None
         self.current_cube_index = 0
         self.next_cube: FlagCube = None
