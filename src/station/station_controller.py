@@ -23,6 +23,8 @@ from .station_model import StationModel
 
 
 class StationController(object):
+    DISTANCE_FROM_CUBE = NavigationEnvironment.BIGGEST_ROBOT_RADIUS + 5
+
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
                  coordinate_converter: CoordinateConverter, robot_detector: RobotDetector, logger: Logger,
                  config: dict):
@@ -196,14 +198,15 @@ class StationController(object):
                     return
                 self.logger.info("Robot: {}".format(self.model.robot))
 
-                cube_destination = self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index].center
-                target_position = cube_destination[0] + self.model.robot.width / 2, cube_destination[1]
+                cube_destination = self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1].center
+                target_position = cube_destination[0], cube_destination[1]
+                self.logger.info("Target position: {}".format(str(target_position)))
                 is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
                                                                   self.navigation_environment.get_grid())
 
                 if not is_possible:
                     self.logger.warning(
-                        "Path to infra-red reception is not possible.\n Target: {}".format(target_position))
+                        "Path to target_zone is not possible.\n Target: {}".format(target_position))
                     return
 
                 movements, self.model.planned_path = self.path_converter.convert_path(
@@ -240,21 +243,24 @@ class StationController(object):
                         self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                         return
                     self.logger.info("Robot: {}".format(self.model.robot))
-                    
+
                     if target_cube.center[1] < Grid.DEFAULT_OFFSET + 5:
                         self.logger.info("Le cube {} est en bas.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),
-                                           int(target_cube.center[1] + NavigationEnvironment.BIGGEST_ROBOT_RADIUS + 10))
+                                           int(target_cube.center[1] + self.DISTANCE_FROM_CUBE))
+                        desired_direction = Direction.SOUTH
                         pass
                     elif target_cube.center[1] > NavigationEnvironment.DEFAULT_WIDTH + Grid.DEFAULT_OFFSET - 10:
                         self.logger.info("Le cube {} est en haut.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),
-                                           int(target_cube.center[1] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10))
+                                           int(target_cube.center[1] - self.DISTANCE_FROM_CUBE))
+                        desired_direction = Direction.EAST
                         pass
                     elif target_cube.center[0] > NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET - 5:
                         self.logger.info("Le cube {} est au fond.".format(str(target_cube)))
-                        target_position = (int(target_cube.center[0] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10),
+                        target_position = (int(target_cube.center[0] - self.DISTANCE_FROM_CUBE),
                                            int(target_cube.center[1]))
+                        desired_direction = Direction.NORTH
                         pass
                     else:
                         self.logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
@@ -268,14 +274,14 @@ class StationController(object):
                         return
 
                     movements, self.model.planned_path = self.path_converter.convert_path(
-                        self.path_calculator.get_calculated_path(), self.model.robot)
+                        self.path_calculator.get_calculated_path(), self.model.robot, desired_direction)
                     self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
                     # TODO Envoyer la commande de déplacement au robot
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
                     if self.config['robot']['use_mocked_robot_detector']:
                         self.robot_detector.robot_position = target_position
-                        self.robot_detector.robot_direction = 0
+                        self.robot_detector.robot_direction = desired_direction.angle
         else:
             if self.model.light_is_lit:
                 self.logger.info("Entering new step, reseting for next flag.")
