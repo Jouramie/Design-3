@@ -60,7 +60,8 @@ class NavigationEnvironment(object):
             for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
                                                                               self.BIGGEST_ROBOT_RADIUS + 1):
                 # Square shape obstacle
-                for y in range(-self.OBSTACLE_RADIUS, self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
+                for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
+                                                                                  self.BIGGEST_ROBOT_RADIUS + 1):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:

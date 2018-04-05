@@ -18,6 +18,7 @@ class PathCalculator(object):
         self.logger = logger
         self.__last_node = 0
         self.__current_node = 0
+        self.__last_direction = None
 
     def calculate_path(self, starting_point: tuple, ending_point: tuple, grid: Grid):
         try:
@@ -54,6 +55,7 @@ class PathCalculator(object):
     def __find_gluttonous_path(self, starting_point, ending_point):
         iteration_count = 0
         self.__last_node = 0
+        self.__last_direction = None
         self.__current_node = starting_point
         self.__path.append(self.__current_node)
 
@@ -67,12 +69,16 @@ class PathCalculator(object):
             return True
 
     def __find_nodes(self):
-        gluttonous_path = False
-        connection_count = 0
-        next_node = 0
+        if self.__last_direction is not None:
+            fast_track_vertex = (self.__grid.get_vertex(self.__current_node).get_id()[0] + self.__last_direction[0],
+                                 self.__grid.get_vertex(self.__current_node).get_id()[1] + self.__last_direction[1])
+
+            if self.__grid.get_vertex(fast_track_vertex).get_step_value() == self.__grid.get_vertex(
+                    self.__current_node).get_step_value() - self.STEP_VALUE:
+                self.__add_node_to_path(fast_track_vertex)
+                return
 
         for connection in self.__grid.get_vertex(self.__current_node).get_connections():
-            connection_count += 1
             connection_id = connection.get_id()
             neighbor_connection_weight = self.__grid.get_vertex(self.__current_node).get_neighbor_weight(
                 self.__grid.get_vertex(connection_id))
@@ -83,18 +89,14 @@ class PathCalculator(object):
 
                 # Always go for safe move
                 if neighbor_connection_weight == self.DEFAULT_WEIGHT:
-                    gluttonous_path = True
-                    next_node = connection_id
-
-            # Section to set next node (Gluttonous)
-            if gluttonous_path:
-                self.__add_node_to_path(next_node)
-                break
+                    self.__add_node_to_path(connection_id)
+                    return
 
     def __add_node_to_path(self, next_node):
         self.__last_node = self.__path[-1]
         self.__current_node = next_node
         self.__path.append(next_node)
+        self.__last_direction = (self.__current_node[0] - self.__last_node[0], self.__current_node[1] - self.__last_node[1])
 
     def __set_grid(self, grid):
         if not grid:
