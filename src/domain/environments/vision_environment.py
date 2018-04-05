@@ -1,9 +1,9 @@
-from ..objects.cube import Cube
 from ..objects.obstacle import Obstacle
+from ..objects.vision_cube import VisionCube
 
 
 class VisionEnvironment(object):
-    def __init__(self, cubes: [Cube], obstacles: [Obstacle]):
+    def __init__(self, cubes: [VisionCube], obstacles: [Obstacle]):
         self.cubes = cubes
         self.obstacles = obstacles
 

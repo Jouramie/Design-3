@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from src.d3_network.server_network_controller import MockedServerNetworkController
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
-from src.domain.objects.cube import Cube
+from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.obstacle import Obstacle
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
@@ -34,6 +34,73 @@ RESOURCES_PATH = {
 
 }
 
+CUBE_POSITION = {
+    'tables':{
+      'target_zone': {
+        'x': 66.2,
+        'y': 66.2
+      },
+      't2':{
+        'cube0':{
+          'x': 166.5,
+          'y': 84.5,
+          'pixel_x': 1360,
+          'pixel_y': 240
+        },
+        'cube1':{
+          'x': 180.5,
+          'y': 84.5,
+          'pixel_x': 1453,
+          'pixel_y': 240
+        },
+        'cube2':{
+          'x': 203.5,
+          'y': 60.5,
+          'pixel_x': 1575,
+          'pixel_y': 402
+        },
+        'cube3':{
+          'x': 203.5,
+          'y': 46.5,
+          'pixel_x': 1575,
+          'pixel_y': 501
+        },
+        'cube4':{
+          'x': 203.5,
+          'y': 32.5,
+          'pixel_x': 1575,
+          'pixel_y': 600
+        },
+        'cube5':{
+          'x': 203.5,
+          'y': 18.5,
+          'pixel_x': 1575,
+          'pixel_y': 700
+        },
+        'cube6': {
+          'x': 203.5,
+          'y': 4.5,
+          'pixel_x': 1575,
+          'pixel_y': 800
+        },
+          'cube7':{
+          'x': 180.5,
+          'y': -19.5,
+          'pixel_x': 1424,
+          'pixel_y': 960
+          },
+        'cube8' : {
+          'x': 166.5,
+          'y': -19.5,
+          'pixel_x': 1350,
+          'pixel_y': 960
+        }
+      }
+    }
+}
+
+
+
 SCENARIO_1 = {
     'config': {
         'table_number': 4,
@@ -43,7 +110,8 @@ SCENARIO_1 = {
         },
         'robot': {
             'update_robot': False
-        }
+        },
+        'cube_positions': CUBE_POSITION
     }
 }
 
@@ -51,7 +119,7 @@ SCENARIO_2 = {
     'network_country_code': 31,
     'infrared_signal_asked': True,
     'real_world': {
-        'cubes': [Cube(Color.WHITE, [(148, -23), (156, -15)])],
+        'cubes': [FlagCube((152, -19), Color.WHITE)],
         'obstacles': [Obstacle((97.45940399169922, 1.5616950988769531), 7)]
     },
 
@@ -63,7 +131,8 @@ SCENARIO_2 = {
         },
         'robot': {
             'update_robot': False
-        }
+        },
+        'cube_positions': CUBE_POSITION
     }
 }
 
@@ -102,7 +171,7 @@ class TestScenarioStationController(TestCase):
         table_camera_config = table_camera_config_factory.create(scenario['config']['table_number'])
 
         camera = MockedCamera(scenario['config']['camera']['mocked_camera_image_path'], self.logger)
-        coordinate_converter = CoordinateConverter(table_camera_config)
+        coordinate_converter = CoordinateConverter(table_camera_config, scenario['config']['cube_positions']['tables']['t2'])
 
         robot_detector = MockedRobotDetector()
 

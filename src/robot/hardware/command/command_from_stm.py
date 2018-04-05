@@ -23,7 +23,9 @@ class CommandFromStm(object):
     def _validate(self):
         calculated_checksum = (0x100 - self.target - self.info - self.info2) & 0x0FF
         if self.checksum != calculated_checksum:
-            raise MessageCorruptedException('Message could not be validated. Calculated checksum : {}, current checksum : {}'.format(hex(calculated_checksum), hex(self.checksum)))
+            raise MessageCorruptedException(
+                'Message could not be validated. Calculated checksum : {}, current checksum : {}'.format(
+                    hex(calculated_checksum), hex(self.checksum)))
         if self.target not in Target.STM_COMMANDS.value:
             raise MessageCorruptedException('Target is not defined')
         else:
