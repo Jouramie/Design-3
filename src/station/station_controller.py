@@ -11,6 +11,7 @@ from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
 from src.domain.path_calculator.direction import Direction
+from src.domain.path_calculator.grid import Grid
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
@@ -239,24 +240,24 @@ class StationController(object):
                         self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                         return
                     self.logger.info("Robot: {}".format(self.model.robot))
-
-                    if target_cube.center[1] < -10:
-                        # Cube en bas
+                    
+                    if target_cube.center[1] < Grid.DEFAULT_OFFSET + 5:
+                        self.logger.info("Le cube {} est en bas.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),
                                            int(target_cube.center[1] + NavigationEnvironment.BIGGEST_ROBOT_RADIUS + 10))
                         pass
-                    elif target_cube.center[1] > 80:
-                        # Cube en haut
+                    elif target_cube.center[1] > NavigationEnvironment.DEFAULT_WIDTH + Grid.DEFAULT_OFFSET - 10:
+                        self.logger.info("Le cube {} est en haut.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),
                                            int(target_cube.center[1] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10))
                         pass
-                    elif target_cube.center[0] > 195:
-                        # Cube au fond
+                    elif target_cube.center[0] > NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET - 5:
+                        self.logger.info("Le cube {} est au fond.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10),
                                            int(target_cube.center[1]))
                         pass
                     else:
-                        self.logger.warning("Le cube n'est pas à la bonne place")
+                        self.logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
                         return
 
                     is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
