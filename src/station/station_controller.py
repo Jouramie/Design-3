@@ -74,17 +74,17 @@ class StationController(object):
             elif command == 'end':
                 self.network.send_end_of_task_signal()
             elif command == 'forward':
-                self.network.send_move_forward_command(Forward(30))
+                self.network.send_move_command(Forward(30))
             # elif command == 'mover':
             #     self.network.send_move_command()
             # elif command == 'movel':
             #     self.network.send_move_command(StmCommandBuilder().left(100))
             elif command == 'backward':
-                self.network.send_move_backward_command(Backward(30))
+                self.network.send_move_command(Backward(30))
             elif command == 'rotatec':
-                self.network.send_rotate_command(Rotate(-90))
+                self.network.send_move_command(Rotate(-90))
             elif command == 'rotatecc':
-                self.network.send_rotate_command(Rotate(90))
+                self.network.send_move_command(Rotate(90))
 
     def __check_infrared_signal(self) -> int:
         try:
