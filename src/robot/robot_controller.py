@@ -1,12 +1,11 @@
+import time
 from logging import Logger
 from queue import Queue
 
-import time
-
-from .hardware.command.stm_command_builder import StmCommandBuilder
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm
 from .hardware.command.not_a_country_command_exception import NotACountryCommandException
+from .hardware.command.stm_command_builder import StmCommandBuilder
 from .hardware.command.stm_command_definition import commands_from_stm
 from .hardware.command.stm_command_definition import commands_to_stm
 from ..d3_network.client_network_controller import ClientNetworkController

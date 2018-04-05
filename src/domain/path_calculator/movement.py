@@ -14,7 +14,7 @@ class Rotate(Movement):
         super().__init__(amplitude)
 
     def __str__(self):
-        return "rotation: {}".format(self.amplitude)
+        return "move-rotate: {}".format(self.amplitude)
 
 
 class Forward(Movement):
@@ -22,7 +22,7 @@ class Forward(Movement):
         super().__init__(amplitude)
 
     def __str__(self):
-        return "forward: {}".format(self.amplitude)
+        return "move-forward: {}".format(self.amplitude)
 
 
 class Backward(Movement):
@@ -30,4 +30,19 @@ class Backward(Movement):
         super().__init__(amplitude)
 
     def __str__(self):
-        return "backward: {}".format(self.amplitude)
+        return "move-backward: {}".format(self.amplitude)
+
+class Left(Movement):
+    def __init__(self, amplitude):
+        super().__init__(amplitude)
+
+    def __str__(self):
+        return "move-right: {}".format(self.amplitude)
+
+class Right(Movement):
+    def __init__(self, amplitude):
+        super().__init__(amplitude)
+
+    def __str__(self):
+        return "move-left: {}".format(self.amplitude)
+

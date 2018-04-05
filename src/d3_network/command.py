@@ -10,3 +10,5 @@ class Command(object):
     MOVE_FORWARD = 'move-forward'
     MOVE_BACKWARD = 'move-backward'
     MOVE_ROTATE = 'move-rotate'
+    MOVE_RIGHT = 'move-right'
+    MOVE_LEFT = 'move-left'

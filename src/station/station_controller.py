@@ -64,6 +64,7 @@ class StationController(object):
     def interactive_testing(self):
         while True:
             command = input('enter something:ir, grab, drop, light, forward, backward, rotate')
+
             if command == 'ir':
                 self.network.ask_infrared_signal()
                 self.__check_infrared_signal()
