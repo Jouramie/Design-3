@@ -70,7 +70,7 @@ class TestPathCalculator(TestCase):
 
         self.assertEqual(expected, path_calculator.get_calculated_path())
 
-    def test_when_calculating_then_recommend_foward(self):
+    def test_when_calculating_then_recommend_forward(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
         environment.add_obstacles([Obstacle(SPECIFIC_OBSTACLE_1_VALUE, NavigationEnvironment.OBSTACLE_RADIUS),
