@@ -49,12 +49,15 @@ class CountryLoader(object):
                 flag_cube = FlagCube((world_position_x, world_position_y), color)
                 flag_cubes.append(flag_cube)
                 pixel_position_x = pixel_position_x + NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
-                world_position_x = world_position_x + DISTANCE_BETWEEN_TWO_CUBES
+                world_position_y = world_position_y - DISTANCE_BETWEEN_TWO_CUBES
 
             pixel_position_x = 16
-            world_position_x = 5
+            world_position_y = 61
             pixel_position_y = pixel_position_y - NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
-            world_position_y = world_position_y - DISTANCE_BETWEEN_TWO_CUBES
+            world_position_x = world_position_x + DISTANCE_BETWEEN_TWO_CUBES
+
+
+
 
         return StylizedFlag(flag_cubes)
 
