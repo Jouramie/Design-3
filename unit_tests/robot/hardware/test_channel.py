@@ -18,12 +18,12 @@ class TestChannel(TestCase):
         self.drop_cube_checksum = 0xef
 
     def test_when_listen_then_calls_readline(self):
-        self.serial.readline = Mock(return_value=self.message)
+        self.serial.read = Mock(return_value=self.message)
         channel = Channel(self.serial)
 
         channel.receive_message()
 
-        self.serial.readline.assert_called_once()
+        self.serial.read.assert_called_with(4)
 
     def test_when_closed_listen_raises_exception(self):
         self.serial.isOpen = Mock(return_value=False)

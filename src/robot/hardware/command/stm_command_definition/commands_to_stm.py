@@ -29,14 +29,3 @@ class Command(Enum):
     SEEK_FLAG = bytearray(b'\x12\x34\x56')
 
     SEND_AGAIN = bytearray(b'\x46\x41\x12')
-
-
-class Angle(Enum):
-    NORTH = 90
-    NORTH_WEST = 135
-    WEST = 180
-    SOUTH_WEST = 225
-    SOUTH = 270
-    SOUTH_EAST = 315
-    EAST = 0
-    NORTH_EAST = 45

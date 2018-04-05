@@ -10,6 +10,7 @@ from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
+from src.domain.path_calculator.movement import Forward, Backward, Rotate
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.grid import Grid
 from src.domain.path_calculator.path_calculator import PathCalculator
@@ -61,15 +62,29 @@ class StationController(object):
 
     def interactive_testing(self):
         while True:
-            command = input('enter something : ir, grab, drop or end')
+            command = input('enter something:ir, grab, drop, light, forward, backward, rotate')
+
             if command == 'ir':
                 self.network.ask_infrared_signal()
+                self.__check_infrared_signal()
             elif command == 'grab':
-                self.network.send_grab_cube()
+                self.network.send_grab_cube_command()
             elif command == 'drop':
-                self.network.send_drop_cube()
+                self.network.send_drop_cube_command()
             elif command == 'end':
                 self.network.send_end_of_task_signal()
+            elif command == 'forward':
+                self.network.send_move_command(Forward(30))
+            # elif command == 'mover':
+            #     self.network.send_move_command()
+            # elif command == 'movel':
+            #     self.network.send_move_command(StmCommandBuilder().left(100))
+            elif command == 'backward':
+                self.network.send_move_command(Backward(30))
+            elif command == 'rotatec':
+                self.network.send_move_command(Rotate(-90))
+            elif command == 'rotatecc':
+                self.network.send_move_command(Rotate(90))
 
     def __check_infrared_signal(self) -> int:
         try:
@@ -240,7 +255,7 @@ class StationController(object):
                         self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                         return
                     self.logger.info("Robot: {}".format(self.model.robot))
-                    
+
                     if target_cube.center[1] < Grid.DEFAULT_OFFSET + 5:
                         self.logger.info("Le cube {} est en bas.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),

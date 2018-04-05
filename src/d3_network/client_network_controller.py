@@ -1,6 +1,6 @@
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM, timeout
-from time import sleep
+import time
 
 from .command import Command
 from .encoder import Encoder
@@ -38,8 +38,6 @@ class ClientNetworkController(NetworkController):
                 msg = self._receive_message()
             except MessageNotReceivedYet:
                 self._logger.info('Waiting for start command.')
-                sleep(1)
-
         self._logger.info(msg)
 
         if msg['command'] == Command.START:
@@ -55,7 +53,7 @@ class ClientNetworkController(NetworkController):
                 msg = self._receive_message()
             except MessageNotReceivedYet:
                 self._logger.info('Waiting for infrared signal.')
-                sleep(1)
+                time.sleep(1)
 
         self._logger.info(msg)
 
@@ -76,5 +74,6 @@ class ClientNetworkController(NetworkController):
                 msg = self._receive_message()
             except MessageNotReceivedYet:
                 self._logger.info('Waiting for a command.')
+                time.sleep(1)
         self._logger.info(msg)
         return msg

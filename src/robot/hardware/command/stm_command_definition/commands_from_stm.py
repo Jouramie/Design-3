@@ -9,4 +9,6 @@ class Target(Enum):
 
 
 class Command(Enum):
-    SUCCESSFULL_TASK = "b'\xfc\x12\x34\xbe'"
+
+    SUCCESSFULL_TASK = bytearray(b'\xfc\x12\x34\xbe')
+    UNSUCCESSFULL_TASK = bytearray(b'\xec\x12\x34\xce')
