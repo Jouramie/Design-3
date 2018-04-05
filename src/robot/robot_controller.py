@@ -59,17 +59,17 @@ class RobotController(object):
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
     def send_movement_command_to_stm(self, movement: dict):
-        command_to_stm = None
-        if movement['command'] == 'forward':
-            command_to_stm = StmCommandBuilder().forward(movement['amplitude'])
-        elif movement['command'] == 'backward':
-            command_to_stm = StmCommandBuilder().backward(movement['amplitude'])
-        elif movement['command'] == 'rotate':
-            command_to_stm = StmCommandBuilder().rotate(movement['amplitude'])
+        if movement['command'] == Command.MOVE_FORWARD:
+            self._channel.send_command(StmCommandBuilder().forward(movement['amplitude']))
+            self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
+        elif movement['command'] == Command.MOVE_BACKWARD:
+            self._channel.send_command(StmCommandBuilder().backward(movement['amplitude']))
+            self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
+        elif movement['command'] == Command.MOVE_ROTATE_CLOCKWISE:
+            self._channel.send_command(StmCommandBuilder().rotate(movement['amplitude']))
+            self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         else:
-            raise NotImplementedError('Command not implemented')
-        self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
-        self._channel.send_command(command_to_stm)
+            raise NotImplementedError('Command not implemented on stm')
 
     def _validate_if_successful(self) -> bool:
         return self._validate_target(commands_from_stm.Target.TASK_SUCCESS)
@@ -96,6 +96,7 @@ class RobotController(object):
         if not self._network_queue.empty():
             msg = self._network_queue.get()
             self._logger.info('Executing this command : {}'.format(msg))
+            self._logger.info('commammmamamama {}'.format(msg['command'] == 'move-forward'))
             if msg['command'] == Command.INFRARED_SIGNAL:
                 self.execute_flag_sequence()
             elif msg['command'] == Command.CAN_I_GRAB:
@@ -107,7 +108,7 @@ class RobotController(object):
             elif msg['command'] == Command.END_SIGNAL:
                 self.send_light_laide_command()
             elif msg['command'] == Command.MOVE_FORWARD:
-                self.send_movement_command_to_stm(msg['mouvement'])
+                self.send_movement_command_to_stm(msg)
             else:
                 self._logger.info('Received this {} but does not know how to deal with it'.format(msg))
                 raise NotImplementedError("Please do more stuff")

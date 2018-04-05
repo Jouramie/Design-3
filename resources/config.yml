@@ -41,11 +41,11 @@ station:
     image_height: 1200
     image_save_dir: "fig/{date}"
   network:
-    use_mocked_network: true
+    use_mocked_network: false
     port: *port
   robot:
-    use_mocked_robot_detector: true
-    update_robot: false
+    use_mocked_robot_detector: false
+    update_robot: true
   cube_positions:
     tables:
       target_zone:

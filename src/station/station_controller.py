@@ -59,7 +59,7 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
-        # self.interactive_testing()
+        self.interactive_testing()
 
     def interactive_testing(self):
         while True:
