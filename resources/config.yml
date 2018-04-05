@@ -7,7 +7,7 @@ log_file: "log/{date}.log"
 
 robot:
   network:
-    host_ip: "10.42.0.190"
+    host_ip: "127.0.0.1"
     port: *port
   serial:
     port: "/dev/ttyUSB0"
@@ -42,6 +42,7 @@ station:
     image_save_dir: "fig/{date}"
   network:
     use_mocked_network: false
+    use_mocked_network: true
     mocked_country_code: 6
     port: *port
   robot:
@@ -102,3 +103,4 @@ station:
           y: -19.5
           pixel_x: 1350
           pixel_y: 960
+
