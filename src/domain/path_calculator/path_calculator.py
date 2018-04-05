@@ -2,7 +2,7 @@ from logging import Logger
 
 from .grid import Grid
 from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
-
+from .direction import Direction
 
 class PathCalculator(object):
     MAX_ITERATIONS = 20000
@@ -44,10 +44,12 @@ class PathCalculator(object):
         while processing_node:
             current_node = processing_node.pop(0)
             for connection in self.__grid.get_vertex(current_node).get_connections():
-                if self.__grid.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
-                    self.__grid.get_vertex(connection.get_id()).set_step_value(
-                        self.STEP_VALUE + self.__grid.get_vertex(current_node).get_step_value())
-                    processing_node.append(connection.get_id())
+                vertex_direction = (connection.get_id()[0] - current_node[0], connection.get_id()[1] - current_node[1])
+                if Direction.find_direction(vertex_direction) in (Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST):
+                    if self.__grid.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
+                        self.__grid.get_vertex(connection.get_id()).set_step_value(
+                            self.STEP_VALUE + self.__grid.get_vertex(current_node).get_step_value())
+                        processing_node.append(connection.get_id())
 
     def __find_gluttonous_path(self, starting_point, ending_point):
         iteration_count = 0
@@ -65,11 +67,8 @@ class PathCalculator(object):
             return True
 
     def __find_nodes(self):
-        dangerous_path = False
         gluttonous_path = False
         connection_count = 0
-        dangerous_next_node = 0
-        safer_next_node = 0
         next_node = 0
 
         for connection in self.__grid.get_vertex(self.__current_node).get_connections():
@@ -86,32 +85,11 @@ class PathCalculator(object):
                 if neighbor_connection_weight == self.DEFAULT_WEIGHT:
                     gluttonous_path = True
                     next_node = connection_id
-                # Section for dangerous move
-                elif neighbor_connection_weight == self.POTENTIAL_WEIGHT:
-                    dangerous_path = True
-                    dangerous_next_node = connection_id
-
-            # Section for the same step_value and not turning back
-            if connection_id != self.__last_node:
-                if self.__grid.get_vertex(connection_id).get_step_value() == self.__grid.get_vertex(
-                        self.__current_node).get_step_value():
-
-                    # This move should only be used when is safer then a dangerous move
-                    if neighbor_connection_weight == self.DEFAULT_WEIGHT:
-                        dangerous_path = True
-                        safer_next_node = connection_id
 
             # Section to set next node (Gluttonous)
             if gluttonous_path:
                 self.__add_node_to_path(next_node)
                 break
-            # Section to set next node (Safety first)
-            if connection_count == len(self.__grid.get_vertex(self.__current_node).get_connections()):
-                if dangerous_path:
-                    if safer_next_node:
-                        self.__add_node_to_path(safer_next_node)
-                    elif dangerous_next_node:
-                        self.__add_node_to_path(dangerous_next_node)
 
     def __add_node_to_path(self, next_node):
         self.__last_node = self.__path[-1]

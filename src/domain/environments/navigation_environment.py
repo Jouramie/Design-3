@@ -15,6 +15,7 @@ class NavigationEnvironment(object):
     INFINITY_WEIGHT = 3
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 7
+    # TODO Validate and test
     BIGGEST_ROBOT_RADIUS = 23
 
     __width = 0
@@ -98,13 +99,6 @@ class NavigationEnvironment(object):
         for connection in self.__grid.get_vertex(point).get_connections():
             self.__grid.get_vertex(connection.get_id()).set_new_weight(
                 self.__grid.get_vertex(point), self.INFINITY_WEIGHT)
-            for connection_decay in self.__grid.get_vertex(connection.get_id()).get_connections():
-                if not self.__grid.get_vertex(
-                        connection_decay.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE and \
-                        not self.__grid.get_vertex(
-                            connection.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE:
-                    self.__grid.get_vertex(connection_decay.get_id()).set_new_weight(
-                        self.__grid.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
 
     def __validate_point_in_grid(self, point):
         try:

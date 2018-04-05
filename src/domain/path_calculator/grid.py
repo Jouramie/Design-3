@@ -29,7 +29,7 @@ class Grid:
         return new_vertex
 
     def __initiate_vertices_neighbors(self, node):
-        for direction in Direction:
+        for direction in Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST:
             neighbor = (node[0] + direction.direction[0], node[1] + direction.direction[1])
             if self.DEFAULT_OFFSET <= neighbor[0] < self.__height + 1 and self.DEFAULT_OFFSET <= neighbor[1] < self.__width + 1:
                 self.__add_edge(node, neighbor)
