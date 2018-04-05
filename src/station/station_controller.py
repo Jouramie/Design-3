@@ -235,6 +235,7 @@ class StationController(object):
                 self.network.send_drop_cube_command()
 
                 self.logger.info("Dropping cube.")
+
                 self.__select_next_cube_color()
                 self.model.robot_is_moving = True
                 self.model.robot_is_holding_cube = False
@@ -276,13 +277,13 @@ class StationController(object):
                         self.logger.info("Le cube {} est en haut.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),
                                            int(target_cube.center[1] - self.DISTANCE_FROM_CUBE))
-                        desired_direction = Direction.EAST
+                        desired_direction = Direction.NORTH
                         pass
                     elif target_cube.center[0] > NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET - 5:
                         self.logger.info("Le cube {} est au fond.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0] - self.DISTANCE_FROM_CUBE),
                                            int(target_cube.center[1]))
-                        desired_direction = Direction.NORTH
+                        desired_direction = Direction.EAST
                         pass
                     else:
                         self.logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
