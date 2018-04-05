@@ -43,6 +43,7 @@ class ServerNetworkController(NetworkController):
     def send_move_forward_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
+
 class SocketServerNetworkController(ServerNetworkController):
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
@@ -120,6 +121,7 @@ class SocketServerNetworkController(ServerNetworkController):
         self._send_command(Command.MOVE_FORWARD, {'amplitude' : movement.amplitude})
 
         self._logger.info("Commmand {} : sent!".format(movement))
+
 
 
 class MockedServerNetworkController(ServerNetworkController):

@@ -59,7 +59,7 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
-        #self.interactive_testing()
+        # self.interactive_testing()
 
     def interactive_testing(self):
         while True:
@@ -147,6 +147,7 @@ class StationController(object):
 
             self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
                                                                      self.coordinate_converter)
+
             self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
 
             self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
@@ -204,9 +205,9 @@ class StationController(object):
                         return
                     self.logger.info("Robot: {}".format(self.model.robot))
 
-                    target_position = (target_cube.center[0],
-                                       target_cube.center[1] + max(self.model.robot.height,
-                                                                   self.model.robot.width) + 10)
+                    target_position = (int(target_cube.center[0]),
+                                       int(target_cube.center[1] + max(self.model.robot.height,
+                                                                       self.model.robot.width) + 10))
                     is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
                                                                       self.navigation_environment.get_grid())
 

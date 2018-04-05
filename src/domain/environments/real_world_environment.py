@@ -1,13 +1,14 @@
 from src.vision.coordinate_converter import CoordinateConverter
 from .vision_environment import VisionEnvironment
 from ..objects.color import Color
-from ..objects.cube import Cube
+from ..objects.flag_cube import FlagCube
 
 
 class RealWorldEnvironment(object):
-    def __init__(self, vision_environment: VisionEnvironment, coordinate_converter: CoordinateConverter):
+    def __init__(self, vision_environment: VisionEnvironment,
+                 coordinate_converter: CoordinateConverter):
         self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
-        self.cubes = coordinate_converter.project_cubes(vision_environment.cubes)
+        self.cubes = coordinate_converter.convert_vision_cubes_to_real_world_environment_cubes(vision_environment.cubes)
         self.target_zone = None
 
     def __str__(self):
@@ -15,7 +16,7 @@ class RealWorldEnvironment(object):
                                                                '\n    '.join(str(o) for o in self.obstacles),
                                                                str(self.target_zone))
 
-    def find_cube(self, color: Color) -> Cube:
+    def find_cube(self, color: Color) -> FlagCube:
         """Return a cube matching the color in parameter
 
         :param color: The desired color
@@ -23,6 +24,5 @@ class RealWorldEnvironment(object):
         """
         for cube in self.cubes:
             if cube.color == color:
-                self.cubes.remove(cube)
                 return cube
         return None

@@ -1,7 +1,7 @@
 from logging import Logger
 
-from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 from .grid import Grid
+from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 
 
 class PathCalculator(object):
