@@ -2,7 +2,7 @@ from src.vision.table_crop import TableCrop
 from .color import Color
 
 
-class Cube(object):
+class VisionCube(object):
     def __init__(self, color: Color, corners: list):
         self.color = color
         self.corners = corners
@@ -10,6 +10,10 @@ class Cube(object):
         self.w = self.corners[1][0]
         self.y = self.corners[0][1]
         self.h = self.corners[1][1]
+        self.center = ((self.x + self.w) / 2, (self.y + self.h) / 2)
+
+    def get_center(self):
+        return self.center
         self.center = ((self.x + self.w) / 2, (self.y + self.h) / 2)
 
     def get_3d_corners(self) -> [tuple]:
@@ -37,6 +41,9 @@ class Cube(object):
     def get_color(self):
         return self.color
 
+    def set_color(self, new_color):
+        self.color = new_color
+
     def is_inside(self, other):
         if other.x >= self.x and other.y >= self.y and other.w >= self.w and other.h >= self.h:
             return True
@@ -62,7 +69,7 @@ class Cube(object):
         h = max(self.h, other.h)
         corners = [(x + table_crop.x_crop, y + table_crop.y_crop_top),
                    (w + table_crop.x_crop, h + table_crop.y_crop_top)]
-        return Cube(self.color, corners)
+        return VisionCube(self.color, corners)
 
     def merge_center(self, other, table_crop: TableCrop):
         self_x_center = self.center[0]
@@ -76,7 +83,7 @@ class Cube(object):
         new_cube_w = (new_cube_x_center + 10 + table_crop.x_crop)
         new_cube_h = (new_cube_y_center + 10 + table_crop.y_crop_top)
         new_corners = [(new_cube_x, new_cube_y), (new_cube_w, new_cube_h)]
-        return Cube(self.color, new_corners)
+        return VisionCube(self.color, new_corners)
 
     def __eq__(self, other):
         if self.center == other.center and self.color == other.color and self.corners == other.corners:

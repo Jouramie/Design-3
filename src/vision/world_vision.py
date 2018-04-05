@@ -4,9 +4,9 @@ import cv2
 
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
-from src.domain.objects.cube import Cube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.target_zone import TargetZone
+from src.domain.objects.vision_cube import VisionCube
 from src.vision.table_crop import TableCrop
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
@@ -54,42 +54,20 @@ class WorldVision:
 
         return VisionEnvironment(cubes, obstacles)
 
-    # TODO vérifier que ça marche
     def __validate_cube_is_present(self, frame, color: Color, cubes):
         for cube in self.__find_color_cubes(frame, color):
             cubes.append(cube)
-        for i in range(0, 1):
-            for cube in cubes:
-                if cube.color == color:
-                    break
-                else:
-                    for cube in self.__find_color_cubes(frame, color):
-                        cubes.append(cube)
         return cubes
 
     def __validate_white_cube_is_present(self, frame, cubes):
         color = Color.WHITE
-        for cube in self.__find_color_cubes(frame, color):
+        for cube in self.__find_white_cubes(frame):
             cubes.append(cube)
-        for i in range(0, 1):
-            for cube in cubes:
-                if cube.color == color:
-                    break
-                else:
-                    for cube in self.__find_white_cubes(frame):
-                        cubes.append(cube)
         return cubes
 
     def __validate_red_cube_is_present(self, frame, cubes):
         for cube in self.__find_red_cubes(frame):
             cubes.append(cube)
-        for i in range(0, 1):
-            for cube in cubes:
-                if cube.color == Color.RED:
-                    break
-                else:
-                    for cube in self.__find_red_cubes(frame):
-                        cubes.append(cube)
         return cubes
 
     def __find_color_cubes(self, frame, color: Color):
@@ -125,7 +103,7 @@ class WorldVision:
             y = contour[0][0][1]
             if cv2.contourArea(contour) > 600:
                 if ((0.8 * width < x < 0.92 * width) and (y <= 0.09 * height) or
-                        ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
+                        ((0.96 * width < x < width) and (0.10 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, color)
 
@@ -152,9 +130,9 @@ class WorldVision:
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
                     yield self.__create_cube(contour, Color.RED)
 
-    def __create_cube(self, contour, color: Color) -> Cube:
+    def __create_cube(self, contour, color: Color) -> VisionCube:
         x, y, w, h = cv2.boundingRect(contour)
-        return Cube(color, [(x, y), (x + w, y + h)])
+        return VisionCube(color, [(x, y), (x + w, y + h)])
 
     def __find_target_zone(self, original_image) -> TargetZone:
         hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
@@ -202,8 +180,6 @@ class WorldVision:
             for contour in contours[0]:
                 x = contour[0]
                 if x > 0.4 * width:
-                    print(width)
-                    print(x)
                     yield self.__create_obstacle(contour)
 
     def __create_obstacle(self, contour) -> Obstacle:
