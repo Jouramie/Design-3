@@ -8,6 +8,11 @@ from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 from src.domain.path_calculator.grid import Grid
 
+SPECIFIC_OBSTACLE_1_VALUE = (104, 0)
+SPECIFIC_OBSTACLE_2_VALUE = (42, 62)
+SPECIFIC_STARTING_POINT = (50, 15)
+SPECIFIC_ENDING_POINT = (102, 33)
+
 SOME_VALUE_0 = 0
 SOME_VALUE_1 = 1
 SOME_VALUE_2 = 2
@@ -68,11 +73,11 @@ class TestPathCalculator(TestCase):
     def test_when_calculating_then_recommend_foward(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
-        environment.add_obstacles([Obstacle((104, 0), NavigationEnvironment.OBSTACLE_RADIUS),
-                                   Obstacle((42, 62), NavigationEnvironment.OBSTACLE_RADIUS)])
+        environment.add_obstacles([Obstacle(SPECIFIC_OBSTACLE_1_VALUE, NavigationEnvironment.OBSTACLE_RADIUS),
+                                   Obstacle(SPECIFIC_OBSTACLE_2_VALUE, NavigationEnvironment.OBSTACLE_RADIUS)])
 
-        starting_point = (50, 15)
-        ending_point = (102, 33)
+        starting_point = SPECIFIC_STARTING_POINT
+        ending_point = SPECIFIC_ENDING_POINT
 
         path_calculator = PathCalculator(MagicMock())
 
