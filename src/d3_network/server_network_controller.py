@@ -40,7 +40,7 @@ class ServerNetworkController(NetworkController):
     def send_drop_cube_command(self) -> None:
         raise NotImplementedError("This is an interface...")
 
-    def send_move_command(self, movement: Movement):
+    def send_move_forward_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
 class SocketServerNetworkController(ServerNetworkController):
@@ -116,8 +116,8 @@ class SocketServerNetworkController(ServerNetworkController):
 
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, movement: Movement) -> None:
-        self._send_command(Command.MOVE, {'msg' : movement})
+    def send_move_forward_command(self, movement: Movement) -> None:
+        self._send_command(Command.MOVE_FORWARD, {'amplitude' : movement.amplitude})
 
         self._logger.info("Commmand {} : sent!".format(movement))
 
@@ -158,7 +158,7 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_drop_cube(self) -> None:
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, movement: Movement) -> None:
+    def send_move_forward_command(self, movement: Movement) -> None:
         self._logger.info("Commmand {} : sent!".format(self.MOVEMENT))
 
 

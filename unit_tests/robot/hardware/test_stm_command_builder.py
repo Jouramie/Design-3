@@ -22,14 +22,18 @@ class TestCommandBuilder(TestCase):
         command = StmCommandBuilder().right(222)
         self.assertEqual(b'\x32\x08\xac', command)
 
-    def test_when_build_rotate_clockwise_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate_clockwise(Angle.NORTH)
+    def test_when_build_rotate_clockwise_north_then_correct_syntax(self):
+        command = StmCommandBuilder().rotate(-90)
         self.assertEqual(b'\x20\x00\x5a', command)
 
-    def test_when_build_rotate_counter_clockwise_east_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate_counter_clockwise(Angle.EAST)
+    def test_when_build_rotate_clockwise_east_then_correct_syntax(self):
+        command = StmCommandBuilder().rotate(0)
         self.assertEqual(b'\x21\x00\x00', command)
 
     def test_when_build_rotate_counter_clockwise_west_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate_counter_clockwise(Angle.WEST)
-        self.assertEqual(b'\x21\x00\xb4', command)
+        command = StmCommandBuilder().rotate(-180)
+        self.assertEqual(b'\x20\x00\xb4', command)
+
+    def test_when_build_rotate_counter_clockwise_sw_then_correct_syntax(self):
+        command = StmCommandBuilder().rotate(45)
+        self.assertEqual(b'\x21\x00\x2d', command)

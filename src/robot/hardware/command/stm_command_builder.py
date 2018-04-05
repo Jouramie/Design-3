@@ -10,20 +10,28 @@ class StmCommandBuilder():
         command.append(mm_distance & 0xff)
         return command
 
-    def rotate_clockwise(self, angle: Angle) -> bytearray:
-        return self._move(Target.WHEELS_ROTATE_CLOCKWISE, angle.value)
+    def rotate(self, angle: float) -> bytearray:
+        if angle >= 0:
+            return self._rotate_counter_clockwise(abs(int(angle)))
+        elif angle < 0:
+            return self._rotate_clockwise(abs(int(angle)))
 
-    def rotate_counter_clockwise(self, angle: Angle) -> bytearray:
-        return self._move(Target.WHEELS_ROTATE_COUNTER_CLOCKWISE, angle.value)
-
-    def forward(self, mm_distance: int) -> bytearray:
+    def forward(self, mm_distance: float) -> bytearray:
         return self._move(Target.WHEELS_FORWARD, int(mm_distance*10))
 
-    def backward(self, mm_distance: int) -> bytearray:
+    def backward(self, mm_distance: float) -> bytearray:
         return self._move(Target.WHEELS_BACKWARD, int(mm_distance*10))
 
-    def left(self, mm_distance: int) -> bytearray:
+    def left(self, mm_distance: float) -> bytearray:
         return self._move(Target.WHEELS_LEFT, int(mm_distance*10))
 
-    def right(self, mm_distance: int) -> bytearray:
+    def right(self, mm_distance: float) -> bytearray:
         return self._move(Target.WHEELS_RIGHT, int(mm_distance*10))
+
+    def _rotate_clockwise(self, angle: int) -> bytearray:
+        return self._move(Target.WHEELS_ROTATE_CLOCKWISE, angle)
+
+    def _rotate_counter_clockwise(self, angle: int) -> bytearray:
+        return self._move(Target.WHEELS_ROTATE_COUNTER_CLOCKWISE, angle)
+
+

@@ -1,9 +1,8 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock
 
 from src.robot import robot_controller
 from src.robot.hardware.command.not_a_country_command_exception import NotACountryCommandException
-from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
 from src.robot.hardware.command.stm_command_definition import commands_to_stm, commands_from_stm
 
 
@@ -105,9 +104,9 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command_to_stm(StmCommandBuilder().left(2000))
+        ctrl.send_movement_command_to_stm({'command': 'backward', 'amplitude': 200})
 
-        channel.send_command.assert_called_once_with(bytearray(b'\x31\x07\xd0'))
+        channel.send_command.assert_called_once_with(bytearray(b'\x3b\x07\xd0'))
 
     def test_when_receive_successful_end_of_task_then_message_received_correclty(self):
         network_ctrl = MagicMock()
@@ -125,6 +124,6 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command_to_stm(StmCommandBuilder().forward(22222))
+        ctrl.send_movement_command_to_stm({'command': 'forward', 'amplitude': 2222})
 
-        channel.send_command.assert_called_once_with(bytearray(b'\x3f\x56\xce'))
+        channel.send_command.assert_called_once_with(bytearray(b'\x3f\x56\xcc'))
