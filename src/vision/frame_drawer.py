@@ -28,6 +28,8 @@ class FrameDrawer(object):
         cv2.line(frame, tuple(robot_projected_points[2][0]), tuple(robot_projected_points[3][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
 
+        self.__draw_robot_radius(frame, robot_projected_points)
+
     def draw_real_path(self, frame, points):
         i = 0
         if len(points) != 0:
@@ -49,6 +51,12 @@ class FrameDrawer(object):
             self.__draw_obstacle(frame, obstacle)
         for cube in vision_environment.cubes:
             self.__draw_cube(frame, cube)
+
+    def __draw_robot_radius(self, frame, robot_projected_points):
+        size_between = (robot_projected_points[2][0] - robot_projected_points[0][0]) / 2
+        center_pt = robot_projected_points[0][0] + size_between
+
+        cv2.circle(frame, tuple(center_pt), 154, (144, 100, 40), 2, cv2.LINE_AA)
 
     def __draw_cube(self, frame, cube: Cube) -> None:
         if cube is not None:
