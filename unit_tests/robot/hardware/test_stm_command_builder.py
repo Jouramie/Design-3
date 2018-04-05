@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
-from src.robot.hardware.command.stm_command_definition.commands_to_stm import Target, Direction, Angle
+from src.robot.hardware.command.stm_command_definition.commands_to_stm import Target
 
 
 class TestCommandBuilder(TestCase):
