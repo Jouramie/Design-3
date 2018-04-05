@@ -82,7 +82,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 def start_station(config: dict, logger: logging.Logger) -> None:
     if config['network']['use_mocked_network']:
         network_controller = server_network_controller.MockedServerNetworkController(
-            logger.getChild("network_controller"))
+            logger.getChild("network_controller"), config['network']['mocked_country_code'])
     else:
         network_controller = server_network_controller.SocketServerNetworkController(
             logger.getChild("network_controller"), config['network']['port'], encoder.DictionaryEncoder())
@@ -97,7 +97,10 @@ def start_station(config: dict, logger: logging.Logger) -> None:
 
     coordinate_converter = CoordinateConverter(table_camera_config, config['cube_positions']['tables']['t2'])
     if config['robot']['use_mocked_robot_detector']:
-        robot_detector = MockedRobotDetector()
+        robot_detector = MockedRobotDetector(
+            (config['robot']['mocked_robot_position'][0],
+             config['robot']['mocked_robot_position'][1]),
+            config['robot']['mocked_robot_orientation'])
     else:
         robot_detector = VisionRobotDetector(table_camera_config.camera_parameters, coordinate_converter)
 
