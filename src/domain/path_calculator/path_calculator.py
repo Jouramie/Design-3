@@ -24,6 +24,7 @@ class PathCalculator(object):
             starting_point = (round(starting_point[0], 0), round(starting_point[1], 0))
             self.__set_grid(grid)
             self.__path.clear()
+            self.__reset_neighbor_step_value()
             self.__set_neighbor_step_value(ending_point)
             self.__validate_path_exist(starting_point)
             return self.__find_gluttonous_path(starting_point, ending_point)
@@ -31,6 +32,9 @@ class PathCalculator(object):
             self.logger.info(str(grid_err))
         except PathCalculatorNoPathError as path_err:
             self.logger.info(str(path_err))
+
+    def __reset_neighbor_step_value(self):
+        self.__grid.reset_neighbor_step_value_keep_obstacles(self.OBSTACLE_VALUE, self.UNASSIGNED_VALUE)
 
     def __set_neighbor_step_value(self, ending_point):
         processing_node = []
@@ -47,6 +51,7 @@ class PathCalculator(object):
 
     def __find_gluttonous_path(self, starting_point, ending_point):
         iteration_count = 0
+        self.__last_node = 0
         self.__current_node = starting_point
         self.__path.append(self.__current_node)
 

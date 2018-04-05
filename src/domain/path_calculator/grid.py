@@ -14,12 +14,12 @@ class Grid:
         self.__init_grid_vertices()
 
     def __init_grid_vertices(self):
-        for y in range(self.DEFAULT_OFFSET, self.__width):
-            for x in range(self.DEFAULT_OFFSET, self.__height):
+        for y in range(self.DEFAULT_OFFSET, self.__width + 1):
+            for x in range(self.DEFAULT_OFFSET, self.__height + 1):
                 self.__add_vertex((x, y))
 
-        for y in range(self.DEFAULT_OFFSET, self.__width):
-            for x in range(self.DEFAULT_OFFSET, self.__height):
+        for y in range(self.DEFAULT_OFFSET, self.__width + 1):
+            for x in range(self.DEFAULT_OFFSET, self.__height + 1):
                 self.__initiate_vertices_neighbors((x, y))
 
     def __add_vertex(self, node):
@@ -31,7 +31,7 @@ class Grid:
     def __initiate_vertices_neighbors(self, node):
         for direction in Direction:
             neighbor = (node[0] + direction.direction[0], node[1] + direction.direction[1])
-            if self.DEFAULT_OFFSET <= neighbor[0] < self.__height and self.DEFAULT_OFFSET <= neighbor[1] < self.__width:
+            if self.DEFAULT_OFFSET <= neighbor[0] < self.__height + 1 and self.DEFAULT_OFFSET <= neighbor[1] < self.__width + 1:
                 self.__add_edge(node, neighbor)
 
     def __add_edge(self, origin, destination, weight=DEFAULT_WEIGHT):
@@ -51,3 +51,10 @@ class Grid:
     def reset_graph(self):
         for vertex in self.__vertices_dictionary.values():
             vertex.reset_vertex()
+
+    def reset_neighbor_step_value_keep_obstacles(self, obstacle_value, unassigned_value):
+        for y in range(self.DEFAULT_OFFSET, self.__width + 1):
+            for x in range(self.DEFAULT_OFFSET, self.__height + 1):
+                if self.__vertices_dictionary[(x, y)].get_step_value() != obstacle_value:
+                    self.__vertices_dictionary[(x, y)].set_step_value(unassigned_value)
+
