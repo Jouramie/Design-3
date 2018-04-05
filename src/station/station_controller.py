@@ -159,7 +159,7 @@ class StationController(object):
 
             movements, self.model.planned_path = self.path_converter.convert_path(
                 self.path_calculator.get_calculated_path(), self.model.robot, Direction.SOUTH)
-            self.logger.info("Path planned: {}".format(movements))
+            self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
             # TODO Envoyer les commandes de déplacement au robot
 
             self.network.ask_infrared_signal()
@@ -228,7 +228,7 @@ class StationController(object):
 
                     movements, self.model.planned_path = self.path_converter.convert_path(
                         self.path_calculator.get_calculated_path(), self.model.robot)
-                    self.logger.info("Path planned: {}".format(movements))
+                    self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
                     # TODO Envoyer la commande de déplacement au robot
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
