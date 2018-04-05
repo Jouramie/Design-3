@@ -109,7 +109,8 @@ SCENARIO_1 = {
             'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
         },
         'robot': {
-            'update_robot': False
+            'update_robot': False,
+            'use_mocked_robot_detector': False
         },
         'cube_positions': CUBE_POSITION
     }
@@ -130,7 +131,8 @@ SCENARIO_2 = {
             'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
         },
         'robot': {
-            'update_robot': False
+            'update_robot': False,
+            'use_mocked_robot_detector': False
         },
         'cube_positions': CUBE_POSITION
     }
