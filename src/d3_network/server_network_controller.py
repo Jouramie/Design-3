@@ -1,6 +1,7 @@
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM
 
+from ..domain.path_calculator.movement import Movement, Rotate
 from .command import Command
 from .encoder import Encoder
 from .network_controller import NetworkController
@@ -30,13 +31,16 @@ class ServerNetworkController(NetworkController):
     def send_end_of_task_signal(self) -> int:
         raise NotImplementedError("This is an interface...")
 
-    def send_ask_if_can_grab_cube(self) -> None:
+    def send_ask_if_can_grab_cube_command(self) -> None:
         raise NotImplementedError("This is an interface...")
 
-    def send_grab_cube(self) -> None:
+    def send_grab_cube_command(self) -> None:
         raise NotImplementedError("This is an interface...")
 
-    def send_drop_cube(self) -> None:
+    def send_drop_cube_command(self) -> None:
+        raise NotImplementedError("This is an interface...")
+
+    def send_move_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
 
@@ -56,7 +60,7 @@ class SocketServerNetworkController(ServerNetworkController):
             self._socket.settimeout(2)
             self._logger.info("{} connected".format(address))
 
-            self._send_command(Command.HELLO, {'msg': "ThAnKs YoU fOr CoNnEcTiNg !!!!1"})
+            self._send_command(Command.HELLO, {'msg': 'ThAnKs YoU fOr CoNnEcTiNg !!!!!'})
 
             try:
                 msg = self._receive_message()
@@ -98,25 +102,32 @@ class SocketServerNetworkController(ServerNetworkController):
 
         self._logger.info("End of task signal sent, the led should go on!")
 
-    def send_ask_if_can_grab_cube(self) -> None:
+    def send_ask_if_can_grab_cube_command(self) -> None:
         self._send_command(Command.CAN_I_GRAB)
 
         self._logger.info("Can i grab a cube command sent!")
 
-    def send_grab_cube(self) -> None:
+    def send_grab_cube_command(self) -> None:
         self._send_command(Command.GRAB)
 
         self._logger.info("Grab command sent!")
 
-    def send_drop_cube(self) -> None:
+    def send_drop_cube_command(self) -> None:
         self._send_command(Command.DROP)
 
-        self._logger.info("Drop cude command sent!")
+        self._logger.info("Drop cube command sent!")
+
+    def send_move_command(self, movement: Movement):
+        self._send_command(movement.command, {'amplitude': movement.amplitude})
+
+        self._logger.info("Commmand {} : sent!".format(movement))
+
 
 
 class MockedServerNetworkController(ServerNetworkController):
     def __init__(self, logger: Logger, country_code: int, port: int = 0, encoder: Encoder = None):
         super().__init__(logger, port, encoder)
+        self.MOVEMENT = Rotate(30)
         self.country_code = country_code
 
     def host_network(self) -> None:
@@ -140,11 +151,14 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_end_of_task_signal(self) -> None:
         self._logger.info("End of task signal sent, the led should go on!")
 
-    def send_grab_cube(self) -> None:
+    def send_grab_cube_command(self) -> None:
         self._logger.info("Grab command sent!")
 
-    def send_ask_if_can_grab_cube(self) -> None:
+    def send_ask_if_can_grab_cube_command(self) -> None:
         self._logger.info("Can i grab a cube command sent!")
 
-    def send_drop_cube(self) -> None:
+    def send_drop_cube_command(self) -> None:
         self._logger.info("Drop cube command sent!")
+
+    def send_move_command(self, movement: Movement):
+        self._logger.info("Commmand {} : sent!".format(movement))

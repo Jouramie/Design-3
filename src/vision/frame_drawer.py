@@ -29,6 +29,16 @@ class FrameDrawer(object):
         cv2.line(frame, tuple(robot_projected_points[2][0]), tuple(robot_projected_points[3][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
 
+        projected_center_x = int((robot_projected_points[1][0][0] + robot_projected_points[2][0][0]) / 2)
+        projected_center_y = int((robot_projected_points[1][0][1] + robot_projected_points[2][0][1]) / 2)
+        robot_projected_orientation_center = (projected_center_x, projected_center_y)
+
+        projected_center_front_x = int((robot_projected_points[0][0][0] + robot_projected_points[2][0][0]) / 2)
+        projected_center_front_y = int((robot_projected_points[0][0][1] + robot_projected_points[2][0][1]) / 2)
+        robot_projected_front_orientation_center = (projected_center_front_x, projected_center_front_y)
+
+        cv2.line(frame, robot_projected_orientation_center, robot_projected_front_orientation_center, (204, 0, 204), 3)
+
         self.__draw_robot_radius(frame, robot_projected_points)
 
     def draw_real_path(self, frame, points):
@@ -78,6 +88,7 @@ class FrameDrawer(object):
             self.__project_and_draw_real_obstacle(frame, obstacle)
         for cube in real_world_environment.cubes:
             self.__project_and_draw_real_cube(frame, cube)
+        self.__project_and_draw_target_zone(frame)
 
     def __project_and_draw_real_obstacle(self, frame, obstacle: Obstacle) -> None:
         real_positions = np.array([(obstacle.center[0], obstacle.center[1], 0.0),
@@ -94,4 +105,12 @@ class FrameDrawer(object):
         image_positions = self.coordinate_converter.project_points(real_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr,
+                      thickness=3)
+
+    def __project_and_draw_target_zone(self, frame):
+        target_zone_corners = [(0.0, 0.0, 0), (66.2, 66.2, 0)]
+        real_positions = np.array(target_zone_corners, 'float32')
+        image_positions = self.coordinate_converter.project_points(real_positions)
+
+        cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), Color.TARGET_ZONE_GREEN.bgr,
                       thickness=3)

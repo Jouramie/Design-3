@@ -12,6 +12,7 @@ from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.grid import Grid
+from src.domain.path_calculator.movement import Forward, Backward, Rotate
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
@@ -23,6 +24,8 @@ from .station_model import StationModel
 
 
 class StationController(object):
+    DISTANCE_FROM_CUBE = NavigationEnvironment.BIGGEST_ROBOT_RADIUS + 5
+
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
                  coordinate_converter: CoordinateConverter, robot_detector: RobotDetector, logger: Logger,
                  config: dict):
@@ -38,6 +41,7 @@ class StationController(object):
         self.path_calculator = PathCalculator(logger)
         self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
+        self.navigation_environment.create_grid()
 
         self.coordinate_converter = coordinate_converter
         self.robot_detector = robot_detector
@@ -61,15 +65,29 @@ class StationController(object):
 
     def interactive_testing(self):
         while True:
-            command = input('enter something : ir, grab, drop or end')
+            command = input('enter something:ir, grab, drop, light, forward, backward, rotate')
+
             if command == 'ir':
                 self.network.ask_infrared_signal()
+                self.__check_infrared_signal()
             elif command == 'grab':
-                self.network.send_grab_cube()
+                self.network.send_grab_cube_command()
             elif command == 'drop':
-                self.network.send_drop_cube()
+                self.network.send_drop_cube_command()
             elif command == 'end':
                 self.network.send_end_of_task_signal()
+            elif command == 'forward':
+                self.network.send_move_command(Forward(30))
+            # elif command == 'mover':
+            #     self.network.send_move_command()
+            # elif command == 'movel':
+            #     self.network.send_move_command(StmCommandBuilder().left(100))
+            elif command == 'backward':
+                self.network.send_move_command(Backward(30))
+            elif command == 'rotatec':
+                self.network.send_move_command(Rotate(-90))
+            elif command == 'rotatecc':
+                self.network.send_move_command(Rotate(90))
 
     def __check_infrared_signal(self) -> int:
         try:
@@ -127,18 +145,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.real_world_environment is None:
-            # self.camera.take_picture()
-            self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
-                                                                                 self.config['table_number'])
-            self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
-
-            self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
-                                                                     self.coordinate_converter)
-
-            self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
-
-            self.navigation_environment.create_grid()
-            self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
+            self.__generate_environments()
 
         self.__draw_environment(self.model.frame)
 
@@ -161,7 +168,9 @@ class StationController(object):
             movements, self.model.planned_path = self.path_converter.convert_path(
                 self.path_calculator.get_calculated_path(), self.model.robot, Direction.SOUTH)
             self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
-            # TODO Envoyer les commandes de déplacement au robot
+
+            for movement in movements:
+                self.network.send_move_command(movement)
 
             self.network.ask_infrared_signal()
             self.model.robot_is_moving = True
@@ -196,35 +205,48 @@ class StationController(object):
                     return
                 self.logger.info("Robot: {}".format(self.model.robot))
 
-                cube_destination = self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index].center
-                target_position = cube_destination[0] + self.model.robot.width / 2, cube_destination[1]
+                cube_destination = self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1].center
+                target_position = (cube_destination[0] + self.config['distance_between_robot_center_and_cube_center'],
+                                   cube_destination[1])
+                self.logger.info("Target position: {}".format(str(target_position)))
                 is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
                                                                   self.navigation_environment.get_grid())
 
                 if not is_possible:
                     self.logger.warning(
-                        "Path to infra-red reception is not possible.\n Target: {}".format(target_position))
+                        "Path to target_zone is not possible.\n Target: {}".format(target_position))
                     return
 
                 movements, self.model.planned_path = self.path_converter.convert_path(
                     self.path_calculator.get_calculated_path(), self.model.robot, Direction.WEST)
                 self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
-                # TODO Envoyer les commandes de déplacement au robot
-                # TODO Envoyer la commande de drop du cube
+
+                for movement in movements:
+                    self.network.send_move_command(movement)
+                self.network.send_drop_cube_command()
+                distance_backward = self.DISTANCE_FROM_CUBE - self.config[
+                    'distance_between_robot_center_and_cube_center']
+                self.network.send_move_command(Backward(distance_backward))
 
                 self.logger.info("Dropping cube.")
+
+                self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1].place_cube()
                 self.__select_next_cube_color()
+
                 self.model.robot_is_moving = True
                 self.model.robot_is_holding_cube = False
                 if self.config['robot']['use_mocked_robot_detector']:
-                    self.robot_detector.robot_position = target_position
+                    self.robot_detector.robot_position = (target_position[0] + distance_backward, target_position[1])
                     self.robot_detector.robot_direction = Direction.WEST.angle
 
             else:
                 if self.model.robot_is_grabbing_cube:
                     self.logger.info("Entering new step, moving to grab the cube.")
-                    # TODO Envoyer la commande de déplacement au robot
-                    # TODO Envoyer la commande de grab du cube
+
+                    self.network.send_move_command(Forward(self.DISTANCE_FROM_CUBE))
+                    self.network.send_grab_cube_command()
+                    self.network.send_move_command(Backward(self.DISTANCE_FROM_CUBE + 1))
+
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True
@@ -240,21 +262,24 @@ class StationController(object):
                         self.logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
                         return
                     self.logger.info("Robot: {}".format(self.model.robot))
-                    
+
                     if target_cube.center[1] < Grid.DEFAULT_OFFSET + 5:
                         self.logger.info("Le cube {} est en bas.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),
-                                           int(target_cube.center[1] + NavigationEnvironment.BIGGEST_ROBOT_RADIUS + 10))
+                                           int(target_cube.center[1] + self.DISTANCE_FROM_CUBE))
+                        desired_direction = Direction.SOUTH
                         pass
                     elif target_cube.center[1] > NavigationEnvironment.DEFAULT_WIDTH + Grid.DEFAULT_OFFSET - 10:
                         self.logger.info("Le cube {} est en haut.".format(str(target_cube)))
                         target_position = (int(target_cube.center[0]),
-                                           int(target_cube.center[1] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10))
+                                           int(target_cube.center[1] - self.DISTANCE_FROM_CUBE))
+                        desired_direction = Direction.NORTH
                         pass
                     elif target_cube.center[0] > NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET - 5:
                         self.logger.info("Le cube {} est au fond.".format(str(target_cube)))
-                        target_position = (int(target_cube.center[0] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10),
+                        target_position = (int(target_cube.center[0] - self.DISTANCE_FROM_CUBE),
                                            int(target_cube.center[1]))
+                        desired_direction = Direction.EAST
                         pass
                     else:
                         self.logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
@@ -268,21 +293,44 @@ class StationController(object):
                         return
 
                     movements, self.model.planned_path = self.path_converter.convert_path(
-                        self.path_calculator.get_calculated_path(), self.model.robot)
+                        self.path_calculator.get_calculated_path(), self.model.robot, desired_direction)
                     self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
-                    # TODO Envoyer la commande de déplacement au robot
+
+                    for movement in movements:
+                        self.network.send_move_command(movement)
+
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
                     if self.config['robot']['use_mocked_robot_detector']:
                         self.robot_detector.robot_position = target_position
-                        self.robot_detector.robot_direction = 0
+                        self.robot_detector.robot_direction = desired_direction.angle
         else:
             if self.model.light_is_lit:
-                self.logger.info("Entering new step, reseting for next flag.")
+                self.logger.info("Entering new step, resetting for next flag.")
                 pass
             else:
                 self.logger.info("Entering new step, exiting zone to light led.")
+
                 # TODO Calculer le path vers l'exterieur de la zone
                 # TODO Envoyer la commande de déplacement + led
+
+                self.network.send_end_of_task_signal()
+
                 self.model.robot_is_moving = True
                 self.model.light_is_lit = True
+
+    def __generate_environments(self):
+        # self.camera.take_picture()
+        self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
+                                                                             self.config['table_number'])
+        self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
+        self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
+                                                                 self.coordinate_converter)
+        if self.model.country is not None:
+            for cube in self.model.country.stylized_flag.flag_cubes:
+                if cube.is_placed:
+                    self.model.real_world_environment.cubes.append(cube)
+
+        self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
+        # self.navigation_environment.create_grid()
+        self.navigation_environment.add_real_world_environment(self.model.real_world_environment)

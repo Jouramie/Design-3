@@ -8,9 +8,9 @@ class Channel(object):
     def __init__(self, serial):
         self.serial = serial
 
-    def receive_message(self) -> str:
+    def receive_message(self) -> bytes:
         if self.serial.is_open:
-            return self.serial.readline()
+            return self.serial.read(4)
         else:
             raise ChannelException('Serial connection not opened')
 
