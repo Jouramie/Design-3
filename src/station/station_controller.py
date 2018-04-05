@@ -41,6 +41,7 @@ class StationController(object):
         self.path_calculator = PathCalculator(logger)
         self.path_converter = PathConverter(logger.getChild("PathConverter"))
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
+        self.navigation_environment.create_grid()
 
         self.coordinate_converter = coordinate_converter
         self.robot_detector = robot_detector
@@ -144,18 +145,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.real_world_environment is None:
-            # self.camera.take_picture()
-            self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
-                                                                                 self.config['table_number'])
-            self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
-
-            self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
-                                                                     self.coordinate_converter)
-
-            self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
-
-            self.navigation_environment.create_grid()
-            self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
+            self.__generate_environments()
 
         self.__draw_environment(self.model.frame)
 
@@ -216,7 +206,7 @@ class StationController(object):
                 self.logger.info("Robot: {}".format(self.model.robot))
 
                 cube_destination = self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1].center
-                target_position = (cube_destination[0] - self.config['distance_between_robot_center_and_cube_center'],
+                target_position = (cube_destination[0] + self.config['distance_between_robot_center_and_cube_center'],
                                    cube_destination[1])
                 self.logger.info("Target position: {}".format(str(target_position)))
                 is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
@@ -234,14 +224,19 @@ class StationController(object):
                 for movement in movements:
                     self.network.send_move_command(movement)
                 self.network.send_drop_cube_command()
+                distance_backward = self.DISTANCE_FROM_CUBE - self.config[
+                    'distance_between_robot_center_and_cube_center']
+                self.network.send_move_command(Backward(distance_backward))
 
                 self.logger.info("Dropping cube.")
 
+                self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1].place_cube()
                 self.__select_next_cube_color()
+
                 self.model.robot_is_moving = True
                 self.model.robot_is_holding_cube = False
                 if self.config['robot']['use_mocked_robot_detector']:
-                    self.robot_detector.robot_position = target_position
+                    self.robot_detector.robot_position = (target_position[0] + distance_backward, target_position[1])
                     self.robot_detector.robot_direction = Direction.WEST.angle
 
             else:
@@ -311,7 +306,7 @@ class StationController(object):
                         self.robot_detector.robot_direction = desired_direction.angle
         else:
             if self.model.light_is_lit:
-                self.logger.info("Entering new step, reseting for next flag.")
+                self.logger.info("Entering new step, resetting for next flag.")
                 pass
             else:
                 self.logger.info("Entering new step, exiting zone to light led.")
@@ -323,3 +318,19 @@ class StationController(object):
 
                 self.model.robot_is_moving = True
                 self.model.light_is_lit = True
+
+    def __generate_environments(self):
+        # self.camera.take_picture()
+        self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
+                                                                             self.config['table_number'])
+        self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
+        self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
+                                                                 self.coordinate_converter)
+        if self.model.country is not None:
+            for cube in self.model.country.stylized_flag.flag_cubes:
+                if cube.is_placed:
+                    self.model.real_world_environment.cubes.append(cube)
+
+        self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
+        # self.navigation_environment.create_grid()
+        self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
