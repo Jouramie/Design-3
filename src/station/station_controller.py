@@ -178,7 +178,9 @@ class StationController(object):
             movements, self.model.planned_path = self.path_converter.convert_path(
                 self.path_calculator.get_calculated_path(), self.model.robot, Direction.SOUTH)
             self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
-            # TODO Envoyer les commandes de déplacement au robot
+
+            for movement in movements:
+                self.network.send_move_command(movement)
 
             self.network.ask_infrared_signal()
             self.model.robot_is_moving = True
@@ -227,8 +229,10 @@ class StationController(object):
                 movements, self.model.planned_path = self.path_converter.convert_path(
                     self.path_calculator.get_calculated_path(), self.model.robot, Direction.WEST)
                 self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
-                # TODO Envoyer les commandes de déplacement au robot
-                # TODO Envoyer la commande de drop du cube
+
+                for movement in movements:
+                    self.network.send_move_command(movement)
+                self.network.send_drop_cube_command()
 
                 self.logger.info("Dropping cube.")
                 self.__select_next_cube_color()
@@ -241,9 +245,11 @@ class StationController(object):
             else:
                 if self.model.robot_is_grabbing_cube:
                     self.logger.info("Entering new step, moving to grab the cube.")
-                    # TODO Envoyer la commande Forward(self.distance_to_cube + 3)
-                    # TODO Envoyer la commande de grab du cube
-                    # TODO Envoyer la commande Backward(self.distance_to_cube + 4)
+
+                    self.network.send_move_command(Forward(self.DISTANCE_FROM_CUBE))
+                    self.network.send_grab_cube_command()
+                    self.network.send_move_command(Backward(self.DISTANCE_FROM_CUBE + 1))
+
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True
@@ -292,7 +298,10 @@ class StationController(object):
                     movements, self.model.planned_path = self.path_converter.convert_path(
                         self.path_calculator.get_calculated_path(), self.model.robot, desired_direction)
                     self.logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
-                    # TODO Envoyer la commande de déplacement au robot
+
+                    for movement in movements:
+                        self.network.send_move_command(movement)
+
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
                     if self.config['robot']['use_mocked_robot_detector']:
@@ -304,7 +313,11 @@ class StationController(object):
                 pass
             else:
                 self.logger.info("Entering new step, exiting zone to light led.")
+
                 # TODO Calculer le path vers l'exterieur de la zone
                 # TODO Envoyer la commande de déplacement + led
+
+                self.network.send_end_of_task_signal()
+
                 self.model.robot_is_moving = True
                 self.model.light_is_lit = True
