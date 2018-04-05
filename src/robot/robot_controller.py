@@ -67,6 +67,9 @@ class RobotController(object):
         elif movement['command'] == Command.MOVE_ROTATE:
             self._channel.send_command(StmCommandBuilder().rotate(movement['amplitude']))
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
+        elif movement['command'] == Command.MOVE_LEFT:
+            self._channel.send_command(StmCommandBuilder().right(movement['amplitude']))
+            self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         else:
             raise NotImplementedError('Command not implemented on stm')
 

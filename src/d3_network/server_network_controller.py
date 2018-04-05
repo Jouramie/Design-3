@@ -40,13 +40,7 @@ class ServerNetworkController(NetworkController):
     def send_drop_cube_command(self) -> None:
         raise NotImplementedError("This is an interface...")
 
-    def send_move_forward_command(self, movement: Movement):
-        raise NotImplementedError("This is an interface...")
-
-    def send_move_backward_command(self, movement: Movement):
-        raise NotImplementedError("This is an interface...")
-
-    def send_rotate_command(self, movement: Movement):
+    def send_move_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
 
@@ -123,20 +117,11 @@ class SocketServerNetworkController(ServerNetworkController):
 
         self._logger.info("Drop cube command sent!")
 
-    def send_move_forward_command(self, movement: Movement) -> None:
-        self._send_command(Command.MOVE_FORWARD, {'amplitude' : movement.amplitude})
+    def send_move_command(self, movement: Movement):
+        self._send_command(movement.command, {'amplitude': movement.amplitude})
 
         self._logger.info("Commmand {} : sent!".format(movement))
 
-    def send_move_backward_command(self, movement: Movement):
-        self._send_command(Command.MOVE_BACKWARD, {'amplitude': movement.amplitude})
-
-        self._logger.info("Commmand {} : sent!".format(movement))
-
-    def send_rotate_command(self, movement: Movement):
-        self._send_command(Command.MOVE_ROTATE, {'amplitude': movement.amplitude})
-
-        self._logger.info("Commmand {} : sent!".format(movement))
 
 
 class MockedServerNetworkController(ServerNetworkController):
@@ -175,11 +160,5 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_drop_cube(self) -> None:
         self._logger.info("Drop cube command sent!")
 
-    def send_move_forward_command(self, movement: Movement) -> None:
-        self._logger.info("Commmand {} : sent!".format(self.MOVEMENT))
-
-    def send_move_backward_command(self, movement: Movement):
-        self._logger.info("Commmand {} : sent!".format(movement))
-
-    def send_rotate_command(self, movement: Movement):
+    def send_move_command(self, movement: Movement):
         self._logger.info("Commmand {} : sent!".format(movement))
