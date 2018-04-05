@@ -226,8 +226,9 @@ class StationController(object):
             else:
                 if self.model.robot_is_grabbing_cube:
                     self.logger.info("Entering new step, moving to grab the cube.")
-                    # TODO Envoyer la commande de déplacement au robot
+                    # TODO Envoyer la commande Forward(self.distance_to_cube + 3)
                     # TODO Envoyer la commande de grab du cube
+                    # TODO Envoyer la commande Backward(self.distance_to_cube + 4)
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = False
                     self.model.robot_is_holding_cube = True
