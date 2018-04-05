@@ -165,8 +165,9 @@ class StationController(object):
             self.network.ask_infrared_signal()
             self.model.robot_is_moving = True
             self.model.infrared_signal_asked = True
-            self.robot_detector.robot_position = target_position
-            self.robot_detector.robot_direction = Direction.SOUTH.angle
+            if self.config['robot']['use_mocked_robot_detector']:
+                self.robot_detector.robot_position = target_position
+                self.robot_detector.robot_direction = Direction.SOUTH.angle
             return
 
         if self.model.robot_is_moving:
@@ -214,8 +215,9 @@ class StationController(object):
                 self.__select_next_cube_color()
                 self.model.robot_is_moving = True
                 self.model.robot_is_holding_cube = False
-                self.robot_detector.robot_position = target_position
-                self.robot_detector.robot_direction = Direction.WEST.angle
+                if self.config['robot']['use_mocked_robot_detector']:
+                    self.robot_detector.robot_position = target_position
+                    self.robot_detector.robot_direction = Direction.WEST.angle
 
             else:
                 if self.model.robot_is_grabbing_cube:
@@ -270,8 +272,9 @@ class StationController(object):
                     # TODO Envoyer la commande de déplacement au robot
                     self.model.robot_is_moving = True
                     self.model.robot_is_grabbing_cube = True
-                    self.robot_detector.robot_position = target_position
-                    self.robot_detector.robot_direction = 0
+                    if self.config['robot']['use_mocked_robot_detector']:
+                        self.robot_detector.robot_position = target_position
+                        self.robot_detector.robot_direction = 0
         else:
             if self.model.light_is_lit:
                 self.logger.info("Entering new step, reseting for next flag.")
