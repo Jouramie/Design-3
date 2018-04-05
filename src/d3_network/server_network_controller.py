@@ -147,4 +147,4 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Can i grab a cube command sent!")
 
     def send_drop_cube(self) -> None:
-        self._logger.info("Drop cude command sent!")
+        self._logger.info("Drop cube command sent!")
