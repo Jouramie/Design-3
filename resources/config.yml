@@ -41,7 +41,6 @@ station:
     image_height: 1200
     image_save_dir: "fig/{date}"
   network:
-    use_mocked_network: false
     use_mocked_network: true
     mocked_country_code: 6
     port: *port

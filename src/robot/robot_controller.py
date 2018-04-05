@@ -74,7 +74,13 @@ class RobotController(object):
             raise NotImplementedError('Command not implemented on stm')
 
     def _validate_if_successful(self) -> bool:
-        return self._validate_target(commands_from_stm.Target.TASK_SUCCESS)
+        feedback_from_stm = self.receive_stm_command()
+        if feedback_from_stm == commands_from_stm.Command.SUCCESSFULL_TASK:
+            self._logger.info('Command successfull')
+            return True
+        else:
+            self._logger.info('Command Unsuccessfull')
+            return False
 
     def _validate_target(self, target: commands_from_stm.Target) -> bool:
         feedback_from_stm = self.receive_stm_command()
