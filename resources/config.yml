@@ -60,7 +60,7 @@ station:
         cube1:
           x: 180.5
           y: 84.5
-          pixel_x: 1453
+          pixel_x: 1424
           pixel_y: 240
         cube2:
           x: 203.5

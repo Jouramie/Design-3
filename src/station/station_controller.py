@@ -4,13 +4,13 @@ from logging import Logger
 
 import numpy as np
 
-from src.domain.path_calculator.direction import Direction
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
+from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
@@ -18,7 +18,6 @@ from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
-from src.domain.path_calculator.movement import Rotate
 from .station_model import StationModel
 
 
@@ -169,6 +168,7 @@ class StationController(object):
             return
 
         if self.model.robot_is_moving:
+            self.model.robot_is_moving = False
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             return
 
@@ -214,9 +214,25 @@ class StationController(object):
                         return
                     self.logger.info("Robot: {}".format(self.model.robot))
 
-                    target_position = (int(target_cube.center[0]),
-                                       int(target_cube.center[1] + max(self.model.robot.height,
-                                                                       self.model.robot.width) + 10))
+                    if target_cube.center[1] < -10:
+                        # Cube en bas
+                        target_position = (int(target_cube.center[0]),
+                                           int(target_cube.center[1] + NavigationEnvironment.BIGGEST_ROBOT_RADIUS + 10))
+                        pass
+                    elif target_cube.center[1] > 80:
+                        # Cube en haut
+                        target_position = (int(target_cube.center[0]),
+                                           int(target_cube.center[1] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10))
+                        pass
+                    elif target_cube.center[0] > 195:
+                        # Cube au fond
+                        target_position = (int(target_cube.center[0] - NavigationEnvironment.BIGGEST_ROBOT_RADIUS - 10),
+                                           int(target_cube.center[1]))
+                        pass
+                    else:
+                        self.logger.warning("Le cube n'est pas à la bonne place")
+                        return
+
                     is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
                                                                       self.navigation_environment.get_grid())
 
