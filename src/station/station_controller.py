@@ -10,9 +10,9 @@ from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
-from src.domain.path_calculator.movement import Forward, Backward, Rotate
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.grid import Grid
+from src.domain.path_calculator.movement import Forward, Backward, Rotate
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
@@ -216,7 +216,8 @@ class StationController(object):
                 self.logger.info("Robot: {}".format(self.model.robot))
 
                 cube_destination = self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1].center
-                target_position = cube_destination[0], cube_destination[1]
+                target_position = (cube_destination[0] - self.config['distance_between_robot_center_and_cube_center'],
+                                   cube_destination[1])
                 self.logger.info("Target position: {}".format(str(target_position)))
                 is_possible = self.path_calculator.calculate_path(self.model.robot.center, target_position,
                                                                   self.navigation_environment.get_grid())
