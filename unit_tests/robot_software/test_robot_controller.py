@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock
 
+from src.d3_network.command import Command
 from src.robot import robot_controller
 from src.robot.hardware.command.not_a_country_command_exception import NotACountryCommandException
 from src.robot.hardware.command.stm_command_definition import commands_to_stm, commands_from_stm
@@ -104,7 +105,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command_to_stm({'command': 'move-backward', 'amplitude': 200})
+        ctrl.send_movement_command_to_stm({'command': Command.MOVE_BACKWARD, 'amplitude': 200})
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3b\x07\xd0'))
 
@@ -124,6 +125,6 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command_to_stm({'command': 'move-forward', 'amplitude': 2222})
+        ctrl.send_movement_command_to_stm({'command': Command.MOVE_FORWARD, 'amplitude': 2222})
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3f\x56\xcc'))
