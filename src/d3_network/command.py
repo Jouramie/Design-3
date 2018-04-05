@@ -9,5 +9,4 @@ class Command(object):
     DROP = 'drop-it'
     MOVE_FORWARD = 'move-forward'
     MOVE_BACKWARD = 'move-backward'
-    MOVE_ROTATE_CLOCKWISE = 'move-rotate'
-    MOVE_ROTATE_COUNTER_CLOCKWISE = 'move-counter-clockwise'
+    MOVE_ROTATE = 'move-rotate'

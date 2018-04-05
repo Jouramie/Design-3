@@ -65,7 +65,7 @@ class RobotController(object):
         elif movement['command'] == Command.MOVE_BACKWARD:
             self._channel.send_command(StmCommandBuilder().backward(movement['amplitude']))
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
-        elif movement['command'] == Command.MOVE_ROTATE_CLOCKWISE:
+        elif movement['command'] == Command.MOVE_ROTATE:
             self._channel.send_command(StmCommandBuilder().rotate(movement['amplitude']))
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         else:
@@ -108,6 +108,10 @@ class RobotController(object):
             elif msg['command'] == Command.END_SIGNAL:
                 self.send_light_laide_command()
             elif msg['command'] == Command.MOVE_FORWARD:
+                self.send_movement_command_to_stm(msg)
+            elif msg['command'] == Command.MOVE_BACKWARD:
+                self.send_movement_command_to_stm(msg)
+            elif msg['command'] == Command.MOVE_ROTATE:
                 self.send_movement_command_to_stm(msg)
             else:
                 self._logger.info('Received this {} but does not know how to deal with it'.format(msg))

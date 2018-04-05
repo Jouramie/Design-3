@@ -104,7 +104,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command_to_stm({'command': 'backward', 'amplitude': 200})
+        ctrl.send_movement_command_to_stm({'command': 'move-backward', 'amplitude': 200})
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3b\x07\xd0'))
 
@@ -124,6 +124,6 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Command.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command_to_stm({'command': 'forward', 'amplitude': 2222})
+        ctrl.send_movement_command_to_stm({'command': 'move-forward', 'amplitude': 2222})
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3f\x56\xcc'))
