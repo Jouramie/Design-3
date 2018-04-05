@@ -4,9 +4,9 @@ import cv2
 
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
-from src.domain.objects.vision_cube import VisionCube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.target_zone import TargetZone
+from src.domain.objects.vision_cube import VisionCube
 from src.vision.table_crop import TableCrop
 
 obstacle_file = '../fig/2018-02-10/obstacles10.jpg'

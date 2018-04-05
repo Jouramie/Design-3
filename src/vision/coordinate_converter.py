@@ -2,12 +2,10 @@ import cv2
 import numpy as np
 from scipy import spatial
 
-from src.domain.objects.color import Color
-from src.domain.objects.vision_cube import VisionCube
+from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.obstacle import Obstacle
 from .table_camera_configuration import TableCameraConfiguration
 from .transform import Transform
-from src.domain.objects.flag_cube import FlagCube
 
 
 class CoordinateConverter:
@@ -86,5 +84,3 @@ class CoordinateConverter:
             real_cubes.append(flag_cube)
 
         return real_cubes
-
-

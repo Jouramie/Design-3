@@ -7,11 +7,10 @@ from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
 from src.domain.objects.flag_cube import FlagCube
-from src.domain.objects.vision_cube import VisionCube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.robot import Robot
 from src.domain.objects.target_zone import TargetZone
-from src.vision.camera_parameters import CameraParameters
+from src.domain.objects.vision_cube import VisionCube
 from src.vision.coordinate_converter import CoordinateConverter
 
 
@@ -94,4 +93,5 @@ class FrameDrawer(object):
         real_positions = np.array(cube_centers, 'float32')
         image_positions = self.coordinate_converter.project_points(real_positions)
 
-        cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr, thickness=3)
+        cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr,
+                      thickness=3)

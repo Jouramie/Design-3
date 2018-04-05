@@ -1,5 +1,5 @@
-from ..objects.vision_cube import VisionCube
 from ..objects.obstacle import Obstacle
+from ..objects.vision_cube import VisionCube
 
 
 class VisionEnvironment(object):

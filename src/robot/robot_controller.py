@@ -1,7 +1,6 @@
+import time
 from logging import Logger
 from queue import Queue
-
-import time
 
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm

@@ -1,7 +1,7 @@
+import os
 import sys
 import time
 from logging import Logger
-import os
 
 import cv2
 

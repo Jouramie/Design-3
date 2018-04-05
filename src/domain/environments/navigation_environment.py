@@ -1,11 +1,10 @@
 from logging import Logger
 
+from src.domain.objects.flag_cube import FlagCube
 from .navigation_environment_error import NavigationEnvironmentDataError
 from .real_world_environment import RealWorldEnvironment
-from ..objects.vision_cube import VisionCube
 from ..objects.obstacle import Obstacle
 from ..path_calculator.grid import Grid
-from src.domain.objects.flag_cube import FlagCube
 from ..path_calculator.path_calculator import PathCalculator
 
 
@@ -48,7 +47,7 @@ class NavigationEnvironment(object):
                         self.__set_obstacle_point(x, y, point)
 
                     except NavigationEnvironmentDataError as err:
-                        #self.logger.info(str(err))
+                        # self.logger.info(str(err))
                         pass
 
     # TODO clean way to add robot dimension to obstacle, radius? orientation? position?
@@ -67,24 +66,24 @@ class NavigationEnvironment(object):
                         self.__set_obstacle_point(x, y, point)
 
                     # Round shaped circle obstacle
-            #                for y in range(-2, 3):
-            #                   self.__set_obstacle_point(x, y, point)
-            #          for x in range(-6, 7):
-            #             for y in range(3, 5):
-            #                self.__set_obstacle_point(x, y, point)
-            #               self.__set_obstacle_point(-x, -y, point)
-            #      for x in range(-5, 6):
-            #         self.__set_obstacle_point(x, 5, point)
-            #        self.__set_obstacle_point(-x, -5, point)
-            #   for x in range(-4, 5):
-            #      self.__set_obstacle_point(x, 6, point)
-            #     self.__set_obstacle_point(-x, -6, point)
-            # for x in range(-2, 3):
-            #   self.__set_obstacle_point(x, 7, point)
-            #  self.__set_obstacle_point(-x, -7, point)
+                    #                for y in range(-2, 3):
+                    #                   self.__set_obstacle_point(x, y, point)
+                    #          for x in range(-6, 7):
+                    #             for y in range(3, 5):
+                    #                self.__set_obstacle_point(x, y, point)
+                    #               self.__set_obstacle_point(-x, -y, point)
+                    #      for x in range(-5, 6):
+                    #         self.__set_obstacle_point(x, 5, point)
+                    #        self.__set_obstacle_point(-x, -5, point)
+                    #   for x in range(-4, 5):
+                    #      self.__set_obstacle_point(x, 6, point)
+                    #     self.__set_obstacle_point(-x, -6, point)
+                    # for x in range(-2, 3):
+                    #   self.__set_obstacle_point(x, 7, point)
+                    #  self.__set_obstacle_point(-x, -7, point)
 
                     except NavigationEnvironmentDataError as err:
-                        #self.logger.info(str(err))
+                        # self.logger.info(str(err))
                         pass
 
     def __add_walls(self):
@@ -122,7 +121,8 @@ class NavigationEnvironment(object):
             for connection_decay in self.__grid.get_vertex(connection.get_id()).get_connections():
                 if not self.__grid.get_vertex(
                         connection_decay.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE and \
-                        not self.__grid.get_vertex(connection.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE:
+                        not self.__grid.get_vertex(
+                            connection.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE:
                     self.__grid.get_vertex(connection_decay.get_id()).set_new_weight(
                         self.__grid.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
 

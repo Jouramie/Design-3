@@ -39,6 +39,7 @@ class ServerNetworkController(NetworkController):
     def send_drop_cube(self) -> None:
         raise NotImplementedError("This is an interface...")
 
+
 class SocketServerNetworkController(ServerNetworkController):
 
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
@@ -111,6 +112,7 @@ class SocketServerNetworkController(ServerNetworkController):
         self._send_command(Command.DROP)
 
         self._logger.info("Drop cude command sent!")
+
 
 class MockedServerNetworkController(ServerNetworkController):
     def __init__(self, logger: Logger, port: int = 0, encoder: Encoder = None):
