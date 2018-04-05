@@ -8,9 +8,9 @@ from src.robot.hardware.message_corrupted_exception import MessageCorruptedExcep
 class TestCommandConverter(TestCase):
 
     def setUp(self):
-        self.country_code_message = "b'\xb0\x04\x12\x3A'"
-        self.other_country_code_message = "b'\xb0\x75\x12\xc9'"
-        self.wrong_country_code_message = "b'\xb1\x04\x4b\x00'"
+        self.country_code_message = bytearray(b'\xb0\x04\x12\x3A')
+        self.other_country_code_message = bytearray(b'\xb0\x75\x12\xc9')
+        self.wrong_country_code_message = bytearray(b'\xb1\x04\x4b\x00')
 
     def test_given_infra_red_signal_then_extract_country_code(self):
         command = CommandFromStm(self.country_code_message)

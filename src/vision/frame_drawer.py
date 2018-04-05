@@ -29,6 +29,16 @@ class FrameDrawer(object):
         cv2.line(frame, tuple(robot_projected_points[2][0]), tuple(robot_projected_points[3][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[3][0]), tuple(robot_projected_points[0][0]), (204, 0, 204), 3)
 
+        projected_center_x = int((robot_projected_points[1][0][0] + robot_projected_points[2][0][0]) / 2)
+        projected_center_y = int((robot_projected_points[1][0][1] + robot_projected_points[2][0][1]) / 2)
+        robot_projected_orientation_center = (projected_center_x, projected_center_y)
+
+        projected_center_front_x = int((robot_projected_points[0][0][0] + robot_projected_points[2][0][0]) / 2)
+        projected_center_front_y = int((robot_projected_points[0][0][1] + robot_projected_points[2][0][1]) / 2)
+        robot_projected_front_orientation_center = (projected_center_front_x, projected_center_front_y)
+
+        cv2.line(frame, robot_projected_orientation_center, robot_projected_front_orientation_center, (204, 0, 204), 3)
+
         self.__draw_robot_radius(frame, robot_projected_points)
 
     def draw_real_path(self, frame, points):

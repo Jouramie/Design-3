@@ -7,9 +7,9 @@ from src.robot.hardware.command.stm_command_definition import commands_from_stm
 class TestCommandFromStm(TestCase):
 
     def test_when_create_command_then_created(self):
-        command = CommandFromStm("b'\xfc\x12\x34\xbe'")
+        command = CommandFromStm(b'\xfc\x12\x34\xbe')
 
-        self.assertEqual(command.command, 'fc1234be')
+        self.assertEqual(command.command, bytearray(b'\xfc\x12\x34\xbe'))
 
     def test_when_create_command_then_target_tracked(self):
         command = CommandFromStm(commands_from_stm.Command.SUCCESSFULL_TASK.value)
