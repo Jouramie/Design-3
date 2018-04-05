@@ -143,11 +143,7 @@ class MockedServerNetworkController(ServerNetworkController):
     def __init__(self, logger: Logger, port: int = 0, encoder: Encoder = None):
         super().__init__(logger, port, encoder)
         self.COUNTRY_CODE = 31
-<<<<<<< HEAD
         self.MOVEMENT = Rotate(30)
-=======
-        self.COMMAND = bytearray(b'\x21\x00\x5a')
->>>>>>> ddb9ad1f026e63de04809fb7d1a75e0eaccac681
 
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
@@ -179,13 +175,8 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_drop_cube(self) -> None:
         self._logger.info("Drop cube command sent!")
 
-<<<<<<< HEAD
     def send_move_forward_command(self, movement: Movement) -> None:
         self._logger.info("Commmand {} : sent!".format(self.MOVEMENT))
-=======
-    def send_move_command(self, command: bytearray) -> None:
-        self._logger.info("Commmand {} : sent!".format(self.COMMAND.decode()))
->>>>>>> ddb9ad1f026e63de04809fb7d1a75e0eaccac681
 
     def send_move_backward_command(self, movement: Movement):
         self._logger.info("Commmand {} : sent!".format(movement))

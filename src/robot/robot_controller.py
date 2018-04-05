@@ -58,7 +58,6 @@ class RobotController(object):
     def _send_seek_flag(self) -> None:
         self._channel.send_command(commands_to_stm.Command.SEEK_FLAG.value)
 
-<<<<<<< HEAD
     def send_movement_command_to_stm(self, movement: dict):
         if movement['command'] == Command.MOVE_FORWARD:
             self._channel.send_command(StmCommandBuilder().forward(movement['amplitude']))
@@ -71,11 +70,6 @@ class RobotController(object):
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         else:
             raise NotImplementedError('Command not implemented on stm')
-=======
-    def send_movement_command_to_stm(self, command: str):
-        self._logger.info('Sending to stm : {}'.format(command))
-        self._channel.send_command(command)
->>>>>>> ddb9ad1f026e63de04809fb7d1a75e0eaccac681
 
     def _validate_if_successful(self) -> bool:
         return self._validate_target(commands_from_stm.Target.TASK_SUCCESS)

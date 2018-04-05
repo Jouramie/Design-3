@@ -37,3 +37,11 @@ class TestCommandBuilder(TestCase):
     def test_when_build_rotate_counter_clockwise_sw_then_correct_syntax(self):
         command = StmCommandBuilder().rotate(45)
         self.assertEqual(b'\x21\x00\x2d', command)
+
+    def test_when_build_rotate_clockwise_then_correct_syntax(self):
+        command = StmCommandBuilder().rotate(90)
+        self.assertEqual(b'\x21\x00\x5a', command)
+
+    def test_when_build_rotate_counter_clockwise_then_correct_syntax(self):
+        command = StmCommandBuilder().rotate(-90)
+        self.assertEqual(b'\x20\x00\x5a', command)
