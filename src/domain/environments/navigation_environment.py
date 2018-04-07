@@ -16,7 +16,6 @@ class NavigationEnvironment(object):
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 7
     BIGGEST_ROBOT_RADIUS = 23
-    DEFAULT_OFFSET = -23
 
     __width = 0
     __height = 0
@@ -67,17 +66,17 @@ class NavigationEnvironment(object):
 
     def __add_walls(self):
         no_go_size = self.BIGGEST_ROBOT_RADIUS
-        max_height = self.DEFAULT_HEIGHT + self.DEFAULT_OFFSET
-        max_width = self.DEFAULT_WIDTH + self.DEFAULT_OFFSET
+        max_height = self.DEFAULT_HEIGHT + self.__grid.DEFAULT_OFFSET
+        max_width = self.DEFAULT_WIDTH + self.__grid.DEFAULT_OFFSET
 
-        for x in range(self.DEFAULT_OFFSET, max_height):
-            for y in range(self.DEFAULT_OFFSET, self.DEFAULT_OFFSET + no_go_size + 1):
+        for x in range(self.__grid.DEFAULT_OFFSET, max_height):
+            for y in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size + 1):
                 self.__add_wall(x, y)
             for y in range(max_width - no_go_size, max_width):
                 self.__add_wall(x, y)
 
-        for y in range(self.DEFAULT_OFFSET, max_width):
-            for x in range(self.DEFAULT_OFFSET, self.DEFAULT_OFFSET + no_go_size + 1):
+        for y in range(self.__grid.DEFAULT_OFFSET, max_width):
+            for x in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size + 1):
                 self.__add_wall(x, y)
             for x in range(max_height - no_go_size, max_height):
                 self.__add_wall(x, y)
