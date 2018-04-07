@@ -26,8 +26,3 @@ class Vertex:
 
     def get_id(self):
         return self.__id
-
-    def reset_vertex(self):
-        self.__stepValue = self.DEFAULT_VALUE
-        for connection in self.get_connections():
-            self.set_new_weight(connection, self.DEFAULT_WEIGHT)
