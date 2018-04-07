@@ -1,8 +1,9 @@
 from unittest import TestCase
 
 from src.domain.path_calculator.grid import Grid
+from src.domain.path_calculator.path_calculator import PathCalculator
 
-SOME_DEFAULT_SIZE = 50
+SOME_DEFAULT_SIZE = 60
 SOME_VALUE_0 = 0
 SOME_VALUE_1 = 1
 SOME_VALUE_2 = 2
@@ -17,7 +18,6 @@ class TestGrid(TestCase):
 
         grid = Grid(SOME_DEFAULT_SIZE, SOME_DEFAULT_SIZE)
 
-        # Assert all vertices are created
         for node in nodes:
             assert node in grid.get_vertices()
 
@@ -27,6 +27,15 @@ class TestGrid(TestCase):
 
         grid = Grid(SOME_DEFAULT_SIZE, SOME_DEFAULT_SIZE)
 
-        # Assert weight in both direction
         assert DEFAULT_WEIGHT == grid.get_vertex(node_1).get_neighbor_weight(grid.get_vertex(node_2))
         assert DEFAULT_WEIGHT == grid.get_vertex(node_2).get_neighbor_weight(grid.get_vertex(node_1))
+
+    def test_when_resetting_neighbor_then_reset_to_unassigned_value_unless_obstacle(self):
+        grid = Grid(SOME_DEFAULT_SIZE, SOME_DEFAULT_SIZE)
+        grid.get_vertex((SOME_VALUE_2, SOME_VALUE_2)).set_step_value(PathCalculator.OBSTACLE_VALUE)
+        grid.get_vertex((SOME_VALUE_1, SOME_VALUE_1)).set_step_value(SOME_VALUE_3)
+
+        grid.reset_neighbor_step_value_keep_obstacles(PathCalculator.OBSTACLE_VALUE, PathCalculator.UNASSIGNED_VALUE)
+
+        self.assertEqual(PathCalculator.OBSTACLE_VALUE, grid.get_vertex((SOME_VALUE_2, SOME_VALUE_2)).get_step_value())
+        self.assertEqual(PathCalculator.UNASSIGNED_VALUE, grid.get_vertex((SOME_VALUE_1, SOME_VALUE_1)).get_step_value())
