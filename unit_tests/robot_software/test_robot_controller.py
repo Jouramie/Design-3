@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, Mock
 
 from src.d3_network.command import Command
 from src.robot import robot_controller
-from src.robot.hardware.command.not_a_country_command_exception import NotACountryCommandException
-from src.robot.hardware.command.stm_command_definition import commands_to_stm, commands_from_stm
+from src.robot.hardware.command.stm_command_builder import StmCommand
+from src.robot.hardware.command.stm_command_definition import commands_from_stm
 
 
 class TestRobotController(TestCase):
@@ -36,67 +36,15 @@ class TestRobotController(TestCase):
 
         network_ctrl.wait_start_command.assert_called_once()
 
-    def test_when_receive_country_code_then_return_country_code(self):
-        network_ctrl = MagicMock()
-        channel = Mock()
-        channel.receive_message = Mock(return_value=bytearray(b'\xb0\x43\x12\xfb'))
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-
-        ctrl.execute_flag_sequence()
-
-        channel.receive_message.assert_called_once()
-
-    def test_when_receive_wrong_country_code_then_raise_not_a_country_command_exception(self):
-        network_ctrl = MagicMock()
-        channel = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-
-        self.assertRaises(NotACountryCommandException, ctrl.execute_flag_sequence())
-
-    def test_when_send_grab_cube_then_send_via_channel(self):
-        network_ctrl = MagicMock()
-        channel = Mock()
-        channel.send_command = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Message.UNSUCCESSFULL_TASK.value)
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-        ctrl.send_ask_if_can_grab_cube = Mock(return_value=True)
-
-        ctrl.send_grab_cube()
-
-        channel.send_command.assert_called_once_with(commands_to_stm.Command.GRAB_CUBE.value)
-
-    def test_when_send_grab_cube_and_not_ready_then_return_false(self):
-        network_ctrl = MagicMock()
-        channel = Mock()
-        channel.send_command = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Message.UNSUCCESSFULL_TASK.value)
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-
-        ctrl.send_grab_cube()
-
-        self.assertEqual(False, ctrl.send_grab_cube())
-
-    def test_when_send_drop_cube_then_send_via_channel(self):
-        network_ctrl = MagicMock()
-        channel = Mock()
-        channel.send_command = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-
-        ctrl.send_drop_cube()
-
-        channel.send_command.assert_called_once_with(commands_to_stm.Command.DROP_CUBE.value)
-
-    def test_when_ask_if_can_grab_cube_then_send_via_channel(self):
-        network_ctrl = MagicMock()
+    def test_when_receive_message_from_stm_then_append_it_to_queue(self):
         channel = MagicMock()
-        channel.attach_mock(Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value), 'receive_message')
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
+        channel.attach_mock(Mock(return_value=commands_from_stm.Feedback(
+            commands_from_stm.Message.TASK_RECEIVED_ACK.value)), 'receive_message')
+        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
-        ctrl.send_ask_if_can_grab_cube()
+        ctrl.receive_stm_command()
 
-        channel.send_command.assert_called_once_with(commands_to_stm.Command.CAN_GRAB_CUBE.value)
+        self.assertEqual(1, ctrl._stm_responses_queue.qsize())
 
     def test_when_send_movement_command_then_send_via_channel(self):
         network_ctrl = MagicMock()
@@ -104,26 +52,14 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
         ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_movement_command_to_stm({'command': Command.MOVE_BACKWARD, 'amplitude': 200})
+        ctrl.send_command_to_stm(StmCommand.factory({'command': Command.MOVE_BACKWARD, 'amplitude': 200}))
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3b\x07\xd0'))
 
-    def test_when_receive_successful_end_of_task_then_message_received_correclty(self):
-        network_ctrl = MagicMock()
-        channel = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
+    def test_when_add_movement_to_queue_then_movement_added(self):
+        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
+        command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
 
-        ctrl._validate_if_successful()
+        ctrl.add_stm_command_to_queue(command)
 
-        channel.receive_message.assert_called_once()
-
-    def test_when_receive_movement_command_then_command_sent_to_stm(self):
-        network_ctrl = MagicMock()
-        channel = Mock()
-        channel.receive_message = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
-        ctrl = robot_controller.RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
-
-        ctrl.send_movement_command_to_stm({'command': Command.MOVE_FORWARD, 'amplitude': 2222})
-
-        channel.send_command.assert_called_once_with(bytearray(b'\x3f\x56\xcc'))
+        self.assertEqual(StmCommand.factory(command), ctrl._stm_commands_todo.pop())

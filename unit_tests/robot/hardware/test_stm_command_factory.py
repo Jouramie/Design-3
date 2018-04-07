@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from src.d3_network.command import Command
 from src.robot.hardware.command.stm_command_builder import StmCommand
-from src.robot.hardware.command.stm_command_definition.commands_to_stm import Target
+from src.robot.hardware.command.stm_command_definition import commands_to_stm
 
 
 class TestStmCommandFactory(TestCase):
@@ -46,3 +46,25 @@ class TestStmCommandFactory(TestCase):
     def test_when_build_rotate_counter_clockwise_then_correct_syntax(self):
         command = StmCommand.factory({'command': Command.MOVE_ROTATE, 'amplitude': -90.0})
         self.assertEqual(b'\x20\x00\x5a', command)
+
+    def test_when_build_ir_signal_then_correct_syntax(self):
+        command = StmCommand.factory({'command': Command.INFRARED_SIGNAL})
+        self.assertEqual(commands_to_stm.Command.IR_SIGNAL.value, command)
+
+    def test_when_build_grab_cube_then_correct_syntax(self):
+        command = StmCommand.factory({'command': Command.GRAB})
+        self.assertEqual(commands_to_stm.Command.GRAB_CUBE.value, command)
+
+    def test_when_build_can_grab_cube_then_correct_syntax(self):
+        command = StmCommand.factory({'command': Command.CAN_I_GRAB})
+        self.assertEqual(commands_to_stm.Command.CAN_GRAB_CUBE.value, command)
+
+    def test_when_build_drop_cube_then_correct_syntax(self):
+        command = StmCommand.factory({'command': Command.DROP})
+        self.assertEqual(commands_to_stm.Command.DROP_CUBE.value, command)
+
+    def test_when_build_light_led_then_correct_syntax(self):
+        command = StmCommand.factory({'command': Command.END_SIGNAL})
+        self.assertEqual(commands_to_stm.Command.LIGHT_IT_UP.value, command)
+
+

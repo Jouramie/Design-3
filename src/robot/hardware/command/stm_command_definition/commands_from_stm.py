@@ -11,15 +11,18 @@ class Target(Enum):
 class Message(Enum):
     SUCCESSFULL_TASK = bytearray(b'\xfc\x12\x34\xbe')
     UNSUCCESSFULL_TASK = bytearray(b'\xec\x12\x34\xce')
+    TASK_CUBE_FAILED = bytearray(b'\xec\x6c\x6c\x3c')
     TASK_RECEIVED_ACK = bytearray(b'\xcd\x2a\x3a\xcf')
     NOTHING = bytearray(b'')
     OPEN_CLOSE_MSG = bytearray(b'\xff')
     MESSAGES_TO_IGNORE = [OPEN_CLOSE_MSG, NOTHING]
     BYTES_TO_READ = 4
 
+
 class Feedback(object):
     TASK_SUCCESS = 'task-success'
     TASK_FAILED = 'task-failure'
+    TASK_CUBE_FAILED = 'task-failure'
     TASK_RECEIVED = 'task-received'
     COUNTRY = 'country'
     HEY = 'hey'
@@ -31,7 +34,9 @@ class Feedback(object):
         elif message == Message.SUCCESSFULL_TASK.value:
             self.type = Feedback.TASK_SUCCESS
         elif message == Message.UNSUCCESSFULL_TASK.value:
-            self.type =  Feedback.TASK_FAILED
+            self.type = Feedback.TASK_FAILED
+        elif message == Message.TASK_RECEIVED_ACK.value:
+            self.type = Feedback.TASK_RECEIVED
         elif message[0] == Target.PAYS.value:
             self.type = Feedback.COUNTRY
             self.country = message[1]

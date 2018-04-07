@@ -1,6 +1,6 @@
+import time
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM, timeout
-import time
 
 from .command import Command
 from .encoder import Encoder
@@ -77,3 +77,6 @@ class ClientNetworkController(NetworkController):
                 time.sleep(1)
         self._logger.info(msg)
         return msg
+
+    def send_feedback(self, feedback: dict):
+        self._send_command(Command.GRAB_CUBE_FAILURE)
