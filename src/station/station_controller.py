@@ -8,7 +8,7 @@ from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
-from src.domain.environments.real_world_environment import RealWorldEnvironment
+from src.domain.environments.real_world_environment_factory import RealWorldEnvironmentFactory
 from src.domain.objects.color import Color
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.grid import Grid
@@ -16,8 +16,6 @@ from src.domain.path_calculator.movement import Forward, Backward, Rotate
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
-from src.vision.coordinate_converter import CoordinateConverter
-from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
 from .station_model import StationModel
@@ -27,8 +25,8 @@ class StationController(object):
     DISTANCE_FROM_CUBE = NavigationEnvironment.BIGGEST_ROBOT_RADIUS + 5
 
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
-                 coordinate_converter: CoordinateConverter, robot_detector: RobotDetector, logger: Logger,
-                 config: dict):
+                 real_world_environment_factory: RealWorldEnvironmentFactory, robot_detector: RobotDetector,
+                 logger: Logger, config: dict):
         self.model = model
         self.logger = logger
         self.config = config
@@ -43,9 +41,8 @@ class StationController(object):
         self.navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.navigation_environment.create_grid()
 
-        self.coordinate_converter = coordinate_converter
+        self.real_world_environment_factory = real_world_environment_factory
         self.robot_detector = robot_detector
-        self.frame_drawer = FrameDrawer(self.coordinate_converter, logger.getChild("FrameDrawer"))
 
         self.obstacle_pos = []
 
@@ -95,22 +92,6 @@ class StationController(object):
         except MessageNotReceivedYet:
             return None
 
-    def __draw_environment(self, frame):
-        if self.model.vision_environment is not None:
-            self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
-
-        if self.model.real_world_environment is not None:
-            self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
-
-        if self.model.planned_path is not None and self.model.planned_path:
-            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
-
-        if self.model.real_path is not None and self.model.real_path:
-            self.frame_drawer.draw_real_path(frame, np.asarray(self.model.real_path))
-
-        if self.model.robot is not None:
-            self.frame_drawer.draw_robot(frame, self.model.robot)
-
     def __find_country(self):
         self.model.country = self.country_loader.get_country(self.model.country_code)
         self.logger.info(
@@ -139,15 +120,12 @@ class StationController(object):
             self.model.real_path.append(np.float32(robot_center_3d))
 
         if not self.model.robot_is_started:
-            self.__draw_environment(self.model.frame)
             return
 
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.real_world_environment is None:
             self.__generate_environments()
-
-        self.__draw_environment(self.model.frame)
 
         if not self.model.infrared_signal_asked:
             self.logger.info("Entering new step, asking country-code.")
@@ -324,8 +302,8 @@ class StationController(object):
         self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
                                                                              self.config['table_number'])
         self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
-        self.model.real_world_environment = RealWorldEnvironment(self.model.vision_environment,
-                                                                 self.coordinate_converter)
+        self.model.real_world_environment = self.real_world_environment_factory.create_real_world_environment(
+            self.model.vision_environment)
         if self.model.country is not None:
             for cube in self.model.country.stylized_flag.flag_cubes:
                 if cube.is_placed:

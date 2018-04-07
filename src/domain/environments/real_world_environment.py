@@ -1,15 +1,18 @@
-from src.vision.coordinate_converter import CoordinateConverter
-from .vision_environment import VisionEnvironment
 from ..objects.color import Color
 from ..objects.flag_cube import FlagCube
+from ..objects.obstacle import Obstacle
+from ..objects.target_zone import TargetZone
 
 
 class RealWorldEnvironment(object):
-    def __init__(self, vision_environment: VisionEnvironment,
-                 coordinate_converter: CoordinateConverter):
-        self.obstacles = coordinate_converter.project_obstacles(vision_environment.obstacles)
-        self.cubes = coordinate_converter.convert_vision_cubes_to_real_world_environment_cubes(vision_environment.cubes)
-        self.target_zone = None
+    def __init__(self, obstacles: [Obstacle] = None, cubes: [FlagCube] = None, target_zone: TargetZone = None):
+        self.obstacles = obstacles
+        if self.obstacles is None:
+            self.obstacles = []
+        self.cubes = cubes
+        if self.cubes is None:
+            self.cubes = []
+        self.target_zone = target_zone
 
     def __str__(self):
         return "Cubes: {} \nObstacles: {} \nTarget: {}".format('\n    '.join(str(c) for c in self.cubes),

@@ -1,11 +1,11 @@
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM
 
-from ..domain.path_calculator.movement import Movement, Rotate
 from .command import Command
 from .encoder import Encoder
 from .network_controller import NetworkController
 from .network_exception import NetworkException, WrongCommand
+from ..domain.path_calculator.movement import Movement, Rotate
 
 
 class ServerNetworkController(NetworkController):
@@ -121,7 +121,6 @@ class SocketServerNetworkController(ServerNetworkController):
         self._send_command(movement.command, {'amplitude': movement.amplitude})
 
         self._logger.info("Commmand {} : sent!".format(movement))
-
 
 
 class MockedServerNetworkController(ServerNetworkController):

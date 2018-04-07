@@ -15,9 +15,6 @@ class Camera(object):
     def take_picture(self):
         raise NotImplementedError("This is an interface...")
 
-    def take_video(self):
-        raise NotImplementedError("This is an interface...")
-
     def get_frame(self):
         raise NotImplementedError("This is an interface...")
 
@@ -35,6 +32,7 @@ class RealCamera(Camera):
         self.image_save_dir = image_save_dir
 
     def take_picture(self):
+        self.__check_capture_object_is_opened()
         is_frame_returned, img = self.capture_object.read()
         if is_frame_returned:
             self.logger.info('Picture taken')
@@ -50,44 +48,26 @@ class RealCamera(Camera):
             self.logger.info(message)
             raise CameraError(message)
 
-    def take_video(self):
-        while self.capture_object.isOpened():
-            ret, frame = self.capture_object.read()
-            if ret:
-                cv2.imshow('frame', frame)
-                if cv2.waitKey(0):
-                    break
-            else:
-                break
-
     def get_frame(self):
-        if self.capture_object.isOpened():
-            is_frame_returned = False
-            while not is_frame_returned:
-                is_frame_returned, frame = self.capture_object.read()
-            return frame
-        else:
-            message = 'Camera is not opened'
-            self.logger.info(message)
-            raise CameraError(message)
+        self.__check_capture_object_is_opened()
+        is_frame_returned = False
+        while not is_frame_returned:
+            is_frame_returned, frame = self.capture_object.read()
+        return frame
 
     def get_fps(self):
-        if self.capture_object.isOpened():
-            fps = self.capture_object.get(cv2.CAP_PROP_FPS)
-            return fps
-        else:
-            message = 'Camera is not opened'
-            self.logger.info(message)
-            raise CameraError(message)
+        self.__check_capture_object_is_opened()
+        fps = self.capture_object.get(cv2.CAP_PROP_FPS)
+        return fps
 
     def release(self):
-        if self.capture_object.isOpened():
-            self.logger.info("Capture object released.")
-            self.capture_object.release()
-        else:
-            message = 'Camera is not opened'
-            self.logger.info(message)
-            raise CameraError(message)
+        self.__check_capture_object_is_opened()
+        self.logger.info("Capture object released.")
+        self.capture_object.release()
+
+    def __check_capture_object_is_opened(self):
+        if not self.capture_object.isOpened():
+            raise CameraError('Camera is not opened')
 
 
 class MockedCamera(Camera):
@@ -97,9 +77,6 @@ class MockedCamera(Camera):
 
     def take_picture(self):
         return self.get_frame()
-
-    def take_video(self):
-        raise NotImplementedError('This method is not implemented yet.')
 
     def get_frame(self):
         # self.logger.info("Returning image at {}.".format(self.image_file_path))
@@ -117,7 +94,8 @@ def create_real_camera(config: dict, logger: Logger) -> RealCamera:
     capture_object.set(cv2.CAP_PROP_FRAME_WIDTH, config['image_width'])
     capture_object.set(cv2.CAP_PROP_FRAME_HEIGHT, config['image_height'])
     print(sys.platform)
-    if (sys.platform == "win32"):
+
+    if sys.platform == "win32":
         # Disable auto-settings of opencv-contrib
         capture_object.set(cv2.CAP_PROP_AUTOFOCUS, False)
         capture_object.set(cv2.CAP_PROP_AUTO_EXPOSURE, False)
@@ -136,7 +114,8 @@ def create_real_camera(config: dict, logger: Logger) -> RealCamera:
 
         # Set focus
         capture_object.set(cv2.CAP_PROP_FOCUS, 24)
-    if (sys.platform == "linux2"):
+
+    if sys.platform == "linux2":
         capture_object.set(cv2.CAP_PROP_CONTRAST, 0.1)
         capture_object.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
 

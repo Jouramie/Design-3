@@ -9,16 +9,16 @@ IMAGE_SAVE_DIRECTORY = "fig/{date}"
 
 class TestRealCamera(TestCase):
 
-    def test_when_successfully_taking_picture_then_openCV_called(self):
+    def test_given_real_camera_when_successfully_taking_picture_then_openCV_called(self):
         capture_object = MagicMock()
         capture_object.attach_mock(Mock(return_value=[True, True]), 'read')
-
         camera = RealCamera(capture_object, MagicMock(), IMAGE_SAVE_DIRECTORY)
+
         camera.take_picture()
 
         capture_object.read.assert_called_once()
 
-    def test_when_unsuccessfully_taking_a_picture_then_exception_raised(self):
+    def test_given_real_camera_when_unsuccessfully_taking_a_picture_then_exception_raised(self):
         capture_object = MagicMock()
         capture_object.attach_mock(Mock(return_value=[False, True]), 'read')
 
@@ -26,9 +26,3 @@ class TestRealCamera(TestCase):
 
         self.assertRaises(CameraError, camera.take_picture)
 
-    def test_when_successfully_taking_a_video_then_openCV_called(self):
-        capture_object = MagicMock()
-        capture_object.attach_mock(Mock(return_value=[False, True]), 'read')
-
-        camera = RealCamera(capture_object, MagicMock(), IMAGE_SAVE_DIRECTORY)
-        camera.take_video()

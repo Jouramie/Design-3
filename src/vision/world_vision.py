@@ -5,18 +5,8 @@ import cv2
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
 from src.domain.objects.obstacle import Obstacle
-from src.domain.objects.target_zone import TargetZone
 from src.domain.objects.vision_cube import VisionCube
 from src.vision.table_crop import TableCrop
-
-obstacle_file = '../fig/2018-02-10/obstacles10.jpg'
-
-THICKNESS = 2
-
-
-class MockedWorldVision:
-    def create_environment(self) -> VisionEnvironment:
-        return VisionEnvironment([], [Obstacle((1043.5, 850.0), 52.9)], TargetZone((), []))
 
 
 class WorldVision:
@@ -133,39 +123,6 @@ class WorldVision:
     def __create_cube(self, contour, color: Color) -> VisionCube:
         x, y, w, h = cv2.boundingRect(contour)
         return VisionCube(color, [(x, y), (x + w, y + h)])
-
-    def __find_target_zone(self, original_image) -> TargetZone:
-        hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
-
-        mask = cv2.inRange(hsv_image, Color.TARGET_ZONE_GREEN.lower_bound, Color.TARGET_ZONE_GREEN.upper_bound)
-
-        img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-
-        for shape in contours:
-            x = shape[0][0][0]
-            if cv2.arcLength(shape, True) > 2000 and x > 50:
-                return self.__create_target_zone(shape)
-            else:
-                break
-
-        hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
-
-        mask = cv2.inRange(hsv_image, Color.GREEN.lower_bound, Color.GREEN.upper_bound)
-
-        img, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-
-        for shape in contours:
-            x = shape[0][0][0]
-            if cv2.arcLength(shape, True) > 3000 and x > 50:
-                return self.__create_target_zone(shape)
-            else:
-                break
-
-    def __create_target_zone(self, contour) -> TargetZone:
-        x, y, w, h = cv2.boundingRect(contour)
-        center = (x + w / 2, y + h / 2)
-        corners = [(x, y), (x + w, y + h)]
-        return TargetZone(center, corners)
 
     def __find_obstacles(self, frame) -> [Obstacle]:
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

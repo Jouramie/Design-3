@@ -22,9 +22,11 @@ class Forward(Movement):
     def __init__(self, amplitude):
         super().__init__(Command.MOVE_FORWARD, amplitude)
 
+
 class Backward(Movement):
     def __init__(self, amplitude):
         super().__init__(Command.MOVE_BACKWARD, amplitude)
+
 
 class Left(Movement):
     def __init__(self, amplitude):

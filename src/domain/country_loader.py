@@ -56,9 +56,6 @@ class CountryLoader(object):
             pixel_position_y = pixel_position_y - NUMBER_OF_PIXELS_BETWEEN_TWO_CUBES
             world_position_x = world_position_x + DISTANCE_BETWEEN_TWO_CUBES
 
-
-
-
         return StylizedFlag(flag_cubes)
 
     def get_country(self, country_code: int) -> Country:
