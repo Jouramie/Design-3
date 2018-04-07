@@ -15,6 +15,7 @@ class NavigationEnvironment(object):
     INFINITY_WEIGHT = 3
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 7
+    # TODO Validate and test
     BIGGEST_ROBOT_RADIUS = 23
 
     __width = 0
@@ -69,19 +70,19 @@ class NavigationEnvironment(object):
                         pass
 
     def __add_walls(self):
-        no_go_size = self.BIGGEST_ROBOT_RADIUS + 1
+        no_go_size = self.BIGGEST_ROBOT_RADIUS
 
         max_height = self.DEFAULT_HEIGHT + self.__grid.DEFAULT_OFFSET
         max_width = self.DEFAULT_WIDTH + self.__grid.DEFAULT_OFFSET
 
         for x in range(self.__grid.DEFAULT_OFFSET, max_height):
-            for y in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size):
+            for y in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size + 1):
                 self.__add_wall(x, y)
             for y in range(max_width - no_go_size, max_width):
                 self.__add_wall(x, y)
 
         for y in range(self.__grid.DEFAULT_OFFSET, max_width):
-            for x in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size):
+            for x in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size + 1):
                 self.__add_wall(x, y)
             for x in range(max_height - no_go_size, max_height):
                 self.__add_wall(x, y)
@@ -100,13 +101,6 @@ class NavigationEnvironment(object):
         for connection in self.__grid.get_vertex(point).get_connections():
             self.__grid.get_vertex(connection.get_id()).set_new_weight(
                 self.__grid.get_vertex(point), self.INFINITY_WEIGHT)
-            for connection_decay in self.__grid.get_vertex(connection.get_id()).get_connections():
-                if not self.__grid.get_vertex(
-                        connection_decay.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE and \
-                        not self.__grid.get_vertex(
-                            connection.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE:
-                    self.__grid.get_vertex(connection_decay.get_id()).set_new_weight(
-                        self.__grid.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
 
     def __validate_point_in_grid(self, point):
         try:
