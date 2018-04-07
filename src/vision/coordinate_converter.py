@@ -23,10 +23,10 @@ class CoordinateConverter:
     def get_camera_to_world(self):
         return self.world_to_camera.inverse()
 
-    def project_obstacles(self, obstacles: [Obstacle]) -> [Obstacle]:
-        return list(map(self.project_obstacle, obstacles))
+    def project_obstacles_from_pixel_to_real_world(self, obstacles: [Obstacle]) -> [Obstacle]:
+        return list(map(self.project_obstacle_from_pixel_to_real_world, obstacles))
 
-    def project_obstacle(self, obstacle: Obstacle) -> Obstacle:
+    def project_obstacle_from_pixel_to_real_world(self, obstacle: Obstacle) -> Obstacle:
         object_points = np.array([(0, 0, 41), (6.3, 0, 41), (-6.3, 0, 41), (0, 6.3, 41), (0, -6.3, 41)], 'float32')
 
         image_points = np.array([obstacle.center,
@@ -51,7 +51,7 @@ class CoordinateConverter:
         obstacle_information = world_to_obstacle.to_parameters(True)
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
 
-    def project_points(self, points):
+    def project_points_from_real_world_to_pixel(self, points):
         camera_to_world_parameters = self.get_camera_to_world().to_parameters()
         camera_to_world_tvec = np.array(
             [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])

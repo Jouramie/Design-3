@@ -7,19 +7,26 @@ from PyQt5.QtWidgets import QMainWindow
 
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
+from src.vision.frame_drawer import FrameDrawer
 
 
 class StationView(QMainWindow):
-    def __init__(self, model: StationModel, station_controller: StationController, config: dict):
+    def __init__(self, model: StationModel, station_controller: StationController, frame_drawer: FrameDrawer,
+                 config: dict):
         self.__config = config
+
         self.model = model
         self.station_controller = station_controller
+        self.frame_drawer = frame_drawer
+
         self.ui = uic.loadUi(Path(self.__config['resources_path']['ui']))
         self.time = QTime(0, 0, 0, 0)
         self.update_timer = QTimer()
         self.update_timer.start(100)
         self.update_timer.timeout.connect(self.update)
+
         self.ui.StartButton.clicked.connect(self.start_robot)
+
         super(StationView, self).__init__()
 
     def start_robot(self):
@@ -27,6 +34,8 @@ class StationView(QMainWindow):
 
     def update(self):
         self.station_controller.update()
+
+        self.__draw_environment(self.model.frame)
 
         # update ui with model
         self.__update_timer_display()
@@ -68,3 +77,19 @@ class StationView(QMainWindow):
     def __display_next_cube_color(self):
         self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube.color.name.lower() + ';')
         self.ui.cube_label.show()
+
+    def __draw_environment(self, frame):
+        if self.model.vision_environment is not None:
+            self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
+
+        if self.model.real_world_environment is not None:
+            self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
+
+        if self.model.planned_path is not None and self.model.planned_path:
+            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
+
+        if self.model.real_path is not None and self.model.real_path:
+            self.frame_drawer.draw_real_path(frame, self.model.real_path)
+
+        if self.model.robot is not None:
+            self.frame_drawer.draw_robot(frame, self.model.robot)

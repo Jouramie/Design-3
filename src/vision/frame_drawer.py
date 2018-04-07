@@ -22,7 +22,7 @@ class FrameDrawer(object):
     def draw_robot(self, frame, robot: Robot):
         robot_corners = robot.get_corners()
 
-        robot_projected_points = self.coordinate_converter.project_points(robot_corners)
+        robot_projected_points = self.coordinate_converter.project_points_from_real_world_to_pixel(robot_corners)
 
         cv2.line(frame, tuple(robot_projected_points[0][0]), tuple(robot_projected_points[1][0]), (204, 0, 204), 3)
         cv2.line(frame, tuple(robot_projected_points[1][0]), tuple(robot_projected_points[2][0]), (204, 0, 204), 3)
@@ -41,10 +41,11 @@ class FrameDrawer(object):
 
         self.__draw_robot_radius(frame, robot_projected_points)
 
-    def draw_real_path(self, frame, points):
+    def draw_real_path(self, frame, real_path):
+        points = np.asarray(real_path)
         i = 0
         if len(points) != 0:
-            world_points = self.coordinate_converter.project_points(points)
+            world_points = self.coordinate_converter.project_points_from_real_world_to_pixel(points)
             number_of_points = (len(world_points) - 1)
             while i < number_of_points:
                 cv2.line(frame, tuple(world_points[i][0]), tuple(world_points[i + 1][0]), Color.LIGHT_BLUE.bgr, 3)
@@ -53,7 +54,7 @@ class FrameDrawer(object):
     def draw_planned_path(self, frame, points):
         for point in points:
             np_points = np.array([(point[0][0], point[0][1], 0), (point[1][0], point[1][1], 0)], 'float32')
-            projected_points = self.coordinate_converter.project_points(np_points)
+            projected_points = self.coordinate_converter.project_points_from_real_world_to_pixel(np_points)
 
             cv2.line(frame, tuple(projected_points[0][0]), tuple(projected_points[1][0]), Color.LIGHT_GREEN.bgr, 3)
 
@@ -93,7 +94,7 @@ class FrameDrawer(object):
     def __project_and_draw_real_obstacle(self, frame, obstacle: Obstacle) -> None:
         real_positions = np.array([(obstacle.center[0], obstacle.center[1], 0.0),
                                    (obstacle.center[0] + obstacle.radius, obstacle.center[1], 0.0)], 'float32')
-        image_positions = self.coordinate_converter.project_points(real_positions)
+        image_positions = self.coordinate_converter.project_points_from_real_world_to_pixel(real_positions)
 
         cv2.circle(frame, tuple(image_positions[0][0]), image_positions[1][0][0] - image_positions[0][0][0],
                    Color.PINK2.bgr,
@@ -102,7 +103,7 @@ class FrameDrawer(object):
     def __project_and_draw_real_cube(self, frame, flag_cube: FlagCube) -> None:
         cube_centers = flag_cube.get_3d_corners()
         real_positions = np.array(cube_centers, 'float32')
-        image_positions = self.coordinate_converter.project_points(real_positions)
+        image_positions = self.coordinate_converter.project_points_from_real_world_to_pixel(real_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr,
                       thickness=3)
@@ -110,7 +111,7 @@ class FrameDrawer(object):
     def __project_and_draw_target_zone(self, frame):
         target_zone_corners = [(0.0, 0.0, 0), (66.2, 66.2, 0)]
         real_positions = np.array(target_zone_corners, 'float32')
-        image_positions = self.coordinate_converter.project_points(real_positions)
+        image_positions = self.coordinate_converter.project_points_from_real_world_to_pixel(real_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), Color.TARGET_ZONE_GREEN.bgr,
                       thickness=3)

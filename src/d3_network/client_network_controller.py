@@ -1,6 +1,6 @@
+import time
 from logging import Logger
 from socket import socket, AF_INET, SOCK_STREAM, timeout
-import time
 
 from .command import Command
 from .encoder import Encoder
