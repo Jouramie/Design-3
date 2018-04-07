@@ -3,10 +3,10 @@ from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 
-from domain.environments.real_world_environment import RealWorldEnvironment
-from domain.objects.flag_cube import FlagCube
-from domain.objects.obstacle import Obstacle
-from domain.objects.target_zone import TargetZone
+from src.domain.environments.real_world_environment import RealWorldEnvironment
+from src.domain.objects.flag_cube import FlagCube
+from src.domain.objects.obstacle import Obstacle
+from src.domain.objects.target_zone import TargetZone
 from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.color import Color
 from src.domain.objects.robot import Robot
