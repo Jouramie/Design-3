@@ -1,4 +1,5 @@
-class TargetZone:
-    def __init__(self, center: tuple, corners: list):
-        self.center = center
-        self.corners = corners
+class TargetZone(object):
+    def __init__(self, size: float):
+        self.corners = [(0, 0), (size, size)]
+
+

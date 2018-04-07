@@ -14,12 +14,14 @@ import src.d3_network.encoder as encoder
 import src.d3_network.ip_provider as network_scn
 import src.d3_network.server_network_controller as server_network_controller
 import src.robot.robot_controller as robot_controller
+from src.domain.environments.real_world_environment_factory import RealWorldEnvironmentFactory
 from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
 from src.vision.camera import create_real_camera, MockedCamera
 from src.vision.coordinate_converter import CoordinateConverter
 from src.vision.robot_detector import MockedRobotDetector, VisionRobotDetector
 from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
+from src.vision.frame_drawer import FrameDrawer
 
 
 def main() -> None:
@@ -104,8 +106,12 @@ def start_station(config: dict, logger: logging.Logger) -> None:
     else:
         robot_detector = VisionRobotDetector(table_camera_config.camera_parameters, coordinate_converter)
 
+    real_world_environment_factory = RealWorldEnvironmentFactory(coordinate_converter)
+    frame_drawer = FrameDrawer(coordinate_converter, logger.getChild("FrameDrawer"))
+
     try:
-        app = App(network_controller, camera, coordinate_converter, robot_detector, logger.getChild("main_controller"),
+        app = App(network_controller, camera, real_world_environment_factory, frame_drawer, robot_detector,
+                  logger.getChild("main_controller"),
                   config)
         sys.exit(app.exec_())
     finally:
