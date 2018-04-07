@@ -40,12 +40,12 @@ class RobotController(object):
 
     def add_stm_command_to_queue(self, command: dict) -> None:
         if command['command'] in Command.__dict__.values():
-            self._stm_commands_todo.append(StmCommand.factory(command))
+            self._stm_commands_todo.append(command)
         else:
             self._logger.info('Received {} from station, but does not know how to execute it, so skipping it'.format(command))
 
-    def send_command_to_stm(self, command: bytearray) -> None:
-        self._channel.send_command(command)
+    def send_command_to_stm(self, command: dict) -> None:
+        self._channel.send_command(StmCommand.factory(command))
 
     def treat_network_request(self) -> None:
         if not self._network_request_queue.empty():
@@ -75,7 +75,7 @@ class RobotController(object):
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
 
     def execute_stm_tasks(self) -> None:
-        if not self._stm_commands_todo:
+        if self._stm_commands_todo:
             task = self._stm_commands_todo.pop()
             self._stm_sent_queue.put(task)
             self.send_command_to_stm(task)

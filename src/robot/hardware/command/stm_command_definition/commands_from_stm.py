@@ -22,7 +22,7 @@ class Message(Enum):
 class Feedback(object):
     TASK_SUCCESS = 'task-success'
     TASK_FAILED = 'task-failure'
-    TASK_CUBE_FAILED = 'task-failure'
+    TASK_CUBE_FAILED = 'task-cube-failure'
     TASK_RECEIVED = 'task-received'
     COUNTRY = 'country'
     HEY = 'hey'
@@ -37,8 +37,10 @@ class Feedback(object):
             self.type = Feedback.TASK_FAILED
         elif message == Message.TASK_RECEIVED_ACK.value:
             self.type = Feedback.TASK_RECEIVED
+        elif message == Message.TASK_CUBE_FAILED.value:
+            self.type = Feedback.TASK_CUBE_FAILED
         elif message[0] == Target.PAYS.value:
             self.type = Feedback.COUNTRY
             self.country = message[1]
         else:
-            print(message)
+            raise ValueError('Unclassified feedback message {}'.format(message))
