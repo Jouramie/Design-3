@@ -10,11 +10,11 @@ class TableCameraConfigurationFactory:
         self.cam_path = camera_calibration_path
         self.world_calibration_path = world_calibration_path
 
-    def create(self, id):
-        if 1 <= id <= 6:
-            cam_param = create_camera_parameters_from_file(self.cam_path[id - 1])
-            world_to_camera = Transform.from_matrix(np.load(self.world_calibration_path[id - 1]))
+    def create(self, table_number):
+        if 1 <= table_number <= 6:
+            cam_param = create_camera_parameters_from_file(self.cam_path[table_number - 1])
+            world_to_camera = Transform.from_matrix(np.load(self.world_calibration_path[table_number - 1]))
 
-            return TableCameraConfiguration(id, cam_param, world_to_camera)
+            return TableCameraConfiguration(table_number, cam_param, world_to_camera)
         else:
             raise ValueError("Invalid table number.")

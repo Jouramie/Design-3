@@ -8,10 +8,10 @@ MESSAGE_SIZE_FORMAT_TEMPLATE = '{length:0' + str(MESSAGE_SIZE_BYTES) + 'd}{msg}'
 
 class Encoder(object):
     def encode(self, message) -> bytes:
-        pass
+        raise NotImplementedError("This is an interface...")
 
     def decode(self, message: bytes = b""):
-        pass
+        raise NotImplementedError("This is an interface...")
 
 
 class DictionaryEncoder(Encoder):
