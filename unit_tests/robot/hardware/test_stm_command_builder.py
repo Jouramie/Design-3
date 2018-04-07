@@ -1,47 +1,48 @@
 from unittest import TestCase
 
-from src.robot.hardware.command.stm_command_builder import StmCommandBuilder
+from src.d3_network.command import Command
+from src.robot.hardware.command.stm_command_builder import StmCommand
 from src.robot.hardware.command.stm_command_definition.commands_to_stm import Target
 
 
-class TestCommandBuilder(TestCase):
+class TestStmCommandFactory(TestCase):
 
     def test_when_build_forward_then_correct_syntax(self):
-        command = StmCommandBuilder().forward(5)
+        command = StmCommand.factory({'command': Command.MOVE_FORWARD, 'amplitude': 5.0})
         self.assertEqual(b'\x3f\x00\x32', command)
 
     def test_when_build_left_then_correct_syntax(self):
-        command = StmCommandBuilder().left(111)
+        command = StmCommand.factory({'command': Command.MOVE_LEFT, 'amplitude': 111.0})
         self.assertEqual(b'\x31\x04\x56', command)
 
     def test_when_build_backward_then_correct_syntax(self):
-        command = StmCommandBuilder()._move(Target.WHEELS_BACKWARD, 20)
-        self.assertEqual(b'\x3b\x00\x14', command)
+        command = StmCommand.factory({'command': Command.MOVE_BACKWARD, 'amplitude': 20.0})
+        self.assertEqual(b'\x3b\x00\xc8', command)
 
     def test_when_build_right_then_correct_syntax(self):
-        command = StmCommandBuilder().right(222)
+        command = StmCommand.factory({'command': Command.MOVE_RIGHT, 'amplitude': 222.0})
         self.assertEqual(b'\x32\x08\xac', command)
 
     def test_when_build_rotate_clockwise_north_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate(-90)
+        command = StmCommand.factory({'command': Command.MOVE_ROTATE, 'amplitude': -90.0})
         self.assertEqual(b'\x20\x00\x5a', command)
 
     def test_when_build_rotate_clockwise_east_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate(0)
+        command = StmCommand.factory({'command': Command.MOVE_ROTATE, 'amplitude': 0.0})
         self.assertEqual(b'\x21\x00\x00', command)
 
     def test_when_build_rotate_counter_clockwise_west_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate(-180)
+        command = StmCommand.factory({'command': Command.MOVE_ROTATE, 'amplitude': -180.0})
         self.assertEqual(b'\x20\x00\xb4', command)
 
     def test_when_build_rotate_counter_clockwise_sw_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate(45)
+        command = StmCommand.factory({'command': Command.MOVE_ROTATE, 'amplitude': 45.0})
         self.assertEqual(b'\x21\x00\x2d', command)
 
     def test_when_build_rotate_clockwise_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate(90)
+        command = StmCommand.factory({'command': Command.MOVE_ROTATE, 'amplitude': 90.0})
         self.assertEqual(b'\x21\x00\x5a', command)
 
     def test_when_build_rotate_counter_clockwise_then_correct_syntax(self):
-        command = StmCommandBuilder().rotate(-90)
+        command = StmCommand.factory({'command': Command.MOVE_ROTATE, 'amplitude': -90.0})
         self.assertEqual(b'\x20\x00\x5a', command)

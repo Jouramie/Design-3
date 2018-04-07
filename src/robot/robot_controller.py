@@ -5,7 +5,7 @@ from queue import Queue
 from .hardware.channel import Channel
 from .hardware.command.command_from_stm import CommandFromStm
 from .hardware.command.not_a_country_command_exception import NotACountryCommandException
-from .hardware.command.stm_command_builder import StmCommandBuilder
+from .hardware.command.stm_command_builder import StmCommand
 from .hardware.command.stm_command_definition import commands_from_stm
 from .hardware.command.stm_command_definition import commands_to_stm
 from ..d3_network.client_network_controller import ClientNetworkController
@@ -28,15 +28,13 @@ class RobotController(object):
         self._network.wait_start_command()
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
 
-    def receive_end_of_task_signal(self) -> bool:
-        return self._validate_if_successful()
 
-    def receive_stm_command(self):
-        msg = None
-        while msg is None or msg == bytearray(b'') or msg == bytearray(b'\xff'):
+    def receive_stm_command(self) -> commands_from_stm.Feedback:
+        msg = self._channel.receive_message()
+        while msg.type == commands_from_stm.Feedback.HEY:
             msg = self._channel.receive_message()
         self._logger.info('Received from STM : {}'.format(msg))
-        return CommandFromStm(msg)
+        return msg
 
     def send_grab_cube(self) -> bool:
         self._channel.send_command(commands_to_stm.Command.GRAB_CUBE.value)
@@ -59,23 +57,23 @@ class RobotController(object):
 
     def send_movement_command_to_stm(self, movement: dict):
         if movement['command'] == Command.MOVE_FORWARD:
-            self._channel.send_command(StmCommandBuilder().forward(movement['amplitude']))
+            self._channel.send_command(StmCommand()._forward(movement['amplitude']))
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         elif movement['command'] == Command.MOVE_BACKWARD:
-            self._channel.send_command(StmCommandBuilder().backward(movement['amplitude']))
+            self._channel.send_command(StmCommand()._backward(movement['amplitude']))
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         elif movement['command'] == Command.MOVE_ROTATE:
-            self._channel.send_command(StmCommandBuilder().rotate(movement['amplitude']))
+            self._channel.send_command(StmCommand()._rotate(movement['amplitude']))
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         elif movement['command'] == Command.MOVE_LEFT:
-            self._channel.send_command(StmCommandBuilder().right(movement['amplitude']))
+            self._channel.send_command(StmCommand().right(movement['amplitude']))
             self._logger.info('Sending to stm : {} {} cm'.format(movement['command'], movement['amplitude']))
         else:
             raise NotImplementedError('Command not implemented on stm')
 
     def _validate_if_successful(self) -> bool:
         feedback_from_stm = self.receive_stm_command()
-        if feedback_from_stm == commands_from_stm.Command.SUCCESSFULL_TASK:
+        if feedback_from_stm == commands_from_stm.Message.SUCCESSFULL_TASK:
             self._logger.info('Command successfull')
             return True
         else:
