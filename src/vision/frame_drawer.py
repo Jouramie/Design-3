@@ -75,8 +75,9 @@ class FrameDrawer(object):
             cv2.rectangle(frame, cube.corners[0], cube.corners[1], cube.color.bgr, thickness=3)
 
     def __draw_obstacle(self, frame, obstacle: Obstacle) -> None:
-        cv2.circle(frame, (int(obstacle.center[0]), int(obstacle.center[1])), int(obstacle.radius), Color.PINK.bgr,
-                   thickness=3, lineType=cv2.LINE_AA)
+        if obstacle is not None:
+            cv2.circle(frame, (int(obstacle.center[0]), int(obstacle.center[1])), int(obstacle.radius), Color.PINK.bgr,
+                       thickness=3, lineType=cv2.LINE_AA)
 
     def draw_real_world_environment(self, frame, real_world_environment: RealWorldEnvironment):
         for obstacle in real_world_environment.obstacles:
