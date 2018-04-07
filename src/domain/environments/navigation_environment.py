@@ -15,7 +15,6 @@ class NavigationEnvironment(object):
     INFINITY_WEIGHT = 3
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 7
-    # TODO Validate and test
     BIGGEST_ROBOT_RADIUS = 23
 
     __width = 0
@@ -46,17 +45,14 @@ class NavigationEnvironment(object):
                                                                                  self.BIGGEST_ROBOT_RADIUS + 1):
                     try:
                         self.__set_obstacle_point(x, y, point)
-
                     except NavigationEnvironmentDataError as err:
-                        # self.logger.info(str(err))
+                        self.logger.info(str(err))
                         pass
-
-    # TODO clean way to add robot dimension to obstacle, radius? orientation? position?
-    # Biggest robot radius for now
 
     def add_obstacles(self, obstacles: [Obstacle]):
         for obstacle in obstacles:
             point = (int(obstacle.center[0]), int(obstacle.center[1]))
+            print(point)
             for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
                                                                               self.BIGGEST_ROBOT_RADIUS + 1):
                 # Square shape obstacle
@@ -65,12 +61,11 @@ class NavigationEnvironment(object):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
-                        # self.logger.info(str(err))
+                        self.logger.info(str(err))
                         pass
 
     def __add_walls(self):
         no_go_size = self.BIGGEST_ROBOT_RADIUS
-
         max_height = self.DEFAULT_HEIGHT + self.__grid.DEFAULT_OFFSET
         max_width = self.DEFAULT_WIDTH + self.__grid.DEFAULT_OFFSET
 

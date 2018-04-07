@@ -48,10 +48,6 @@ class Grid:
     def get_vertices(self):
         return self.__vertices_dictionary.keys()
 
-    def reset_graph(self):
-        for vertex in self.__vertices_dictionary.values():
-            vertex.reset_vertex()
-
     def reset_neighbor_step_value_keep_obstacles(self, obstacle_value, unassigned_value):
         for y in range(self.DEFAULT_OFFSET, self.__width + 1):
             for x in range(self.DEFAULT_OFFSET, self.__height + 1):
