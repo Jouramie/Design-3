@@ -74,12 +74,6 @@ class FrameDrawer(object):
         if cube is not None:
             cv2.rectangle(frame, cube.corners[0], cube.corners[1], cube.color.bgr, thickness=3)
 
-    def __draw_target_zone(self, frame, target_zone: TargetZone) -> None:
-        if target_zone is None:
-            self.logger.warning("Target zone is None.")
-        else:
-            cv2.rectangle(frame, target_zone.corners[0], target_zone.corners[1], Color.SKY_BLUE.bgr, thickness=3)
-
     def __draw_obstacle(self, frame, obstacle: Obstacle) -> None:
         cv2.circle(frame, (int(obstacle.center[0]), int(obstacle.center[1])), int(obstacle.radius), Color.PINK.bgr,
                    thickness=3, lineType=cv2.LINE_AA)
@@ -89,29 +83,38 @@ class FrameDrawer(object):
             self.__project_and_draw_real_obstacle(frame, obstacle)
         for cube in real_world_environment.cubes:
             self.__project_and_draw_real_cube(frame, cube)
-        self.__project_and_draw_target_zone(frame)
+        self.__project_and_draw_target_zone(frame, real_world_environment.target_zone)
 
     def __project_and_draw_real_obstacle(self, frame, obstacle: Obstacle) -> None:
-        real_positions = np.array([(obstacle.center[0], obstacle.center[1], 0.0),
-                                   (obstacle.center[0] + obstacle.radius, obstacle.center[1], 0.0)], 'float32')
+        radius_line = list(map(self.to_3d, obstacle.get_radius_line()))
+
+        real_positions = np.array(radius_line, 'float32')
+
         image_positions = self.coordinate_converter.project_points_from_real_world_to_pixel(real_positions)
 
         cv2.circle(frame, tuple(image_positions[0][0]), image_positions[1][0][0] - image_positions[0][0][0],
-                   Color.PINK2.bgr,
-                   thickness=3, lineType=cv2.LINE_AA)
+                   Color.PINK2.bgr, thickness=3, lineType=cv2.LINE_AA)
 
     def __project_and_draw_real_cube(self, frame, flag_cube: FlagCube) -> None:
-        cube_centers = flag_cube.get_3d_corners()
+        cube_centers = list(map(self.to_3d, flag_cube.get_corners()))
+
         real_positions = np.array(cube_centers, 'float32')
+
         image_positions = self.coordinate_converter.project_points_from_real_world_to_pixel(real_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), flag_cube.color.bgr,
                       thickness=3)
 
-    def __project_and_draw_target_zone(self, frame):
-        target_zone_corners = [(0.0, 0.0, 0), (66.2, 66.2, 0)]
+    def __project_and_draw_target_zone(self, frame, target_zone: TargetZone):
+        target_zone_corners = list(map(self.to_3d, target_zone.corners))
+
         real_positions = np.array(target_zone_corners, 'float32')
+
         image_positions = self.coordinate_converter.project_points_from_real_world_to_pixel(real_positions)
 
         cv2.rectangle(frame, tuple(image_positions[0][0]), tuple(image_positions[1][0]), Color.TARGET_ZONE_GREEN.bgr,
                       thickness=3)
+
+    @staticmethod
+    def to_3d(point: tuple):
+        return point[0], point[1], 0
