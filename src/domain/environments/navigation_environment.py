@@ -46,7 +46,7 @@ class NavigationEnvironment(object):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
-                        self.logger.info(str(err))
+                        # self.logger.info(str(err))
                         pass
 
     def add_obstacles(self, obstacles: [Obstacle]):
@@ -61,7 +61,7 @@ class NavigationEnvironment(object):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
-                        self.logger.info(str(err))
+                        # self.logger.info(str(err))
                         pass
 
     def __add_walls(self):
