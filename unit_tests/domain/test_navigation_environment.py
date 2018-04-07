@@ -69,23 +69,22 @@ class TestNavigationEnvironment(TestCase):
         navigation_environment.create_grid()
         navigation_environment.add_real_world_environment(real_world_environment)
 
-        no_go_size = navigation_environment.BIGGEST_ROBOT_RADIUS
         max_height = NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET
         max_width = NavigationEnvironment.DEFAULT_WIDTH + Grid.DEFAULT_OFFSET
 
         # Validate all 4 walls are correctly represented
         for x in range(Grid.DEFAULT_OFFSET, max_height):
-            for y in range(Grid.DEFAULT_OFFSET, Grid.DEFAULT_OFFSET + no_go_size + 1):
+            for y in range(Grid.DEFAULT_OFFSET, Grid.DEFAULT_OFFSET + navigation_environment.BIGGEST_ROBOT_RADIUS + 1):
                 self.assertEqual(PathCalculator.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
-            for y in range(max_width - no_go_size, max_width):
+            for y in range(max_width - navigation_environment.BIGGEST_ROBOT_RADIUS, max_width):
                 self.assertEqual(PathCalculator.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
         for y in range(Grid.DEFAULT_OFFSET, max_width):
-            for x in range(Grid.DEFAULT_OFFSET, Grid.DEFAULT_OFFSET + no_go_size + 1):
+            for x in range(Grid.DEFAULT_OFFSET, Grid.DEFAULT_OFFSET + navigation_environment.BIGGEST_ROBOT_RADIUS + 1):
                 self.assertEqual(PathCalculator.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
-            for x in range(max_height - no_go_size, max_height):
+            for x in range(max_height - navigation_environment.BIGGEST_ROBOT_RADIUS, max_height):
                 self.assertEqual(PathCalculator.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
 
