@@ -1,6 +1,6 @@
 import serial
 
-from src.robot.hardware.command.stm_command_definition import commands_to_stm
+from .command.stm_command_definition import commands_to_stm, commands_from_stm
 from .channel_exception import ChannelException
 
 
@@ -8,9 +8,9 @@ class Channel(object):
     def __init__(self, serial):
         self.serial = serial
 
-    def receive_message(self) -> bytes:
+    def receive_message(self) -> commands_from_stm.Feedback:
         if self.serial.is_open:
-            return self.serial.read(4)
+            return commands_from_stm.Feedback(self.serial.read(commands_from_stm.Message.BYTES_TO_READ.value))
         else:
             raise ChannelException('Serial connection not opened')
 
@@ -18,9 +18,6 @@ class Channel(object):
         message = bytearray(message)
         message.append(self.calculate_checksum(message))
         self.serial.write(message)
-
-    def ask_repeat(self) -> None:
-        self.send_command(commands_to_stm.Command.SEND_AGAIN.value)
 
     @staticmethod
     def calculate_checksum(message: bytes) -> int:
