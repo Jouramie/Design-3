@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock, Mock, patch
 
 from src.d3_network.command import Command
 from src.robot.hardware.command.stm_command_builder import StmCommand
@@ -8,7 +8,8 @@ from src.robot.robot_controller import RobotController
 
 
 class TestRobotController(TestCase):
-    def test_when_start_controller_then_get_host_ip(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_start_controller_then_get_host_ip(self, time):
         network_scanner = MagicMock()
         ctrl = RobotController(MagicMock(), network_scanner, MagicMock(), MagicMock())
 
@@ -16,7 +17,8 @@ class TestRobotController(TestCase):
 
         network_scanner.get_host_ip.assert_called_once()
 
-    def test_given_host_ip_when_start_controller_then_pair_with_host(self):
+    @patch('src.robot.robot_controller.time')
+    def test_given_host_ip_when_start_controller_then_pair_with_host(self, time):
         host_ip = '10.42.0.78'
         network_scanner = Mock()
         network_scanner.attach_mock(Mock(return_value=host_ip), 'get_host_ip')
@@ -27,8 +29,8 @@ class TestRobotController(TestCase):
         ctrl._start()
 
         network_ctrl.pair_with_host.assert_called_once_with(host_ip)
-
-    def test_when_start_controller_then_wait_start_command(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_start_controller_then_wait_start_command(self, time):
         network_ctrl = MagicMock()
         ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
 
@@ -36,7 +38,8 @@ class TestRobotController(TestCase):
 
         network_ctrl.wait_start_command.assert_called_once()
 
-    def test_when_receive_message_from_stm_then_append_it_to_queue(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_receive_message_from_stm_then_append_it_to_queue(self, time):
         channel = MagicMock()
         channel.attach_mock(Mock(return_value=commands_from_stm.Feedback(
             commands_from_stm.Message.TASK_RECEIVED_ACK.value)), 'receive_message')
@@ -46,7 +49,8 @@ class TestRobotController(TestCase):
 
         self.assertEqual(1, ctrl._stm_responses_queue.qsize())
 
-    def test_when_send_movement_command_then_send_via_channel(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_send_movement_command_then_send_via_channel(self, time):
         network_ctrl = MagicMock()
         channel = Mock()
         channel.receive_message = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
@@ -56,7 +60,8 @@ class TestRobotController(TestCase):
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3b\x07\xd0'))
 
-    def test_when_add_movement_to_queue_then_movement_added(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_add_movement_to_queue_then_movement_added(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
 
@@ -64,7 +69,8 @@ class TestRobotController(TestCase):
 
         self.assertEqual(command, ctrl._stm_commands_todo.pop())
 
-    def test_when_treats_network_request_then_adds_it_to_stm_todo_queue(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_treats_network_request_then_adds_it_to_stm_todo_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._network_request_queue.put(command)
@@ -73,7 +79,8 @@ class TestRobotController(TestCase):
 
         self.assertEqual(command, ctrl._stm_commands_todo.pop())
 
-    def test_when_treats_stm_response_task_received_then_add_to_received_queue(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_treats_stm_response_task_received_then_add_to_received_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_sent_queue.put(command)
@@ -83,7 +90,8 @@ class TestRobotController(TestCase):
 
         self.assertEqual(command, ctrl._stm_received_queue.get())
 
-    def test_when_treats_stm_response_task_succes_then_add_to_done_queue(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_treats_stm_response_task_succes_then_add_to_done_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_received_queue.put(command)
@@ -93,7 +101,8 @@ class TestRobotController(TestCase):
 
         self.assertEqual(command, ctrl._stm_done_queue.get())
 
-    def test_when_treats_stm_response_task_failed_then_add_to_todos_to_top_priority(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_treats_stm_response_task_failed_then_add_to_todos_to_top_priority(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_received_queue.put(command)
@@ -103,16 +112,32 @@ class TestRobotController(TestCase):
 
         self.assertEqual(command, ctrl._stm_commands_todo.popleft())
 
-    def test_when_treats_stm_response_cube_task_failed_then_notify_server(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_treats_stm_response_cube_task_failed_then_notify_server(self, time):
         network_ctrl = MagicMock()
         ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
+        command = {'command': Command.GRAB}
+        ctrl._stm_received_queue.put(command)
         ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_CUBE_FAILED.value))
 
         ctrl.treat_stm_response()
 
         network_ctrl.send_feedback.assert_called_once()
 
-    def test_when_execute_stm_tasks_then_priority_todo_moved_to_sent_queue(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_treats_stm_response_country_code_then_notify_server(self, time):
+        network_ctrl = MagicMock()
+        ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
+        ctrl._stm_responses_queue.put(commands_from_stm.Feedback(bytearray(b'\xb0\x75\x00\x00')))
+        command = {'command': Command.GRAB}
+        ctrl._stm_received_queue.put(command)
+
+        ctrl.treat_stm_response()
+
+        network_ctrl.send_country_code.assert_called_once()
+
+    @patch('src.robot.robot_controller.time')
+    def test_when_execute_stm_tasks_then_priority_todo_moved_to_sent_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_commands_todo.append(command)
@@ -121,7 +146,8 @@ class TestRobotController(TestCase):
 
         self.assertEqual(command, ctrl._stm_sent_queue.get())
 
-    def test_when_execute_stm_tasks_then_send_via_channel(self):
+    @patch('src.robot.robot_controller.time')
+    def test_when_execute_stm_tasks_then_send_via_channel(self, time):
         channel = MagicMock()
         channel.attach_mock(Mock(), 'send_command')
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}

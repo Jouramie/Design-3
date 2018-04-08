@@ -35,7 +35,7 @@ class RobotController(object):
         msg = self._channel.receive_message()
         while msg.type == commands_from_stm.Feedback.HEY:
             msg = self._channel.receive_message()
-        self._stm_responses_queue.put(msg)
+        if msg is not None: self._stm_responses_queue.put(msg)
         self._logger.info('Received from STM : {}'.format(msg))
 
     def add_stm_command_to_queue(self, command: dict) -> None:
@@ -66,6 +66,10 @@ class RobotController(object):
             elif response.type == commands_from_stm.Feedback.TASK_FAILED:
                 task = self._stm_received_queue.get()
                 self._stm_commands_todo.appendleft(task)
+            elif response.type == commands_from_stm.Feedback.COUNTRY:
+                task = self._stm_received_queue.get()
+                self._stm_done_queue.put(task)
+                self._network.send_country_code(response.country)
             elif response.type == commands_from_stm.Feedback.TASK_CUBE_FAILED:
                 #stop everything and notify station
                 self._stm_commands_todo = deque()
@@ -84,8 +88,8 @@ class RobotController(object):
 
     def main_loop(self) -> None:
         self._start()
-        while not self.flag_done:
-            time.sleep(5)
+        while True:
+            time.sleep(1)
             network_request = self._network.wait_message()
             if network_request is not None:
                 self._network_request_queue.put(network_request)
@@ -93,4 +97,7 @@ class RobotController(object):
             self.execute_stm_tasks()
             self.receive_stm_command()
             self.treat_stm_response()
+
+            if self.flag_done and self._stm_sent_queue.empty() and self._stm_received_queue.empty():
+                return
 
