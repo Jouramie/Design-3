@@ -29,6 +29,7 @@ class TestRobotController(TestCase):
         ctrl._start()
 
         network_ctrl.pair_with_host.assert_called_once_with(host_ip)
+
     @patch('src.robot.robot_controller.time')
     def test_when_start_controller_then_wait_start_command(self, time):
         network_ctrl = MagicMock()
@@ -40,14 +41,22 @@ class TestRobotController(TestCase):
 
     @patch('src.robot.robot_controller.time')
     def test_when_receive_message_from_stm_then_append_it_to_queue(self, time):
-        channel = MagicMock()
-        channel.attach_mock(Mock(return_value=commands_from_stm.Feedback(
-            commands_from_stm.Message.TASK_RECEIVED_ACK.value)), 'receive_message')
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
         ctrl.receive_stm_command()
 
         self.assertEqual(1, ctrl._stm_responses_queue.qsize())
+
+    @patch('src.robot.robot_controller.time')
+    def test_when_receive_message_from_stm_then_receive_from_channel(self, time):
+        channel = MagicMock()
+        channel.attach_mock(Mock(return_value=commands_from_stm.Feedback(
+            commands_from_stm.Message.TASK_RECEIVED_ACK.value)), 'receive_message')
+        ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), channel)
+
+        ctrl.receive_stm_command()
+
+        channel.receive_message.assert_called_once()
 
     @patch('src.robot.robot_controller.time')
     def test_when_send_movement_command_then_send_via_channel(self, time):
@@ -59,6 +68,14 @@ class TestRobotController(TestCase):
         ctrl.send_command_to_stm({'command': Command.MOVE_BACKWARD, 'amplitude': 200})
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3b\x07\xd0'))
+
+    @patch('src.robot.robot_controller.time')
+    def test_when_send_ir_signal_command_then_set_flag_done(self, time):
+        ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
+
+        ctrl.send_command_to_stm({'command': Command.END_SIGNAL})
+
+        self.assertEqual(True, ctrl.flag_done)
 
     @patch('src.robot.robot_controller.time')
     def test_when_add_movement_to_queue_then_movement_added(self, time):

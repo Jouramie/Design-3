@@ -44,6 +44,3 @@ class Feedback(object):
             self.country = message[1]
         else:
             raise ValueError('Unclassified feedback message {}'.format(message))
-
-    def __str__(self):
-        return "{'type': {}}".format(self.type)
