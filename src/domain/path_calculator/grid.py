@@ -29,7 +29,7 @@ class Grid:
         return new_vertex
 
     def __initiate_vertices_neighbors(self, node):
-        for direction in Direction:
+        for direction in Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST:
             neighbor = (node[0] + direction.direction[0], node[1] + direction.direction[1])
             if self.DEFAULT_OFFSET <= neighbor[0] < self.__height + 1 and self.DEFAULT_OFFSET <= neighbor[
                 1] < self.__width + 1:
@@ -48,10 +48,6 @@ class Grid:
 
     def get_vertices(self):
         return self.__vertices_dictionary.keys()
-
-    def reset_graph(self):
-        for vertex in self.__vertices_dictionary.values():
-            vertex.reset_vertex()
 
     def reset_neighbor_step_value_keep_obstacles(self, obstacle_value, unassigned_value):
         for y in range(self.DEFAULT_OFFSET, self.__width + 1):
