@@ -4,6 +4,7 @@ from scipy import spatial
 
 from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.obstacle import Obstacle
+from src.domain.objects.vision_cube import VisionCube
 from .table_camera_configuration import TableCameraConfiguration
 from .transform import Transform
 
@@ -23,10 +24,10 @@ class CoordinateConverter:
     def get_camera_to_world(self):
         return self.world_to_camera.inverse()
 
-    def project_obstacles(self, obstacles: [Obstacle]) -> [Obstacle]:
-        return list(map(self.project_obstacle, obstacles))
+    def project_obstacles_from_pixel_to_real_world(self, obstacles: [Obstacle]) -> [Obstacle]:
+        return list(map(self.project_obstacle_from_pixel_to_real_world, obstacles))
 
-    def project_obstacle(self, obstacle: Obstacle) -> Obstacle:
+    def project_obstacle_from_pixel_to_real_world(self, obstacle: Obstacle) -> Obstacle:
         object_points = np.array([(0, 0, 41), (6.3, 0, 41), (-6.3, 0, 41), (0, 6.3, 41), (0, -6.3, 41)], 'float32')
 
         image_points = np.array([obstacle.center,
@@ -51,7 +52,7 @@ class CoordinateConverter:
         obstacle_information = world_to_obstacle.to_parameters(True)
         return Obstacle((obstacle_information[0], obstacle_information[1]), 7)
 
-    def project_points(self, points):
+    def project_points_from_real_world_to_pixel(self, points):
         camera_to_world_parameters = self.get_camera_to_world().to_parameters()
         camera_to_world_tvec = np.array(
             [camera_to_world_parameters[0], camera_to_world_parameters[1], camera_to_world_parameters[2]])
@@ -62,24 +63,28 @@ class CoordinateConverter:
 
         return projected_points
 
-    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes) -> [FlagCube]:
+    def convert_vision_cubes_to_real_world_environment_cubes(self, vision_cubes: [VisionCube]) -> [FlagCube]:
         real_cubes = []
         cube_pixel_positions_x_list = []
         cube_pixel_positions_y_list = []
+
         for table_cube in self.table_config_cubes.values():
             pixel_x = table_cube['pixel_x']
             pixel_y = table_cube['pixel_y']
             cube_pixel_positions_x_list.append(pixel_x)
             cube_pixel_positions_y_list.append(pixel_y)
+
         pixel_x_nparray = np.asarray(cube_pixel_positions_x_list)
         pixel_y_nparray = np.asarray(cube_pixel_positions_y_list)
         combined_x_y_arrays = np.dstack([pixel_x_nparray.ravel(), pixel_y_nparray.ravel()])[0]
+
         tree = spatial.cKDTree(combined_x_y_arrays)
+
         for vision_cube in vision_cubes:
-            dist, indexes = tree.query(vision_cube.get_center())
+            dist, indexes = tree.query(vision_cube.center)
             table_cube = self.table_config_cubes['cube' + str(indexes)]
             position = (table_cube['x'], table_cube['y'])
-            color = vision_cube.get_color()
+            color = vision_cube.color
             flag_cube = FlagCube(position, color)
             real_cubes.append(flag_cube)
 

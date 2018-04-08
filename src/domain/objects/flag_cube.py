@@ -7,8 +7,8 @@ class FlagCube(object):
         self.color = color
         self.is_placed = False
 
-    def get_3d_corners(self):
-        return [(self.center[0] + 4, self.center[1] + 4, 0), (self.center[0] - 4, self.center[1] - 4, 0)]
+    def get_corners(self):
+        return [(self.center[0] + 4, self.center[1] + 4), (self.center[0] - 4, self.center[1] - 4)]
 
     def place_cube(self):
         self.is_placed = True

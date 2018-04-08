@@ -6,7 +6,7 @@ Just run the `start.py` script. You also need to specify what part you want to r
 start.py station
 ```
 
-Also, make sure the requirements are installed. Run the following command at the root of the project: 
+Also, make sure the requirements are installed. Run the following command at the root of the project:
 
 ```commandline
 pip install -r requirements.txt
@@ -24,7 +24,7 @@ For those who use `ufw` for their firewall, you can add a rule to allow only the
 ufw allow proto tcp to any port 7420 from 10.42.0.1
 ```
 
-If you don't use `ufw`, good luck. 
+If you don't use `ufw`, good luck.
 
 Then, host the socket on the base station and connect to it with the robot! Make sure the robot connect to the right ip address. You can find the ip address of the base station using the following commands.
 
@@ -42,3 +42,12 @@ ifconfig
 ```commandline
 nmap 10.42.0.0/24
 ```
+
+# How to run the unit tests
+
+From the root of the project, execute the following command.
+```commandline
+pytest unit_tests
+```
+
+Before running the tests, make sure you have all the requirements installed.
