@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from src.d3_network.command import Command
-from src.robot.hardware.command.stm_command_builder import StmCommand
 from src.robot.hardware.command.stm_command_definition import commands_to_stm
+from src.robot.hardware.command.stm_command_factory import StmCommand
 
 
 class TestStmCommandFactory(TestCase):

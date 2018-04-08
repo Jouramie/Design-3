@@ -2,8 +2,8 @@ from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
 from src.d3_network.command import Command
-from src.robot.hardware.command.stm_command_builder import StmCommand
 from src.robot.hardware.command.stm_command_definition import commands_from_stm
+from src.robot.hardware.command.stm_command_factory import StmCommand
 from src.robot.robot_controller import RobotController
 
 

@@ -4,8 +4,8 @@ from logging import Logger
 from queue import Queue
 
 from .hardware.channel import Channel
-from .hardware.command.stm_command_builder import StmCommand
 from .hardware.command.stm_command_definition import commands_from_stm
+from .hardware.command.stm_command_factory import StmCommand
 from ..d3_network.client_network_controller import ClientNetworkController
 from ..d3_network.command import Command
 from ..d3_network.ip_provider import IpProvider
