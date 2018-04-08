@@ -23,7 +23,7 @@ class RobotController(object):
         self._stm_received_queue = Queue()
         self._stm_sent_queue = Queue()
         self._stm_done_queue = Queue()
-        self.task_done = False
+        self.flag_done = False
 
     def _start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
@@ -46,6 +46,8 @@ class RobotController(object):
 
     def send_command_to_stm(self, command: dict) -> None:
         self._channel.send_command(StmCommand.factory(command))
+        if command['command'] == Command.END_SIGNAL:
+            self.flag_done = True
 
     def treat_network_request(self) -> None:
         if not self._network_request_queue.empty():
@@ -82,10 +84,13 @@ class RobotController(object):
 
     def main_loop(self) -> None:
         self._start()
-        while not self.task_done:
+        while not self.flag_done:
             time.sleep(5)
-            self._network_request_queue.put(self._network.wait_message())
+            network_request = self._network.wait_message()
+            if network_request is not None:
+                self._network_request_queue.put(network_request)
             self.treat_network_request()
             self.execute_stm_tasks()
             self.receive_stm_command()
             self.treat_stm_response()
+
