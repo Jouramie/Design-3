@@ -9,7 +9,6 @@ from ..domain.path_calculator.movement import Movement, Rotate
 
 
 class ServerNetworkController(NetworkController):
-
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
 
@@ -43,9 +42,11 @@ class ServerNetworkController(NetworkController):
     def send_move_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
+    def receive_feedback(self) -> None:
+        raise NotImplementedError("This is an interface...")
+
 
 class SocketServerNetworkController(ServerNetworkController):
-
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
         self._server = socket(AF_INET, SOCK_STREAM)
@@ -74,6 +75,13 @@ class SocketServerNetworkController(ServerNetworkController):
 
             self._logger.info(msg)
         self._socket.setblocking(0)
+
+    def receive_feedback(self) -> dict:
+        msg = self._receive_message()
+
+        self._logger.info("Feedback from robot : {}".format(msg))
+
+        return msg
 
     def send_start_command(self) -> None:
         self._send_command(Command.START)
@@ -117,7 +125,7 @@ class SocketServerNetworkController(ServerNetworkController):
 
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, movement: Movement):
+    def send_move_command(self, movement: Movement) -> None:
         self._send_command(movement.command, {'amplitude': movement.amplitude})
 
         self._logger.info("Commmand {} : sent!".format(movement))
@@ -159,5 +167,8 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_drop_cube_command(self) -> None:
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, movement: Movement):
+    def send_move_command(self, movement: Movement) -> None:
         self._logger.info("Commmand {} : sent!".format(movement))
+
+    def receive_feedback(self) -> None:
+        self._logger.info("Feedback from robot")

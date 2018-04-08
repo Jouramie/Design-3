@@ -62,7 +62,7 @@ class ClientNetworkController(NetworkController):
         else:
             raise WrongCommand(Command.INFRARED_SIGNAL, msg['command'])
 
-    def send_infrared_ask(self, country_code: int) -> None:
+    def send_country_code(self, country_code: int) -> None:
         self._logger.info('Sending country_code {code}.'.format(code=country_code))
         self._send_command(Command.INFRARED_SIGNAL, {'country_code': country_code})
 
@@ -77,3 +77,6 @@ class ClientNetworkController(NetworkController):
                 time.sleep(1)
         self._logger.info(msg)
         return msg
+
+    def send_feedback(self, feedback: dict):
+        self._send_command(Command.GRAB_CUBE_FAILURE)
