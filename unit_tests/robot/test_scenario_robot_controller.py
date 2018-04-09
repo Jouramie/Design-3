@@ -41,15 +41,6 @@ class TestScenarioRobotController(TestCase):
         self.assertEqual(1, self.ctrl._stm_sent_queue.empty())
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
 
-    @patch('src.robot.robot_controller.time')
-    def scenario_4_cube_signal(self, time):
-        self.__set_up_scenario_4()
-        self.ctrl.main_loop()
-
-        self.assertEqual(3, self.ctrl._stm_done_queue.qsize())
-        self.assertEqual(1, self.ctrl._stm_sent_queue.empty())
-        self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
-
     def __set_up_scenario_1(self):
         self.ctrl._network_request_queue = Queue()
         self.ctrl._network_request_queue.put({'command': 'move-forward', 'amplitude': 13.0})
@@ -88,19 +79,3 @@ class TestScenarioRobotController(TestCase):
         self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(bytearray(b'\xb0\x75\x12\xc9')))
         self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
         self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
-
-    def __set_up_scenario_4(self):
-        self.ctrl._network_request_queue = Queue()
-        self.ctrl._network_request_queue.put({'command': Command.MOVE_FORWARD, 'amplitude': 13.0})
-        self.ctrl._network_request_queue.put({'command': Command.MOVE_RIGHT, 'amplitude': 10.0})
-        self.ctrl._network_request_queue.put({'command': Command.GRAB})
-        self.ctrl._network_request_queue.put({'command': 'end-signal'})
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_CUBE_FAILED.value))
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
-        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
-
