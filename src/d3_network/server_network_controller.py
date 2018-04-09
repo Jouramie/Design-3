@@ -50,6 +50,7 @@ class SocketServerNetworkController(ServerNetworkController):
     def __init__(self, logger: Logger, port: int, encoder: Encoder):
         super().__init__(logger, port, encoder)
         self._server = socket(AF_INET, SOCK_STREAM)
+        self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
