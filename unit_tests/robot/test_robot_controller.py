@@ -82,7 +82,7 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
 
-        ctrl.add_stm_command_to_queue(command)
+        ctrl.add_network_request_to_stm_todo_queue(command)
 
         self.assertEqual(command, ctrl._stm_commands_todo.pop())
 

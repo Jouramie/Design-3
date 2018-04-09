@@ -34,25 +34,31 @@ class RobotController(object):
     def receive_stm_command(self):
         msg = self._channel.receive_message()
         while msg.type == commands_from_stm.Feedback.HEY:
+            try:
+                self._logger.info('Crap from STM : {}'.format(msg.message))
+            except Exception:
+                self._logger.info('Crap from STM : {}'.format(msg))
             msg = self._channel.receive_message()
         if msg is not None: self._stm_responses_queue.put(msg)
-        self._logger.info('Received from STM : {}'.format(msg))
+        self._logger.info('Received from STM : {}'.format(msg.type))
 
-    def add_stm_command_to_queue(self, command: dict) -> None:
+    def add_network_request_to_stm_todo_queue(self, command: dict) -> None:
         if command['command'] in Command.__dict__.values():
             self._stm_commands_todo.append(command)
         else:
             self._logger.info('Received {} from station, but does not know how to execute it, so skipping it'.format(command))
 
     def send_command_to_stm(self, command: dict) -> None:
-        self._channel.send_command(StmCommand.factory(command))
+        command1 = StmCommand.factory(command)
+        self._logger.info('Sending to STM {:02x} {:02x} {:02x}'.format(command1[0], command1[1], command1[2]))
+        self._channel.send_command(command1)
         if command['command'] == Command.END_SIGNAL:
             self.flag_done = True
 
     def treat_network_request(self) -> None:
         if not self._network_request_queue.empty():
             task = self._network_request_queue.get()
-            self.add_stm_command_to_queue(task)
+            self.add_network_request_to_stm_todo_queue(task)
 
     def treat_stm_response(self) -> None:
         if not self._stm_responses_queue.empty():
@@ -76,9 +82,22 @@ class RobotController(object):
                 self._network_request_queue = Queue()
                 self._stm_responses_queue = Queue()
                 self._stm_received_queue = Queue()
-                self._stm_sent_queue = Queue()
-                self._stm_done_queue = Queue()
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
+
+    def execute_and_check_ACK(self) -> None:
+        while True:
+            self.execute_stm_tasks()
+            time.sleep(2)
+            self.receive_stm_command()
+            if not self._stm_responses_queue.empty():
+                response = self._stm_responses_queue.get()
+                if response.type == commands_from_stm.Feedback.TASK_RECEIVED:
+                    task = self._stm_sent_queue.get()
+                    self._stm_received_queue.put(task)
+                    return
+                else:
+                    task = self._stm_sent_queue.get()
+                    self._stm_commands_todo.appendleft(task)
 
     def execute_stm_tasks(self) -> None:
         if self._stm_commands_todo:
@@ -94,7 +113,7 @@ class RobotController(object):
             if network_request is not None:
                 self._network_request_queue.put(network_request)
             self.treat_network_request()
-            self.execute_stm_tasks()
+            self.execute_and_check_ACK()
             self.receive_stm_command()
             self.treat_stm_response()
 

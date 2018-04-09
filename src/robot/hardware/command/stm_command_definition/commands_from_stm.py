@@ -29,6 +29,7 @@ class Feedback(object):
 
     def __init__(self, message: bytearray):
         self.country = None
+        self.message = None
         if message in Message.MESSAGES_TO_IGNORE.value:
             self.type = Feedback.HEY
         elif message == Message.SUCCESSFULL_TASK.value:
@@ -43,4 +44,5 @@ class Feedback(object):
             self.type = Feedback.COUNTRY
             self.country = message[1]
         else:
-            raise ValueError('Unclassified feedback message {}'.format(message))
+            self.type = Feedback.HEY
+            self.message = message
