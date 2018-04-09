@@ -42,7 +42,7 @@ class TestScenarioRobotController(TestCase):
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
 
     @patch('src.robot.robot_controller.time')
-    def test_scenario_4_cube_signal(self, time):
+    def scenario_4_cube_signal(self, time):
         self.__set_up_scenario_4()
         self.ctrl.main_loop()
 

@@ -1,16 +1,15 @@
 import serial
 
-from .command.stm_command_definition import commands_to_stm, commands_from_stm
 from .channel_exception import ChannelException
+from .command.stm_command_definition import commands_from_stm
 
 
 class Channel(object):
-    def __init__(self, serial):
+    def __init__(self, serial: serial.Serial):
         self.serial = serial
 
     def receive_message(self) -> commands_from_stm.Feedback:
         if self.serial.is_open:
-
             return commands_from_stm.Feedback(self.serial.read(commands_from_stm.Message.BYTES_TO_READ.value))
         else:
             raise ChannelException('Serial connection not opened')
@@ -24,7 +23,7 @@ class Channel(object):
     def calculate_checksum(message: bytes) -> int:
         message = bytearray(message)
         checksum = (0x100 - message[0] - message[1] - message[2]) & 0x0FF
-        print('{:02x}'.format(checksum))
+        print('Checksum : {:02x}'.format(checksum))  # debug please
         return checksum
 
 

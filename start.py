@@ -19,9 +19,9 @@ from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
 from src.vision.camera import create_real_camera, MockedCamera
 from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import MockedRobotDetector, VisionRobotDetector
 from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
-from src.vision.frame_drawer import FrameDrawer
 
 
 def main() -> None:
@@ -72,7 +72,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
                                                                            config['network']['port'],
                                                                            encoder.DictionaryEncoder())
     try:
-        channel = create_channel(config['serial']['port'])
+        channel = create_channel(config['serial']['port'], logger.getChild("channel"))
         robot_controller.RobotController(logger, scanner, network_controller, channel).main_loop()
     finally:
         if network_controller._socket is not None:
