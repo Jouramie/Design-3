@@ -58,7 +58,7 @@ class StationController(object):
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
         self.network.send_start_command()
-        self.interactive_testing()
+        # self.interactive_testing()
 
     def interactive_testing(self):
         while True:
@@ -73,19 +73,18 @@ class StationController(object):
                 self.network.send_grab_cube_command()
             elif command[0] == 'drop':
                 self.network.send_drop_cube_command()
-            elif command[0] == 'end':
+            elif command[0] == 'led':
                 self.network.send_end_of_task_signal()
-            elif command[0] == 'forward':
-                self.logger.info("YOYOYOYO")
-                self.network.send_move_command(Forward(int(command[1])))
-            elif command[0] == 'mover':
-                self.network.send_move_command(Right(int(command[1])))
-            elif command[0] == 'movel':
-                self.network.send_move_command(Left(int(command[1])))
-            elif command[0] == 'backward':
-                self.network.send_move_command(Backward(int(command[1])))
-            elif command[0] == 'rotate':
-                self.network.send_move_command(Rotate(int(command[1])))
+            elif command[0] == 'f':
+                self.network.send_move_command(Forward(float(command[1])))
+            elif command[0] == 'r':
+                self.network.send_move_command(Right(float(command[1])))
+            elif command[0] == 'l':
+                self.network.send_move_command(Left(float(command[1])))
+            elif command[0] == 'b':
+                self.network.send_move_command(Backward(float(command[1])))
+            elif command[0] == 'r':
+                self.network.send_move_command(Rotate(float(command[1])))
 
 
     def __check_infrared_signal(self) -> int:
