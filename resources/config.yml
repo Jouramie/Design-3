@@ -7,7 +7,7 @@ log_file: "log/{date}.log"
 
 robot:
   network:
-    host_ip: "10.42.0.190"
+    host_ip: "127.0.0.1"
     port: *port
   serial:
     port: "/dev/ttyUSB0"
@@ -36,7 +36,7 @@ station:
   camera:
     use_mocked_camera: true
     mocked_camera_image_path: "fig/saved_images/table2/00h02m31s.jpg"
-    camera_id: 0
+    camera_id: 1
     image_width: 1600
     image_height: 1200
     image_save_dir: "fig/{date}"
