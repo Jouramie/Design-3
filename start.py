@@ -72,7 +72,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
                                                                            config['network']['port'],
                                                                            encoder.DictionaryEncoder())
     try:
-        channel = create_channel(config['serial']['port'], logger.getChild("channel"))
+        channel = create_channel(config['serial']['port'])
         robot_controller.RobotController(logger, scanner, network_controller, channel).main_loop()
     finally:
         if network_controller._socket is not None:
