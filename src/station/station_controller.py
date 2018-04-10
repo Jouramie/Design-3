@@ -1,5 +1,6 @@
 import subprocess
 import time
+import threading
 from logging import Logger
 
 import numpy as np
@@ -48,12 +49,18 @@ class StationController(object):
 
         self.model.world_camera_is_on = True
 
+        def start_robot_thread():
+            self.logger.info('Updating robot.')
+            subprocess.call("./src/scripts/boot_robot.bash", shell=True)
+
+        self.robot_thread = threading.Thread(None, start_robot_thread, name='Robot')
+
     def start_robot(self):
         self.model.robot_is_started = True
         self.model.start_time = time.time()
 
         if self.config['robot']['update_robot']:
-            subprocess.call("./src/scripts/boot_robot.bash", shell=True)
+            self.robot_thread.start()
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
