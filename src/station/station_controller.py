@@ -83,9 +83,8 @@ class StationController(object):
                 self.network.send_move_command(Left(float(command[1])))
             elif command[0] == 'b':
                 self.network.send_move_command(Backward(float(command[1])))
-            elif command[0] == 'r':
+            elif command[0] == 'ro':
                 self.network.send_move_command(Rotate(float(command[1])))
-
 
     def __check_infrared_signal(self) -> int:
         try:
