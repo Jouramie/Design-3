@@ -46,8 +46,7 @@ class NavigationEnvironment(object):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
-                        # self.logger.info(str(err))
-                        pass
+                        self.logger.debug(str(err))
 
     def add_obstacles(self, obstacles: [Obstacle]):
         for obstacle in obstacles:
@@ -60,8 +59,7 @@ class NavigationEnvironment(object):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
-                        # self.logger.info(str(err))
-                        pass
+                        self.logger.debug(str(err))
 
     def __add_walls(self):
         max_height = self.DEFAULT_HEIGHT + self.__grid.DEFAULT_OFFSET
