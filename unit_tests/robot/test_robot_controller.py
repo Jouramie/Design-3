@@ -65,7 +65,7 @@ class TestRobotController(TestCase):
         channel.receive_message = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
         ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, channel)
 
-        ctrl.send_command_to_stm({'command': Command.MOVE_BACKWARD, 'amplitude': 200})
+        ctrl._send_command_to_stm({'command': Command.MOVE_BACKWARD, 'amplitude': 200})
 
         channel.send_command.assert_called_once_with(bytearray(b'\x3b\x07\xd0'))
 
@@ -73,7 +73,7 @@ class TestRobotController(TestCase):
     def test_when_send_ir_signal_command_then_set_flag_done(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
-        ctrl.send_command_to_stm({'command': Command.END_SIGNAL})
+        ctrl._send_command_to_stm({'command': Command.END_SIGNAL})
 
         self.assertEqual(True, ctrl.flag_done)
 
@@ -82,7 +82,7 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
 
-        ctrl.add_stm_command_to_queue(command)
+        ctrl._add_network_request_to_stm_todo_queue(command)
 
         self.assertEqual(command, ctrl._stm_commands_todo.pop())
 
@@ -159,7 +159,7 @@ class TestRobotController(TestCase):
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_commands_todo.append(command)
 
-        ctrl.execute_stm_tasks()
+        ctrl._execute_stm_tasks()
 
         self.assertEqual(command, ctrl._stm_sent_queue.get())
 
@@ -171,6 +171,6 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), channel)
         ctrl._stm_commands_todo.append(command)
 
-        ctrl.execute_stm_tasks()
+        ctrl._execute_stm_tasks()
 
         channel.send_command.assert_called_once_with(StmCommand.factory(command))

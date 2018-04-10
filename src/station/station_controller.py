@@ -12,7 +12,7 @@ from src.domain.environments.real_world_environment_factory import RealWorldEnvi
 from src.domain.objects.color import Color
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.grid import Grid
-from src.domain.path_calculator.movement import Forward, Backward, Rotate
+from src.domain.path_calculator.movement import Forward, Backward, Rotate, Right, Left
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.vision.camera import Camera
@@ -63,28 +63,29 @@ class StationController(object):
     def interactive_testing(self):
         while True:
             command = input('enter something:ir, grab, drop, light, forward, backward, rotate')
+            command = command.split(" ")
+            self.logger.info('You entered : {}'.format(command[0]))
 
-            if command == 'ir':
+            if command[0] == 'ir':
                 self.network.ask_infrared_signal()
                 self.__check_infrared_signal()
-            elif command == 'grab':
+            elif command[0] == 'grab':
                 self.network.send_grab_cube_command()
-            elif command == 'drop':
+            elif command[0] == 'drop':
                 self.network.send_drop_cube_command()
-            elif command == 'end':
+            elif command[0] == 'led':
                 self.network.send_end_of_task_signal()
-            elif command == 'forward':
-                self.network.send_move_command(Forward(30))
-            # elif command == 'mover':
-            #     self.network.send_move_command()
-            # elif command == 'movel':
-            #     self.network.send_move_command(StmCommandBuilder().left(100))
-            elif command == 'backward':
-                self.network.send_move_command(Backward(30))
-            elif command == 'rotatec':
-                self.network.send_move_command(Rotate(-90))
-            elif command == 'rotatecc':
-                self.network.send_move_command(Rotate(90))
+            elif command[0] == 'f':
+                self.network.send_move_command(Forward(float(command[1])))
+            elif command[0] == 'r':
+                self.network.send_move_command(Right(float(command[1])))
+            elif command[0] == 'l':
+                self.network.send_move_command(Left(float(command[1])))
+            elif command[0] == 'b':
+                self.network.send_move_command(Backward(float(command[1])))
+            elif command[0] == 'r':
+                self.network.send_move_command(Rotate(float(command[1])))
+
 
     def __check_infrared_signal(self) -> int:
         try:
