@@ -191,7 +191,7 @@ class TestScenarioStationController(TestCase):
 
         if 'infrared_signal_asked' in scenario:
             station_model.infrared_signal_asked = scenario['infrared_signal_asked']
-            server_network_controller.as_to_send_country_code = True
+            server_network_controller.has_to_send_country_code = True
 
         station_controller.start_robot()
 
