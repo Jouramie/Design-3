@@ -69,9 +69,6 @@ class TestRobotController(TestCase):
 
         self.assertEqual(command, ctrl._network_request_queue.get())
 
-
-
-
     @patch('src.robot.robot_controller.time')
     def test_when_receive_message_from_stm_then_append_it_to_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
