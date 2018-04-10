@@ -26,15 +26,11 @@ class StationView(QMainWindow):
         self.update_timer.timeout.connect(self.update)
 
         self.ui.StartButton.clicked.connect(self.start_robot)
-        self.ui.StartButton.clicked.connect(self.stop_robot)
 
         super(StationView, self).__init__()
 
     def start_robot(self):
         self.station_controller.start_robot()
-
-    def stop_robot(self):
-        pass
 
     def update(self):
         self.station_controller.update()

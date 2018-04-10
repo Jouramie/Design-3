@@ -43,6 +43,7 @@ class RobotController(object):
     def receive_network_request(self):
         network_request = self._network.wait_message()
         if network_request is not None:
+            self.failure = False
             self._network_request_queue.put(network_request)
 
     def receive_stm_command(self):
