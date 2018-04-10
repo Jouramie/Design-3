@@ -318,5 +318,5 @@ class StationController(object):
                     self.model.real_world_environment.cubes.append(cube)
 
         self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
-        # self.navigation_environment.create_grid()
+        self.navigation_environment.create_grid()
         self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
