@@ -60,7 +60,11 @@ class RobotController(object):
     def treat_network_request(self) -> None:
         if not self._network_request_queue.empty():
             task = self._network_request_queue.get()
-            self._add_network_request_to_stm_todo_queue(task)
+            if task['command'] == 'moves':
+                for command in task['movements']:
+                    self._add_network_request_to_stm_todo_queue(command)
+            else:
+                self._add_network_request_to_stm_todo_queue(task)
 
     def treat_stm_response(self) -> None:
         if not self._stm_responses_queue.empty():
