@@ -25,6 +25,7 @@ class RobotController(object):
         self._stm_done_queue = Queue()
         self.flag_done = False
         self.failure = False
+        self.waiting_for_commander = False
 
     def _start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
@@ -33,17 +34,20 @@ class RobotController(object):
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
 
     def check_if_all_request_were_executed(self):
-        if not self.failure \
+        if not self.waiting_for_commander \
+                and not self.failure \
                 and self._stm_sent_queue.empty() \
                 and self._stm_received_queue.empty() \
                 and self._network_request_queue.empty() \
                 and not self._stm_commands_todo:
             self._network.send_feedback(Command.EXECUTED_ALL_REQUESTS)
+            self.waiting_for_commander = True
 
     def receive_network_request(self):
         network_request = self._network.wait_message()
         if network_request is not None:
             self.failure = False
+            self.waiting_for_commander = False
             self._network_request_queue.put(network_request)
 
     def receive_stm_command(self):
