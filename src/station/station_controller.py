@@ -155,8 +155,10 @@ class StationController(object):
                 self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
                 self.__find_country()
                 self.__select_next_cube_color()
+                return
             else:
                 self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
+                return
 
         if not self._model.flag_is_finish:
             if self._model.robot_is_holding_cube:
