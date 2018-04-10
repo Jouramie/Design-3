@@ -1,5 +1,6 @@
 import subprocess
 import time
+import threading
 from logging import Logger
 
 import numpy as np
@@ -48,12 +49,18 @@ class StationController(object):
 
         self.model.world_camera_is_on = True
 
+        def start_robot_thread():
+            self.logger.info('Updating robot.')
+            subprocess.call("./src/scripts/boot_robot.bash", shell=True)
+
+        self.robot_thread = threading.Thread(None, start_robot_thread, name='Robot')
+
     def start_robot(self):
         self.model.robot_is_started = True
         self.model.start_time = time.time()
 
         if self.config['robot']['update_robot']:
-            subprocess.call("./src/scripts/boot_robot.bash", shell=True)
+            self.robot_thread.start()
 
         self.logger.info("Waiting for robot to connect.")
         self.network.host_network()
@@ -83,8 +90,9 @@ class StationController(object):
                 self.network.send_move_command(Left(float(command[1])))
             elif command[0] == 'b':
                 self.network.send_move_command(Backward(float(command[1])))
-            elif command[0] == 'ro':
+            elif command[0] == 'r':
                 self.network.send_move_command(Rotate(float(command[1])))
+
 
     def __check_infrared_signal(self) -> int:
         try:
@@ -310,5 +318,5 @@ class StationController(object):
                     self.model.real_world_environment.cubes.append(cube)
 
         self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
-        # self.navigation_environment.create_grid()
+        self.navigation_environment.create_grid()
         self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
