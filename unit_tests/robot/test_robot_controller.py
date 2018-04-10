@@ -40,25 +40,6 @@ class TestRobotController(TestCase):
         network_ctrl.wait_start_command.assert_called_once()
 
     @patch('src.robot.robot_controller.time')
-    def test_when_check_if_all_request_were_executed_then_notifies_network_if_so(self, time):
-        network_ctrl = MagicMock()
-        ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
-
-        ctrl.check_if_all_request_were_executed()
-
-        network_ctrl.send_feedback.assert_called_once()
-
-    @patch('src.robot.robot_controller.time')
-    def test_when_check_if_all_request_were_executed_then_does_not_notify_when_todo_queue_full(self, time):
-        network_ctrl = MagicMock()
-        ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
-        ctrl._stm_commands_todo.append({'command': Command.GRAB})
-
-        ctrl.check_if_all_request_were_executed()
-
-        self.assertEqual(0, network_ctrl.called)
-
-    @patch('src.robot.robot_controller.time')
     def test_when_receive_message_from_stm_then_append_it_to_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
