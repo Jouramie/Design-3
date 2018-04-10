@@ -18,9 +18,6 @@ class PathConverter(object):
         self.__segments = []
 
     def convert_path(self, path, robot: Robot, final_direction_desired: Direction = None):
-        if len(path) <= 1:
-            return [], []
-
         self.__movements = []
         self.__segments = []
         path_cycle = cycle(path)
@@ -32,6 +29,10 @@ class PathConverter(object):
         current_direction: Direction = None
 
         next_node = next(path_cycle)
+
+        if len(path) <= 1:
+            self.__add_rotation(robot.orientation, final_direction_desired.angle)
+            return self.__movements, self.__segments
 
         # TODO placer le robot sur la position de départ
 
