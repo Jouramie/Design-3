@@ -34,8 +34,6 @@ class PathConverter(object):
             self.__add_rotation(robot.orientation, final_direction_desired.angle)
             return self.__movements, self.__segments
 
-        # TODO placer le robot sur la position de départ
-
         while iteration < MAX_ITERATION:
             iteration += 1
 

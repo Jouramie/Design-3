@@ -265,8 +265,8 @@ class StationController(object):
 
     def __move_to_infra_red_station(self):
         start_position = self.__find_robot()
-        end_position = (15, 15)
-        end_direction = Direction.SOUTH_EAST
+        end_position = (10, 10)
+        end_direction = Direction.SOUTH_WEST
         movements, self._model.planned_path = self.__find_path(start_position, end_position, end_direction)
 
         self.__send_movement_commands(movements)
