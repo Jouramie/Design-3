@@ -45,6 +45,8 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
 
         ctrl.check_if_all_request_were_executed()
+        ctrl.check_if_all_request_were_executed()
+        ctrl.check_if_all_request_were_executed()
 
         network_ctrl.send_feedback.assert_called_once()
 

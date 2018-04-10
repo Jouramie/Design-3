@@ -38,6 +38,7 @@ class RobotController(object):
                 and self._stm_received_queue.empty() \
                 and self._network_request_queue.empty() \
                 and not self._stm_commands_todo:
+            self.
             self._network.send_feedback(Command.EXECUTED_ALL_REQUESTS)
 
     def receive_network_request(self):
