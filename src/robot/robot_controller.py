@@ -70,7 +70,7 @@ class RobotController(object):
     def execute_next_stm_task_and_check_ACK(self) -> None:
         while True:
             self._execute_stm_tasks()
-            time.sleep(2)
+            time.sleep(5)
             self.receive_stm_command()
             if not self._stm_responses_queue.empty():
                 response = self._stm_responses_queue.get()
