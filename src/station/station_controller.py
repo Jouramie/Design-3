@@ -53,10 +53,6 @@ class StationController(object):
             self.logger.info('Updating robot.')
             subprocess.call("./src/scripts/boot_robot.bash", shell=True)
 
-            self.logger.info('Starting robot.')
-            subprocess.call("ssh design3@10.41.0.1 'cd robot && ./start.py robot'", shell=True)
-            # subprocess.call("./start.py robot", shell=True)
-
         self.robot_thread = threading.Thread(None, start_robot_thread, name='Robot')
 
     def start_robot(self):
