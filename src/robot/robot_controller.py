@@ -24,12 +24,26 @@ class RobotController(object):
         self._stm_sent_queue = Queue()
         self._stm_done_queue = Queue()
         self.flag_done = False
+        self.failure = False
 
     def _start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
         self._network.pair_with_host(host_ip)
         self._network.wait_start_command()
         self._logger.info("Start command received... LEEETTTS GOOOOOO!! ")
+
+    def check_if_all_request_were_executed(self):
+        if not self.failure \
+                and self._stm_sent_queue.empty() \
+                and self._stm_received_queue.empty() \
+                and self._network_request_queue.empty() \
+                and not self._stm_commands_todo:
+            self._network.send_feedback(Command.EXECUTED_ALL_REQUESTS)
+
+    def receive_network_request(self):
+        network_request = self._network.wait_message()
+        if network_request is not None:
+            self._network_request_queue.put(network_request)
 
     def receive_stm_command(self):
         msg = self._channel.receive_message()
@@ -61,6 +75,7 @@ class RobotController(object):
                 self._network.send_country_code(response.country)
             elif response.type == commands_from_stm.Feedback.TASK_CUBE_FAILED:
                 # stop everything and notify station
+                self.failure = True
                 self._stm_commands_todo = deque()
                 self._network_request_queue = Queue()
                 self._stm_responses_queue = Queue()
@@ -96,7 +111,6 @@ class RobotController(object):
         self._logger.info('Sending bytes to STM {:02x} {:02x} {:02x}'.format(command[0], command[1], command[2]))
         self._channel.send_command(command)
 
-
     def _execute_stm_tasks(self) -> None:
         if self._stm_commands_todo:
             task = self._stm_commands_todo.pop()
@@ -107,14 +121,12 @@ class RobotController(object):
         self._start()
         while True:
             time.sleep(1)
-            network_request = self._network.wait_message()
-            if network_request is not None:
-                self._network_request_queue.put(network_request)
+            self.receive_network_request()
             self.treat_network_request()
             self.execute_next_stm_task_and_check_ACK()
             self.receive_stm_command()
             self.treat_stm_response()
+            self.check_if_all_request_were_executed()
 
             if self.flag_done and self._stm_sent_queue.empty() and self._stm_received_queue.empty():
                 return
-
