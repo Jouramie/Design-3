@@ -134,7 +134,7 @@ class StationController(object):
         self.model.passed_time = time.time() - self.model.start_time
 
         if self.model.real_world_environment is None:
-            self.__generate_environments()
+            self.__generate_real_world_environments()
 
         if not self.model.infrared_signal_asked:
             self.logger.info("Entering new step, asking country-code.")
@@ -144,7 +144,6 @@ class StationController(object):
 
         if self.model.robot_is_moving:
             self.model.robot_is_moving = False
-            self.model.real_world_environment = None
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             return
 
@@ -188,23 +187,28 @@ class StationController(object):
                 self.model.robot_is_moving = True
                 self.model.light_is_lit = True
 
-    def __generate_environments(self):
+    def __generate_real_world_environments(self):
         # self.camera.take_picture()
         self.model.vision_environment = self.world_vision.create_environment(self.model.frame,
                                                                              self.config['table_number'])
         self.logger.info("Vision Environment:\n{}".format(str(self.model.vision_environment)))
         self.model.real_world_environment = self.real_world_environment_factory.create_real_world_environment(
             self.model.vision_environment)
+
         if self.model.country is not None:
             for cube in self.model.country.stylized_flag.flag_cubes:
                 if cube.is_placed:
                     self.model.real_world_environment.cubes.append(cube)
 
         self.logger.info("Real Environment:\n{}".format(str(self.model.real_world_environment)))
+        self.__regenerate_navigation_environment()
+
+    def __regenerate_navigation_environment(self):
         self.navigation_environment.create_grid()
         self.navigation_environment.add_real_world_environment(self.model.real_world_environment)
 
     def __find_path(self, start_position: tuple, end_position: tuple, end_direction: Direction) -> ([Movement], list):
+        # self.__regenerate_navigation_environment()
         is_possible = self.path_calculator.calculate_path(start_position, end_position,
                                                           self.navigation_environment.get_grid())
         if not is_possible:
@@ -272,13 +276,13 @@ class StationController(object):
             self.robot_detector.robot_direction = Direction.SOUTH.angle
 
     def __move_to_grab_cube(self):
-        target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
-        if target_cube is None:
+        self.target_cube = self.model.real_world_environment.find_cube(self.model.next_cube.color)
+        if self.target_cube is None:
             self.logger.warning("The target cube is None. Cannot continue, exiting.")
             return
 
         start_position = self.__find_robot()
-        end_position, end_direction = self.__find_safe_position_near_cube(target_cube)
+        end_position, end_direction = self.__find_safe_position_near_cube(self.target_cube)
 
         movements, self.model.planned_path = self.__find_path(start_position, end_position, end_direction)
 
@@ -293,6 +297,9 @@ class StationController(object):
             self.robot_detector.robot_direction = end_direction.angle
 
     def __grab_cube(self):
+        self.model.real_world_environment.cubes.remove(self.target_cube)
+        self.target_cube = None
+
         self.network.send_move_command(Forward(self.DISTANCE_FROM_CUBE))
         self.network.send_grab_cube_command()
         self.network.send_move_command(Backward(self.DISTANCE_FROM_CUBE + 1))
@@ -325,7 +332,9 @@ class StationController(object):
 
         self.logger.info("Dropping cube.")
 
-        self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1].place_cube()
+        placed_cube = self.model.country.stylized_flag.flag_cubes[self.model.current_cube_index - 1]
+        placed_cube.place_cube()
+        self.model.real_world_environment.cubes.append(placed_cube)
         self.__select_next_cube_color()
 
         self.model.robot_is_moving = True

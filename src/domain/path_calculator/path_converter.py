@@ -18,6 +18,9 @@ class PathConverter(object):
         self.__segments = []
 
     def convert_path(self, path, robot: Robot, final_direction_desired: Direction = None):
+        if len(path) <= 1:
+            return [], []
+
         self.__movements = []
         self.__segments = []
         path_cycle = cycle(path)
