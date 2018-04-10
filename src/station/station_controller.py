@@ -5,6 +5,7 @@ from logging import Logger
 
 import numpy as np
 
+from src.d3_network.command import Command
 from src.d3_network.network_exception import MessageNotReceivedYet
 from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
@@ -140,20 +141,22 @@ class StationController(object):
             self.__move_to_infra_red_station()
             return
 
-        if self._model.robot_is_moving:
-            self._model.robot_is_moving = False
+        if self._model.robot_is_moving or self._model.country_code is None:
+            try:
+                msg = self.__network.check_robot_feedback()
+            except MessageNotReceivedYet:
+                return
+
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
-            return
-
-        if self._model.country_code is None:
-            country_received = self.__check_infrared_signal()
-
-            if country_received is not None:
-                self._model.country_code = country_received
+            if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
+                self._model.robot_is_moving = False
+            elif msg['command'] == Command.INFRARED_SIGNAL:
+                self._model.country_code = msg['country_code']
+                self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
                 self.__find_country()
                 self.__select_next_cube_color()
             else:
-                return
+                self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
 
         if not self._model.flag_is_finish:
             if self._model.robot_is_holding_cube:

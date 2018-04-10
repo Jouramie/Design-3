@@ -42,7 +42,7 @@ class ServerNetworkController(NetworkController):
     def send_move_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
-    def receive_feedback(self) -> None:
+    def check_robot_feedback(self) -> None:
         raise NotImplementedError("This is an interface...")
 
 
@@ -77,7 +77,7 @@ class SocketServerNetworkController(ServerNetworkController):
             self._logger.info(msg)
         self._socket.setblocking(0)
 
-    def receive_feedback(self) -> dict:
+    def check_robot_feedback(self) -> dict:
         msg = self._receive_message()
 
         self._logger.info("Feedback from robot : {}".format(msg))
@@ -171,5 +171,6 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_move_command(self, movement: Movement) -> None:
         self._logger.info("Commmand {} : sent!".format(movement))
 
-    def receive_feedback(self) -> None:
+    def check_robot_feedback(self) -> dict:
         self._logger.info("Feedback from robot")
+        return {'command': Command.EXECUTED_ALL_REQUESTS}
