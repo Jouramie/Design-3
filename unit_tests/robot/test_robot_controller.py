@@ -83,7 +83,8 @@ class TestRobotController(TestCase):
         ctrl.treat_network_request()
 
         self.assertEqual({'command': Command.MOVE_BACKWARD, 'amplitude': 18}, ctrl._stm_commands_todo.popleft())
-
+        self.assertEqual({'command': Command.MOVE_FORWARD, 'amplitude': 90}, ctrl._stm_commands_todo.popleft())
+        self.assertEqual({'command': Command.MOVE_LEFT, 'amplitude': 30}, ctrl._stm_commands_todo.popleft())
 
     @patch('src.robot.robot_controller.time')
     def test_when_receive_message_from_stm_then_append_it_to_queue(self, time):
