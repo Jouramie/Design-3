@@ -92,7 +92,7 @@ class TestScenarioRobotController(TestCase):
 
     def __set_up_scenario_4(self):
         self.ctrl._network_request_queue = Queue()
-        self.ctrl._network_request_queue.put({'command': 'moves', 'movements': [
+        self.ctrl._network_request_queue.put({'command': 'actions', 'actions': [
             {'command': Command.MOVE_BACKWARD, 'amplitude': 18},
             {'command': Command.MOVE_FORWARD, 'amplitude': 90},
             {'command': Command.MOVE_LEFT, 'amplitude': 30}]})

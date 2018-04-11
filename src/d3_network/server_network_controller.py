@@ -27,6 +27,9 @@ class ServerNetworkController(NetworkController):
     def send_actions(self, actions: [Action]) -> None:
         raise NotImplementedError("This is an interface...")
 
+    def send_start(self):
+        raise NotImplementedError("This is an interface...")
+
     def check_robot_feedback(self) -> None:
         raise NotImplementedError("This is an interface...")
 
@@ -36,6 +39,9 @@ class SocketServerNetworkController(ServerNetworkController):
         super().__init__(logger, port, encoder)
         self._server = socket(AF_INET, SOCK_STREAM)
         self._server.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+
+    def send_start(self):
+        self._send_command(Command.START)
 
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
