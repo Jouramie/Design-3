@@ -8,6 +8,9 @@ class Action(object):
     def __str__(self):
         return "{}".format(self.command)
 
+    def to_command(self):
+        return {'command': self.command}
+
 class Grab(Action):
     def __init__(self):
         super().__init__(Command.GRAB)
@@ -50,6 +53,9 @@ class Movement(Action):
 
     def __str__(self):
         return "{} : {}".format(self.command, self.amplitude)
+
+    def to_command(self):
+        return {'command': self.command, 'amplitude': self.amplitude}
 
 
 class Rotate(Movement):

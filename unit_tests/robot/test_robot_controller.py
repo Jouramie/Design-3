@@ -73,7 +73,7 @@ class TestRobotController(TestCase):
 
     @patch('src.robot.robot_controller.time')
     def test_when_treat_network_request_then_fills_net_work_request_queue(self, time):
-        command = {'command': 'actions', 'actions': [
+        command = {'command': Command.ACTION, 'actions': [
             {'command': Command.MOVE_BACKWARD, 'amplitude': 18},
             {'command': Command.MOVE_FORWARD, 'amplitude': 90},
             {'command': Command.MOVE_LEFT, 'amplitude': 30}]}
