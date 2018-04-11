@@ -51,14 +51,13 @@ class ClientNetworkController(NetworkController):
 
     def wait_message(self) -> dict:
         self._logger.info('Waiting for a command.')
-        msg = None
-        while msg is None:
-            try:
-                msg = self._receive_message()
-            except MessageNotReceivedYet:
-                self._logger.info('Waiting for a command.')
-                time.sleep(1)
-        self._logger.info(msg)
+
+        try:
+            msg = self._receive_message()
+        except MessageNotReceivedYet:
+            time.sleep(1)
+
+        self._logger.info('Message received from network: {}'.format(str(msg)))
         return msg
 
     def send_feedback(self, feedback: Command):

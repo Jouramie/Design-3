@@ -62,7 +62,6 @@ class RobotController(object):
             task = self._network_request_queue.get()
             if task['command'] == 'moves':
                 for command in task['movements']:
-                    self._logger.info('Adding {} to stm_todo_queue.'.format(str(command)))
                     self._add_network_request_to_stm_todo_queue(command)
             else:
                 self._add_network_request_to_stm_todo_queue(task)
