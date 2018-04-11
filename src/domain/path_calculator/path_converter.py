@@ -46,7 +46,6 @@ class PathConverter(object):
                     continue
             else:
                 new_angle = int(atan(movement[1] / movement[0]) / 2 / pi * 360)
-                print(new_angle)
                 if movement[0] < 0:
                     new_angle -= 180
 

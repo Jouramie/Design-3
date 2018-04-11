@@ -103,7 +103,8 @@ class NavigationEnvironment(object):
         return self.__grid
 
     def is_crossing_obstacle(self, start_point, end_point) -> bool:
-        movement = tuple(np.subtract(end_point, start_point))
+        movement_array = np.subtract(end_point, start_point)
+        movement = (int(movement_array[0]), int(movement_array[1]))
         if abs(movement[0]) >= abs(movement[1]):
             if movement[0] > 0:
                 step = 1

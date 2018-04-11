@@ -26,7 +26,7 @@ class PathSimplifier(object):
             end_point = original_path[j + 1]
             if not self.__navigation_environment.is_crossing_obstacle(start_point, end_point):
                 simplified_path.remove(original_path[j])
-                self.__logger.info('Remove node {}'.format(original_path[j]))
+                self.__logger.debug('Remove node {}'.format(original_path[j]))
                 path_as_been_simplified = True
             else:
                 i += 1

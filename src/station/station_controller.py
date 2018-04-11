@@ -222,9 +222,7 @@ class StationController(object):
             self.__logger.warning("Path to destination {} is not possible.".format(end_position))
             return None, None
         raw_path = self.__path_calculator.get_calculated_path()
-        print('Raw path: {}'.format(str(raw_path)))
         simplified_path = self.__path_simplifier.simplify(raw_path)
-        print('Simplified path: {}'.format(str(simplified_path)))
 
         movements, path_planned = self.__path_converter.convert_path(simplified_path, self._model.robot, end_direction)
 
