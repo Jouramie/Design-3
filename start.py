@@ -77,6 +77,8 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     try:
         channel = create_channel(config['serial']['port'])
         robot_controller.RobotController(logger, scanner, network_controller, channel).main_loop()
+    except Exception as e:
+        logger.error(str(e))
     finally:
         if network_controller._socket is not None:
             network_controller._socket.close()
@@ -119,13 +121,15 @@ def start_station(config: dict, logger: logging.Logger) -> None:
         app = App(network_controller, camera, real_world_environment_factory, frame_drawer, robot_detector,
                   logger.getChild("main_controller"),
                   config)
-        sys.exit(app.exec_())
+    except Exception as e:
+        logger.error(str(e))
     finally:
         if not config['network']['use_mocked_network']:
             if network_controller._server is not None:
                 network_controller._server.close()
             if network_controller._socket is not None:
                 network_controller._socket.close()
+        sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
