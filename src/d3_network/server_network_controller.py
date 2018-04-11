@@ -74,7 +74,7 @@ class SocketServerNetworkController(ServerNetworkController):
         return country_code
 
     def send_action(self, action: Action) -> None:
-        self._send_command(action)
+        self._send_command(action.command)
 
         self._logger.info("Action sent {}".format(action))
 
