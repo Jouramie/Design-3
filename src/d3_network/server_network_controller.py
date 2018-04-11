@@ -132,7 +132,7 @@ class SocketServerNetworkController(ServerNetworkController):
             movements_command_list.append({'command': movement.command, 'amplitude': movement.amplitude})
         self._send_command(Command.MOVES, {'movements': movements_command_list})
 
-        self._logger.info("Commmand {} : sent!".format(movements))
+        self._logger.info("Commmand {} : sent!".format(str(mov) for mov in movements))
 
 
 class MockedServerNetworkController(ServerNetworkController):
