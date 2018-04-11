@@ -40,6 +40,8 @@ class SocketServerNetworkController(ServerNetworkController):
     def send_start(self):
         self._send_command(Command.START)
 
+        self._logger.info('Start command sent!')
+
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
         self._server.bind(('', self._port))
@@ -107,6 +109,9 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Creating server on port " + str(self._port))
         self._logger.info("{} connected".format('fake network'))
         pass
+
+    def send_start(self):
+        self._logger.info('Start command sent!')
 
     def check_received_infrared_signal(self) -> int:
         self._logger.info("Infrared signal received! {code}".format(code=self.country_code))

@@ -92,7 +92,7 @@ class TestRobotController(TestCase):
 
         ctrl.receive_stm_command()
 
-        self.assertEqual(1, ctrl._stm_responses_queue.qsize())
+        self.assertEqual(1, len(ctrl._stm_responses_deque))
 
     @patch('src.robot.robot_controller.time')
     def test_when_receive_message_from_stm_then_receive_from_channel(self, time):
@@ -148,7 +148,7 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_sent_queue.put(command)
-        ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
+        ctrl._stm_responses_deque.append(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
 
         ctrl.treat_stm_response()
 
@@ -159,7 +159,7 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_received_queue.put(command)
-        ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
+        ctrl._stm_responses_deque.append(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
 
         ctrl.treat_stm_response()
 
@@ -170,7 +170,7 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_received_queue.put(command)
-        ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.UNSUCCESSFULL_TASK.value))
+        ctrl._stm_responses_deque.append(commands_from_stm.Feedback(commands_from_stm.Message.UNSUCCESSFULL_TASK.value))
 
         ctrl.treat_stm_response()
 
@@ -182,7 +182,7 @@ class TestRobotController(TestCase):
         ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
         command = {'command': Command.GRAB}
         ctrl._stm_received_queue.put(command)
-        ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_CUBE_FAILED.value))
+        ctrl._stm_responses_deque.append(commands_from_stm.Feedback(commands_from_stm.Message.TASK_CUBE_FAILED.value))
 
         ctrl.treat_stm_response()
 
@@ -192,7 +192,7 @@ class TestRobotController(TestCase):
     def test_when_treats_stm_response_country_code_then_notify_server(self, time):
         network_ctrl = MagicMock()
         ctrl = RobotController(MagicMock(), MagicMock(), network_ctrl, MagicMock())
-        ctrl._stm_responses_queue.put(commands_from_stm.Feedback(bytearray(b'\xb0\x75\x00\x00')))
+        ctrl._stm_responses_deque.append(commands_from_stm.Feedback(bytearray(b'\xb0\x75\x00\x00')))
         command = {'command': Command.GRAB}
         ctrl._stm_received_queue.put(command)
 
