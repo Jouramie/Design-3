@@ -1,9 +1,12 @@
+from logging import Logger
+
 from src.domain.environments.navigation_environment import NavigationEnvironment
 
 
 class PathSimplifier(object):
-    def __init__(self, navigation_environment: NavigationEnvironment):
+    def __init__(self, navigation_environment: NavigationEnvironment, logger: Logger):
         self.__navigation_environment = navigation_environment
+        self.__logger = logger
 
     def simplify(self, original_path: [tuple]) -> [tuple]:
         simplified_path = original_path
@@ -15,13 +18,15 @@ class PathSimplifier(object):
         return simplified_path
 
     def _simplify_once(self, original_path: [tuple]) -> (bool, [tuple]):
-        simplified_path = list(original_path)   # Create a copy
+        simplified_path = list(original_path)  # Create a copy
         path_as_been_simplified = False
         i = 0
         for j in range(1, len(original_path) - 1):
-            k = j + 1
-            if not self.__navigation_environment.is_crossing_obstacle([simplified_path[i], original_path[k]]):
+            start_point = simplified_path[i]
+            end_point = original_path[j + 1]
+            if not self.__navigation_environment.is_crossing_obstacle(start_point, end_point):
                 simplified_path.remove(original_path[j])
+                self.__logger.info('Remove node {}'.format(original_path[j]))
                 path_as_been_simplified = True
             else:
                 i += 1

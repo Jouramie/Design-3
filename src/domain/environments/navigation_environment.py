@@ -1,11 +1,12 @@
 from logging import Logger
 
+import numpy as np
+
 from src.domain.objects.flag_cube import FlagCube
 from .navigation_environment_error import NavigationEnvironmentDataError
 from .real_world_environment import RealWorldEnvironment
 from ..objects.obstacle import Obstacle
 from ..path_calculator.grid import Grid
-from ..path_calculator.path_calculator import PathCalculator
 
 
 class NavigationEnvironment(object):
@@ -39,10 +40,10 @@ class NavigationEnvironment(object):
     def add_cubes(self, cubes: [FlagCube]):
         for cube in cubes:
             point = cube.center
-            for x in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
-                                                                             self.BIGGEST_ROBOT_RADIUS + 1):
-                for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
-                                                                                 self.BIGGEST_ROBOT_RADIUS + 1):
+            for x in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS,
+                           self.CUBE_HALF_SIZE + self.BIGGEST_ROBOT_RADIUS + 1):
+                for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS,
+                               self.CUBE_HALF_SIZE + self.BIGGEST_ROBOT_RADIUS + 1):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
@@ -51,11 +52,11 @@ class NavigationEnvironment(object):
     def add_obstacles(self, obstacles: [Obstacle]):
         for obstacle in obstacles:
             point = (int(obstacle.center[0]), int(obstacle.center[1]))
-            for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
-                                                                              self.BIGGEST_ROBOT_RADIUS + 1):
+            for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
+                           self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
                 # Square shape obstacle
-                for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
-                                                                                  self.BIGGEST_ROBOT_RADIUS + 1):
+                for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
+                               self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
@@ -87,7 +88,7 @@ class NavigationEnvironment(object):
         self.__add_grid_obstacle(perimeter_point)
 
     def __add_grid_obstacle(self, point):
-        self.__grid.get_vertex(point).set_step_value(PathCalculator.OBSTACLE_VALUE)
+        self.__grid.get_vertex(point).set_step_value(Grid.OBSTACLE_VALUE)
         for connection in self.__grid.get_vertex(point).get_connections():
             self.__grid.get_vertex(connection.get_id()).set_new_weight(
                 self.__grid.get_vertex(point), self.INFINITY_WEIGHT)
@@ -101,5 +102,19 @@ class NavigationEnvironment(object):
     def get_grid(self):
         return self.__grid
 
-    def is_crossing_obstacle(self, path) -> bool:
-        return True
+    def is_crossing_obstacle(self, start_point, end_point) -> bool:
+        movement = tuple(np.subtract(start_point, end_point))
+        if movement[0] >= movement[1]:
+            for x in range(movement[0]):
+                y = int(x / movement[0] * movement[1])
+                point = (start_point[0] + x, start_point[1] + y)
+                if self.__grid.is_obstacle(point):
+                    return True
+        else:
+            for y in range(movement[1]):
+                x = int(y / movement[1] * movement[0])
+                point = (start_point[0] + x, start_point[1] + y)
+                if self.__grid.is_obstacle(point):
+                    return True
+
+        return False

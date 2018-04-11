@@ -19,6 +19,7 @@ from src.domain.path_calculator.movement import Forward, Backward, Rotate, Right
 from src.domain.path_calculator.movement import Movement
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
+from src.domain.path_calculator.path_simplifier import PathSimplifier
 from src.vision.camera import Camera
 from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
@@ -44,6 +45,7 @@ class StationController(object):
         self.__path_converter = PathConverter(logger.getChild("PathConverter"))
         self.__navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.__navigation_environment.create_grid()
+        self.__path_simplifier = PathSimplifier(self.__navigation_environment, self.__logger)
 
         self.__real_world_environment_factory = real_world_environment_factory
         self.__robot_detector = robot_detector
@@ -219,9 +221,12 @@ class StationController(object):
         if not is_possible:
             self.__logger.warning("Path to destination {} is not possible.".format(end_position))
             return None, None
+        raw_path = self.__path_calculator.get_calculated_path()
+        print('Raw path: {}'.format(str(raw_path)))
+        simplified_path = self.__path_simplifier.simplify(raw_path)
+        print('Simplified path: {}'.format(str(simplified_path)))
 
-        movements, path_planned = self.__path_converter.convert_path(
-            self.__path_calculator.get_calculated_path(), self._model.robot, end_direction)
+        movements, path_planned = self.__path_converter.convert_path(simplified_path, self._model.robot, end_direction)
 
         self.__logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
 

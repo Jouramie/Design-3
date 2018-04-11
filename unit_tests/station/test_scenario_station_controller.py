@@ -152,6 +152,7 @@ class TestScenarioStationController(TestCase):
         station_controller.update()
 
         self.assertTrue(station_model.infrared_signal_asked)
+        self.assertEqual([(15, 15), (10, 10)], station_model.planned_path)
 
     def test_scenario2(self):
         station_model, station_controller = self.__create_station_controller(SCENARIO_2)
