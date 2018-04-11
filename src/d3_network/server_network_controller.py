@@ -24,6 +24,9 @@ class ServerNetworkController(NetworkController):
     def send_action(self, action: Action) -> None:
         raise NotImplementedError("This is an interface...")
 
+    def send_actions(self, actions: [Action]) -> None:
+        raise NotImplementedError("This is an interface...")
+
     def check_robot_feedback(self) -> None:
         raise NotImplementedError("This is an interface...")
 
@@ -74,9 +77,23 @@ class SocketServerNetworkController(ServerNetworkController):
         return country_code
 
     def send_action(self, action: Action) -> None:
-        self._send_command(action.command)
+        if type(action) is Movement:
+            self._send_command(Command.ACTION, {'command': action.command, 'amplitude': action.amplitude})
+        else:
+            self._send_command(Command.ACTION, {'command': action.command})
 
         self._logger.info("Action sent {}".format(action))
+
+    def send_actions(self, actions: [Action]) -> None:
+        actions_command_list = []
+        for action in actions:
+            if type(action) is Movement:
+                actions_command_list.append({'command': action.command, 'amplitude': action.amplitude})
+            else:
+                actions_command_list.append({'command': action.command})
+        self._send_command(Command.ACTION, {'actions': actions_command_list})
+
+        self._logger.info("Actions {} sent".format(str(act) for act in actions))
 
     def send_move_command(self, movements: [Movement]) -> None:
         movements_command_list = []
@@ -99,13 +116,15 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("{} connected".format('fake network'))
         pass
 
-
     def check_received_infrared_signal(self) -> int:
         self._logger.info("Infrared signal received! {code}".format(code=self.country_code))
         return self.country_code
 
     def send_action(self, action: Action) -> None:
         self._logger.info("Action {} : sent!".format(action))
+
+    def send_actions(self, actions: [Action]) -> None:
+        self._logger.info("Commmand {} : sent!".format(actions))
 
     def send_move_command(self, movements: [Movement]) -> None:
         self._logger.info("Commmand {} : sent!".format(movements))
