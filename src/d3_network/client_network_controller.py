@@ -61,5 +61,5 @@ class ClientNetworkController(NetworkController):
         return msg
 
     def send_feedback(self, feedback: Command):
-        self._logger.info('Sending feedback {feedback}.'.format(feedback=feedback))
+        self._logger.info('Sending feedback to station {feedback}.'.format(feedback=feedback))
         self._send_command(feedback)

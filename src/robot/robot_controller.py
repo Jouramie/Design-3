@@ -25,7 +25,7 @@ class RobotController(object):
         self._stm_done_queue = Queue()
         self.flag_done = False
         self.failure = False
-        self.waiting_for_commander = False
+        self.waiting_for_commander = True
 
     def _start(self) -> None:
         host_ip = self._ip_provider.get_host_ip()
@@ -52,9 +52,8 @@ class RobotController(object):
 
     def receive_stm_command(self):
         msg = self._channel.receive_message()
-        while msg.type == commands_from_stm.Feedback.HEY:
-            msg = self._channel.receive_message()
-        if msg is not None: self._stm_responses_queue.put(msg)
+        if msg is not None and msg.type != commands_from_stm.Feedback.HEY:
+            self._stm_responses_queue.put(msg)
         self._logger.info('Received from STM : {}'.format(msg.type))
 
     def treat_network_request(self) -> None:
@@ -92,19 +91,20 @@ class RobotController(object):
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
 
     def execute_next_stm_task_and_check_ACK(self) -> None:
-        while True:
-            self._execute_stm_tasks()
-            time.sleep(5)
-            self.receive_stm_command()
-            if not self._stm_responses_queue.empty():
-                response = self._stm_responses_queue.get()
-                if response.type == commands_from_stm.Feedback.TASK_RECEIVED:
-                    task = self._stm_sent_queue.get()
-                    self._stm_received_queue.put(task)
-                    return
-                else:
-                    task = self._stm_sent_queue.get()
-                    self._stm_commands_todo.appendleft(task)
+        if self._stm_commands_todo:
+            while True:
+                self._execute_stm_tasks()
+                time.sleep(5)
+                self.receive_stm_command()
+                if not self._stm_responses_queue.empty():
+                    response = self._stm_responses_queue.get()
+                    if response.type == commands_from_stm.Feedback.TASK_RECEIVED:
+                        task = self._stm_sent_queue.get()
+                        self._stm_received_queue.put(task)
+                        return
+                    else:
+                        task = self._stm_sent_queue.get()
+                        self._stm_commands_todo.appendleft(task)
 
     def _add_network_request_to_stm_todo_queue(self, command: dict) -> None:
         if command['command'] in Command.__dict__.values():
