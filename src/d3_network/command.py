@@ -15,4 +15,4 @@ class Command(object):
     MOVE_LEFT = 'move-left'
 
     GRAB_CUBE_FAILURE = 'grab-cube-failure'
-    EXECUTED_ALL_REQUESTS= 'requests-were-executed-commander'
+    EXECUTED_ALL_REQUESTS = 'requests-were-executed-commander'
