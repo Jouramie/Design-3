@@ -5,7 +5,7 @@ from .command import Command
 from .encoder import Encoder
 from .network_controller import NetworkController
 from .network_exception import NetworkException, WrongCommand
-from ..domain.path_calculator.movement import Movement, Rotate
+from ..domain.path_calculator.action import Movement, Rotate, Action
 
 
 class ServerNetworkController(NetworkController):
@@ -15,31 +15,13 @@ class ServerNetworkController(NetworkController):
     def host_network(self) -> None:
         raise NotImplementedError("This is an interface...")
 
-    def send_start_command(self) -> None:
-        raise NotImplementedError("This is an interface...")
-
-    def send_reset_command(self) -> None:
-        raise NotImplementedError("This is an interface...")
-
-    def ask_infrared_signal(self) -> None:
-        raise NotImplementedError("This is an interface...")
-
-    def check_infrared_signal(self) -> int:
-        raise NotImplementedError("This is an interface...")
-
-    def send_end_of_task_signal(self) -> int:
-        raise NotImplementedError("This is an interface...")
-
-    def send_ask_if_can_grab_cube_command(self) -> None:
-        raise NotImplementedError("This is an interface...")
-
-    def send_grab_cube_command(self) -> None:
-        raise NotImplementedError("This is an interface...")
-
-    def send_drop_cube_command(self) -> None:
+    def check_received_infrared_signal(self) -> int:
         raise NotImplementedError("This is an interface...")
 
     def send_move_command(self, movements: [Movement]):
+        raise NotImplementedError("This is an interface...")
+
+    def send_action(self, action: Action) -> None:
         raise NotImplementedError("This is an interface...")
 
     def check_robot_feedback(self) -> None:
@@ -84,47 +66,17 @@ class SocketServerNetworkController(ServerNetworkController):
 
         return msg
 
-    def send_start_command(self) -> None:
-        self._send_command(Command.START)
-
-        self._logger.info("Start command sent!")
-
-    def send_reset_command(self) -> None:
-        self._send_command(Command.RESET)
-
-        self._logger.info("Reset command sent!")
-
-    def ask_infrared_signal(self) -> None:
-        self._send_command(Command.INFRARED_SIGNAL)
-
-        self._logger.info("Infrared signal asked!")
-
-    def check_infrared_signal(self) -> int:
+    def check_received_infrared_signal(self) -> int:
         msg = self._receive_message()
 
         country_code = msg['country_code']
         self._logger.info("Infrared signal received! {code}".format(code=country_code))
         return country_code
 
-    def send_end_of_task_signal(self) -> None:
-        self._send_command(Command.END_SIGNAL)
+    def send_action(self, action: Action) -> None:
+        self._send_command(action)
 
-        self._logger.info("End of task signal sent, the led should go on!")
-
-    def send_ask_if_can_grab_cube_command(self) -> None:
-        self._send_command(Command.CAN_I_GRAB)
-
-        self._logger.info("Can i grab a cube command sent!")
-
-    def send_grab_cube_command(self) -> None:
-        self._send_command(Command.GRAB)
-
-        self._logger.info("Grab command sent!")
-
-    def send_drop_cube_command(self) -> None:
-        self._send_command(Command.DROP)
-
-        self._logger.info("Drop cube command sent!")
+        self._logger.info("Action sent {}".format(action))
 
     def send_move_command(self, movements: [Movement]) -> None:
         movements_command_list = []
@@ -147,31 +99,13 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("{} connected".format('fake network'))
         pass
 
-    def send_start_command(self) -> None:
-        self._logger.info("Start command sent!")
 
-    def send_reset_command(self) -> None:
-        self._logger.info("Reset command sent!")
-
-    def ask_infrared_signal(self) -> None:
-        self.has_to_send_country_code = True
-        self._logger.info("Infrared signal asked!")
-
-    def check_infrared_signal(self) -> int:
+    def check_received_infrared_signal(self) -> int:
         self._logger.info("Infrared signal received! {code}".format(code=self.country_code))
         return self.country_code
 
-    def send_end_of_task_signal(self) -> None:
-        self._logger.info("End of task signal sent, the led should go on!")
-
-    def send_grab_cube_command(self) -> None:
-        self._logger.info("Grab command sent!")
-
-    def send_ask_if_can_grab_cube_command(self) -> None:
-        self._logger.info("Can i grab a cube command sent!")
-
-    def send_drop_cube_command(self) -> None:
-        self._logger.info("Drop cube command sent!")
+    def send_action(self, action: Action) -> None:
+        self._logger.info("Action {} : sent!".format(action))
 
     def send_move_command(self, movements: [Movement]) -> None:
         self._logger.info("Commmand {} : sent!".format(movements))

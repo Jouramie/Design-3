@@ -5,7 +5,7 @@ from src.domain.objects.robot import Robot
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.direction import FORTY_FIVE_DEGREES_MOVE_LENGTH
 from src.domain.path_calculator.direction import NINETY_DEGREES_MOVE_LENGTH
-from src.domain.path_calculator.movement import Forward, Rotate
+from src.domain.path_calculator.action import Forward, Rotate
 from src.domain.path_calculator.path_converter import PathConverter
 
 

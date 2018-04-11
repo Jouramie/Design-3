@@ -4,7 +4,7 @@ from logging import Logger
 import numpy
 
 from .direction import Direction
-from .movement import Rotate, Forward
+from .action import Rotate, Forward
 from ..objects.robot import Robot
 
 MAX_ITERATION = 10000
