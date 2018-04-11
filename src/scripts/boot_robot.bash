@@ -11,4 +11,5 @@ git push -f robot
 ssh design3@10.42.0.1 'cd ~/robot && git checkout robot'
 git checkout ${ACTUAL_BRANCH}
 
+ssh design3@10.42.0.1 'pkill python3'
 ssh design3@10.42.0.1 'cd robot && . env/bin/activate && ./start.py robot'
