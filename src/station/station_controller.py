@@ -228,8 +228,7 @@ class StationController(object):
         return movements, path_planned
 
     def __send_movement_commands(self, movements: [Movement]) -> None:
-        for movement in movements:
-            self.__network.send_move_command(movement)
+        self.__network.send_move_command(movements)
 
     def __find_robot(self) -> tuple:
         if self._model.robot is None:
