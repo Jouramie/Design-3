@@ -51,7 +51,7 @@ class ClientNetworkController(NetworkController):
 
     def wait_message(self) -> dict:
         self._logger.info('Waiting for a command.')
-
+        msg = None
         try:
             msg = self._receive_message()
         except MessageNotReceivedYet:
