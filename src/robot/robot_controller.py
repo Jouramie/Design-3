@@ -150,7 +150,7 @@ class RobotController(object):
 
         self.execute_next_stm_task_and_check_ACK()
         self._logger.info('3')
-
+        time.sleep(1)
         self.receive_stm_command()
         self._logger.info('4')
 
