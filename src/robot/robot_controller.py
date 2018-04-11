@@ -127,36 +127,19 @@ class RobotController(object):
             self._send_command_to_stm(task)
 
     def main_loop(self) -> None:
-        self._logger.info('DEBUT')
-
         self._start()
-        self._logger.info('APRES LE START')
-
         while True:
             time.sleep(1)
-            self._logger.info('debut000')
             self.execute()
 
             if self.flag_done and self._stm_sent_queue.empty() and self._stm_received_queue.empty():
                 return
 
     def execute(self):
-        self._logger.info('debut')
         self.receive_network_request()
-        self._logger.info('1')
-
         self.treat_network_request()
-        self._logger.info('2')
-
         self.execute_next_stm_task_and_check_ACK()
-        self._logger.info('3')
         time.sleep(1)
         self.receive_stm_command()
-        self._logger.info('4')
-
         self.treat_stm_response()
-        self._logger.info('5')
-
         self.check_if_all_request_were_executed()
-        self._logger.info('6')
-
