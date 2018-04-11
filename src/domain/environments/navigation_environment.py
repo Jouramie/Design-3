@@ -100,3 +100,6 @@ class NavigationEnvironment(object):
 
     def get_grid(self):
         return self.__grid
+
+    def is_crossing_obstacle(self, path) -> bool:
+        return True
