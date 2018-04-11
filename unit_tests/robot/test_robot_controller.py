@@ -72,6 +72,21 @@ class TestRobotController(TestCase):
         self.assertEqual(command, ctrl._network_request_queue.get())
 
     @patch('src.robot.robot_controller.time')
+    def test_when_treat_network_request_then_fills_net_work_request_queue(self, time):
+        command = {'command': 'moves', 'movements': [
+            {'command': Command.MOVE_BACKWARD, 'amplitude': 18},
+            {'command': Command.MOVE_FORWARD, 'amplitude': 90},
+            {'command': Command.MOVE_LEFT, 'amplitude': 30}]}
+        ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
+        ctrl._network_request_queue.put(command)
+
+        ctrl.treat_network_request()
+
+        self.assertEqual({'command': Command.MOVE_BACKWARD, 'amplitude': 18}, ctrl._stm_commands_todo.popleft())
+        self.assertEqual({'command': Command.MOVE_FORWARD, 'amplitude': 90}, ctrl._stm_commands_todo.popleft())
+        self.assertEqual({'command': Command.MOVE_LEFT, 'amplitude': 30}, ctrl._stm_commands_todo.popleft())
+
+    @patch('src.robot.robot_controller.time')
     def test_when_receive_message_from_stm_then_append_it_to_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
 

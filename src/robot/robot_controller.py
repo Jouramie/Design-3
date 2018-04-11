@@ -60,7 +60,11 @@ class RobotController(object):
     def treat_network_request(self) -> None:
         if not self._network_request_queue.empty():
             task = self._network_request_queue.get()
-            self._add_network_request_to_stm_todo_queue(task)
+            if task['command'] == 'moves':
+                for command in task['movements']:
+                    self._add_network_request_to_stm_todo_queue(command)
+            else:
+                self._add_network_request_to_stm_todo_queue(task)
 
     def treat_stm_response(self) -> None:
         if not self._stm_responses_queue.empty():
@@ -118,7 +122,7 @@ class RobotController(object):
 
     def _execute_stm_tasks(self) -> None:
         if self._stm_commands_todo:
-            task = self._stm_commands_todo.pop()
+            task = self._stm_commands_todo.popleft()
             self._stm_sent_queue.put(task)
             self._send_command_to_stm(task)
 
@@ -126,12 +130,15 @@ class RobotController(object):
         self._start()
         while True:
             time.sleep(1)
-            self.receive_network_request()
-            self.treat_network_request()
-            self.execute_next_stm_task_and_check_ACK()
-            self.receive_stm_command()
-            self.treat_stm_response()
-            self.check_if_all_request_were_executed()
+            self.execute()
 
             if self.flag_done and self._stm_sent_queue.empty() and self._stm_received_queue.empty():
                 return
+
+    def execute(self):
+        self.receive_network_request()
+        self.treat_network_request()
+        self.execute_next_stm_task_and_check_ACK()
+        self.receive_stm_command()
+        self.treat_stm_response()
+        self.check_if_all_request_were_executed()

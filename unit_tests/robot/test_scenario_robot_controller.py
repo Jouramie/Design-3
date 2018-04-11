@@ -38,8 +38,18 @@ class TestScenarioRobotController(TestCase):
         self.ctrl.main_loop()
 
         self.assertEqual(4, self.ctrl._stm_done_queue.qsize())
-        self.assertEqual(1, self.ctrl._stm_sent_queue.empty())
+        self.assertTrue(self.ctrl._stm_sent_queue.empty())
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
+
+    @patch('src.robot.robot_controller.time')
+    def test_scenario_4_many_moves_and_ir(self, time):
+        self.__set_up_scenario_4()
+
+        self.ctrl.main_loop()
+
+        self.assertTrue(self.ctrl._stm_sent_queue.empty())
+        self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
+        self.assertEqual(5, self.ctrl._stm_done_queue.qsize())
 
     def __set_up_scenario_1(self):
         self.ctrl._network_request_queue = Queue()
@@ -78,4 +88,26 @@ class TestScenarioRobotController(TestCase):
         self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
         self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(bytearray(b'\xb0\x75\x12\xc9')))
         self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
+
+    def __set_up_scenario_4(self):
+        self.ctrl._network_request_queue = Queue()
+        self.ctrl._network_request_queue.put({'command': 'moves', 'movements': [
+            {'command': Command.MOVE_BACKWARD, 'amplitude': 18},
+            {'command': Command.MOVE_FORWARD, 'amplitude': 90},
+            {'command': Command.MOVE_LEFT, 'amplitude': 30}]})
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))
+        self.ctrl.execute()
+        self.ctrl._network_request_queue.put({'command': Command.INFRARED_SIGNAL})
+        self.ctrl._network_request_queue.put({'command': 'end-signal'})
+        self.ctrl._stm_responses_queue.put(
+            commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
+        self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(bytearray(b'\xb0\x75\x12\xc9')))
+        self.ctrl._stm_responses_queue.put(
+            commands_from_stm.Feedback(commands_from_stm.Message.TASK_RECEIVED_ACK.value))
         self.ctrl._stm_responses_queue.put(commands_from_stm.Feedback(commands_from_stm.Message.SUCCESSFULL_TASK.value))

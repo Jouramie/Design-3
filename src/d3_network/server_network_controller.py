@@ -126,10 +126,13 @@ class SocketServerNetworkController(ServerNetworkController):
 
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, movement: Movement) -> None:
-        self._send_command(movement.command, {'amplitude': movement.amplitude})
+    def send_move_command(self, movements: [Movement]) -> None:
+        movements_command_list = []
+        for movement in movements:
+            movements_command_list.append({'command': movement.command, 'amplitude': movement.amplitude})
+        self._send_command(Command.MOVES, {'movements': movements_command_list})
 
-        self._logger.info("Commmand {} : sent!".format(movement))
+        self._logger.info("Commmand {} : sent!".format(str(mov) for mov in movements))
 
 
 class MockedServerNetworkController(ServerNetworkController):
