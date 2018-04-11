@@ -122,7 +122,7 @@ class RobotController(object):
 
     def _execute_stm_tasks(self) -> None:
         if self._stm_commands_todo:
-            task = self._stm_commands_todo.pop()
+            task = self._stm_commands_todo.popleft()
             self._stm_sent_queue.put(task)
             self._send_command_to_stm(task)
 
