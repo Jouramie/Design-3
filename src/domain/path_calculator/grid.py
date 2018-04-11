@@ -2,7 +2,7 @@ from .direction import Direction
 from .vertex import Vertex
 
 
-class Grid:
+class Grid(object):
     DEFAULT_OFFSET = -23
     DEFAULT_WEIGHT = 1
     UNASSIGNED_VALUE = -1

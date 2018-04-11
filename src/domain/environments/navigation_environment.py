@@ -103,15 +103,23 @@ class NavigationEnvironment(object):
         return self.__grid
 
     def is_crossing_obstacle(self, start_point, end_point) -> bool:
-        movement = tuple(np.subtract(start_point, end_point))
-        if movement[0] >= movement[1]:
-            for x in range(movement[0]):
+        movement = tuple(np.subtract(end_point, start_point))
+        if abs(movement[0]) >= abs(movement[1]):
+            if movement[0] > 0:
+                step = 1
+            else:
+                step = -1
+            for x in range(0, movement[0], step):
                 y = int(x / movement[0] * movement[1])
                 point = (start_point[0] + x, start_point[1] + y)
                 if self.__grid.is_obstacle(point):
                     return True
         else:
-            for y in range(movement[1]):
+            if movement[1] > 0:
+                step = 1
+            else:
+                step = -1
+            for y in range(0, movement[1], step):
                 x = int(y / movement[1] * movement[0])
                 point = (start_point[0] + x, start_point[1] + y)
                 if self.__grid.is_obstacle(point):
