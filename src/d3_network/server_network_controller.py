@@ -39,7 +39,7 @@ class ServerNetworkController(NetworkController):
     def send_drop_cube_command(self) -> None:
         raise NotImplementedError("This is an interface...")
 
-    def send_move_command(self, movement: Movement):
+    def send_move_command(self, movements: [Movement]):
         raise NotImplementedError("This is an interface...")
 
     def check_robot_feedback(self) -> None:
@@ -173,8 +173,8 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_drop_cube_command(self) -> None:
         self._logger.info("Drop cube command sent!")
 
-    def send_move_command(self, movement: Movement) -> None:
-        self._logger.info("Commmand {} : sent!".format(movement))
+    def send_move_command(self, movements: [Movement]) -> None:
+        self._logger.info("Commmand {} : sent!".format(movements))
 
     def check_robot_feedback(self) -> dict:
         if self.has_to_send_country_code:

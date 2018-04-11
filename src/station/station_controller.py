@@ -308,10 +308,10 @@ class StationController(object):
         self._model.target_cube = None
 
         self.__network.send_move_command(
-            Forward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center']))
+            [Forward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'])])
         self.__network.send_grab_cube_command()
         self.__network.send_move_command(
-            Backward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'] + 1))
+            [Backward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'] + 1)])
 
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = False
