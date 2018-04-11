@@ -157,6 +157,7 @@ class TestScenarioStationController(TestCase):
         station_model, station_controller = self.__create_station_controller(SCENARIO_2)
 
         station_controller.update()
+        station_controller.update()
 
         self.assertEqual('Burundi', station_model.country.name)
         self.assertEqual('WHITE', station_model.next_cube.color.name)
@@ -190,6 +191,7 @@ class TestScenarioStationController(TestCase):
 
         if 'infrared_signal_asked' in scenario:
             station_model.infrared_signal_asked = scenario['infrared_signal_asked']
+            server_network_controller.has_to_send_country_code = True
 
         station_controller.start_robot()
 

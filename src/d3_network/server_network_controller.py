@@ -42,7 +42,7 @@ class ServerNetworkController(NetworkController):
     def send_move_command(self, movement: Movement):
         raise NotImplementedError("This is an interface...")
 
-    def receive_feedback(self) -> None:
+    def check_robot_feedback(self) -> None:
         raise NotImplementedError("This is an interface...")
 
 
@@ -77,7 +77,7 @@ class SocketServerNetworkController(ServerNetworkController):
             self._logger.info(msg)
         self._socket.setblocking(0)
 
-    def receive_feedback(self) -> dict:
+    def check_robot_feedback(self) -> dict:
         msg = self._receive_message()
 
         self._logger.info("Feedback from robot : {}".format(msg))
@@ -137,6 +137,7 @@ class MockedServerNetworkController(ServerNetworkController):
         super().__init__(logger, port, encoder)
         self.MOVEMENT = Rotate(30)
         self.country_code = country_code
+        self.has_to_send_country_code = False
 
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
@@ -150,6 +151,7 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Reset command sent!")
 
     def ask_infrared_signal(self) -> None:
+        self.has_to_send_country_code = True
         self._logger.info("Infrared signal asked!")
 
     def check_infrared_signal(self) -> int:
@@ -171,5 +173,10 @@ class MockedServerNetworkController(ServerNetworkController):
     def send_move_command(self, movement: Movement) -> None:
         self._logger.info("Commmand {} : sent!".format(movement))
 
-    def receive_feedback(self) -> None:
-        self._logger.info("Feedback from robot")
+    def check_robot_feedback(self) -> dict:
+        if self.has_to_send_country_code:
+            self.has_to_send_country_code = False
+            return {'command': Command.INFRARED_SIGNAL, 'country_code': self.country_code}
+        else:
+            self._logger.info("Feedback from robot: {}".format(Command.EXECUTED_ALL_REQUESTS))
+            return {'command': Command.EXECUTED_ALL_REQUESTS}

@@ -4,6 +4,7 @@ from .grid import Grid
 from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 from .direction import Direction
 
+
 class PathCalculator(object):
     MAX_ITERATIONS = 20000
     UNASSIGNED_VALUE = -1
