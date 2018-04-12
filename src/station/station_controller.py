@@ -176,8 +176,7 @@ class StationController(object):
                         self.__strafing_robot_in_front_of_cube()
                         return
                     else:
-
-
+                        self._model.robot_is_adjusting_position = False
 
                 if self._model.robot_is_grabbing_cube:
                     self.__logger.info("Entering new step, moving to grab the cube.")
@@ -229,26 +228,62 @@ class StationController(object):
             target_position = (int(self._model.target_cube.center[0]),
                                int(self._model.target_cube.center[1] - self.DISTANCE_FROM_CUBE))
 
+            if robot_pos_x > (target_position[0] + 1):
+                distance = robot_pos_x - target_position[0]
+                actions = []
+                if distance < 3:
+                    distance = distance + 4
+                actions.append(Right(distance))
+                self.__send_actions_commands(actions)
+
+            if robot_pos_x < (target_position[0] - 1):
+                distance = target_position - robot_pos_x
+                actions = []
+                if distance < 3:
+                    distance = distance + 4
+                actions.append(Left(distance))
+                self.__send_actions_commands(actions)
         elif self._model.wall_of_next_cube == "down":
             target_position = (int(self._model.target_cube.center[0]),
                                int(self._model.target_cube.center[1] + self.DISTANCE_FROM_CUBE))
+            if robot_pos_x > (target_position[0] + 1):
+                distance = robot_pos_x - target_position[0]
+                actions = []
+                if distance < 3:
+                    distance = distance + 4
+                actions.append(Left(distance))
+                self.__send_actions_commands(actions)
+
+            if robot_pos_x < (target_position[0] - 1):
+                distance = target_position - robot_pos_x
+                actions = []
+                if distance < 3:
+                    distance = distance + 4
+                actions.append(Right(distance))
+                self.__send_actions_commands(actions)
 
         elif self._model.wall_of_next_cube == "middle":
             target_position = (int(self._model.target_cube.center[0] - self.DISTANCE_FROM_CUBE),
                                int(self._model.target_cube.center[1]))
 
             if robot_pos_y > (target_position[1] + 1):
-                distance = robot_pos_y - target_position
+                distance = robot_pos_y - target_position[1]
+                actions = []
                 if distance < 3:
+                    distance = distance + 4
+                actions.append(Right(distance))
+                self.__send_actions_commands(actions)
 
-
-
-
+            if robot_pos_y < (target_position[1] - 1):
+                distance = target_position[1] - robot_pos_y
+                actions = []
+                if distance < 3:
+                    distance = distance + 4
+                actions.append(Left(distance))
+                self.__send_actions_commands(actions)
 
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.wall_of_next_cube)))
-
-
 
     def __is_correctly_positionned_in_front_cube(self):
 
