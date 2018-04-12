@@ -2,11 +2,11 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from src.domain.environments.navigation_environment import NavigationEnvironment
-from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.environments.navigation_environment_error import NavigationEnvironmentDataError
-from src.domain.path_calculator.grid import Grid
-from src.domain.objects.obstacle import Obstacle
+from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.flag_cube import FlagCube
+from src.domain.objects.obstacle import Obstacle
+from src.domain.path_calculator.grid import Grid
 
 SOME_INVALID_VALUE = -10000
 OBSTACLE_POSITION = (30, 30)

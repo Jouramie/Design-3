@@ -51,7 +51,7 @@ class ClientNetworkController(NetworkController):
 
     def wait_message(self) -> dict:
         self._logger.info('Waiting for a command.')
-
+        msg = None
         try:
             msg = self._receive_message()
         except MessageNotReceivedYet:
@@ -61,5 +61,5 @@ class ClientNetworkController(NetworkController):
         return msg
 
     def send_feedback(self, feedback: Command):
-        self._logger.info('Sending feedback {feedback}.'.format(feedback=feedback))
+        self._logger.info('Sending feedback to station {feedback}.'.format(feedback=feedback))
         self._send_command(feedback)

@@ -13,10 +13,10 @@ from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment_factory import RealWorldEnvironmentFactory
 from src.domain.objects.color import Color
 from src.domain.objects.flag_cube import FlagCube
+from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, Left, Grab, Drop, LightItUp, IR, Action
+from src.domain.path_calculator.action import Movement
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.grid import Grid
-from src.domain.path_calculator.movement import Forward, Backward, Rotate, Right, Left
-from src.domain.path_calculator.movement import Movement
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
 from src.domain.path_calculator.path_simplifier import PathSimplifier
@@ -67,7 +67,7 @@ class StationController(object):
 
         self.__logger.info("Waiting for robot to connect.")
         self.__network.host_network()
-        self.__network.send_start_command()
+        self.__network.send_start()
         # self.interactive_testing()
 
     def interactive_testing(self):
@@ -77,28 +77,28 @@ class StationController(object):
             self.__logger.info('You entered : {}'.format(command[0]))
 
             if command[0] == 'ir':
-                self.__network.ask_infrared_signal()
+                self.__network.send_actions([IR()])
                 self.__check_infrared_signal()
             elif command[0] == 'grab':
-                self.__network.send_grab_cube_command()
+                self.__network.send_actions([Grab()])
             elif command[0] == 'drop':
-                self.__network.send_drop_cube_command()
+                self.__network.send_actions([Drop()])
             elif command[0] == 'led':
-                self.__network.send_end_of_task_signal()
+                self.__network.send_actions([LightItUp()])
             elif command[0] == 'f':
-                self.__network.send_move_command(Forward(float(command[1])))
+                self.__network.send_actions([Forward(float(command[1]))])
             elif command[0] == 'r':
-                self.__network.send_move_command(Right(float(command[1])))
+                self.__network.send_actions([Right(float(command[1]))])
             elif command[0] == 'l':
-                self.__network.send_move_command(Left(float(command[1])))
+                self.__network.send_actions([Left(float(command[1]))])
             elif command[0] == 'b':
-                self.__network.send_move_command(Backward(float(command[1])))
-            elif command[0] == 'r':
-                self.__network.send_move_command(Rotate(float(command[1])))
+                self.__network.send_actions([Backward(float(command[1]))])
+            elif command[0] == 'ro':
+                self.__network.send_actions([Rotate(float(command[1]))])
 
     def __check_infrared_signal(self) -> int:
         try:
-            return self.__network.check_infrared_signal()
+            return self.__network.check_received_infrared_signal()
         except MessageNotReceivedYet:
             return None
 
@@ -179,7 +179,6 @@ class StationController(object):
         else:
             if self._model.light_is_lit:
                 self.__logger.info("Entering new step, resetting for next flag.")
-                self.__network.send_end_of_task_signal()
                 pass
             else:
                 self.__logger.info("Entering new step, exiting zone to light led.")
@@ -187,13 +186,13 @@ class StationController(object):
                 # TODO Calculer le path vers l'exterieur de la zone
                 # TODO Envoyer la commande de déplacement + led
 
-                self.__network.send_end_of_task_signal()
+                self.__network.send_actions([LightItUp()])
 
                 self._model.robot_is_moving = True
                 self._model.light_is_lit = True
 
     def __generate_real_world_environments(self):
-        # self.camera.take_picture()
+        self.__camera.take_picture()
         self._model.vision_environment = self.__world_vision.create_environment(self._model.frame,
                                                                                 self.__config['table_number'])
         self.__logger.info("Vision Environment:\n{}".format(str(self._model.vision_environment)))
@@ -230,8 +229,8 @@ class StationController(object):
 
         return movements, path_planned
 
-    def __send_movement_commands(self, movements: [Movement]) -> None:
-        self.__network.send_move_command(movements)
+    def __send_actions_commands(self, actions: [Action]) -> None:
+        self.__network.send_actions(actions)
 
     def __find_robot(self) -> tuple:
         if self._model.robot is None:
@@ -268,12 +267,12 @@ class StationController(object):
     def __move_to_infra_red_station(self):
         start_position = self.__find_robot()
         end_position = (10, 10)
-        end_angle = Direction.SOUTH_WEST.angle
-        movements, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
+        end_angle = Direction.SOUTH.angle
+        actions, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
 
-        self.__send_movement_commands(movements)
 
-        self.__network.ask_infrared_signal()
+        actions.append(IR())
+        self.__send_actions_commands(actions)
         self._model.robot_is_moving = True
         self._model.infrared_signal_asked = True
 
@@ -296,7 +295,7 @@ class StationController(object):
         if movements is None:
             return
 
-        self.__send_movement_commands(movements)
+        self.__send_actions_commands(movements)
 
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = True
@@ -310,11 +309,10 @@ class StationController(object):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
 
-        self.__network.send_move_command(
-            Forward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center']))
-        self.__network.send_grab_cube_command()
-        self.__network.send_move_command(
-            Backward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'] + 1))
+        self.__network.send_actions(
+            [Forward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center']),
+             Grab(),
+             Backward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'] + 1)])
 
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = False
@@ -335,11 +333,11 @@ class StationController(object):
 
         movements, self._model.planned_path = self.__find_path(start_position, end_position, None)
 
-        self.__send_movement_commands(movements)
-        self.__network.send_drop_cube_command()
 
         distance_backward = self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center']
-        self.__network.send_move_command(Backward(distance_backward))
+        movements.append(Drop())
+        movements.append(Backward(distance_backward))
+        self.__send_actions_commands(movements)
 
         self.__logger.info("Dropping cube.")
 

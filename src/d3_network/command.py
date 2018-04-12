@@ -7,7 +7,6 @@ class Command(object):
     CAN_I_GRAB = 'can-i-grab'
     GRAB = 'grab-it'
     DROP = 'drop-it'
-    MOVES = 'moves'
     MOVE_FORWARD = 'move-forward'
     MOVE_BACKWARD = 'move-backward'
     MOVE_ROTATE = 'move-rotate'
@@ -16,3 +15,5 @@ class Command(object):
 
     GRAB_CUBE_FAILURE = 'grab-cube-failure'
     EXECUTED_ALL_REQUESTS = 'requests-were-executed-commander'
+
+    ACTION = 'action'

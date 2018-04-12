@@ -4,6 +4,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 from src.d3_network import server_network_controller as server_network_ctl
+from src.domain.path_calculator.action import Start
 
 
 class TestSocketServerNetworkController(TestCase):
@@ -17,6 +18,6 @@ class TestSocketServerNetworkController(TestCase):
         serv_network_ctl = server_network_ctl.SocketServerNetworkController(MagicMock(), MagicMock(), encoder)
         serv_network_ctl._socket = client
 
-        serv_network_ctl.send_start_command()
+        serv_network_ctl.send_action(Start())
 
         client.send.assert_called_once_with(encoded_msg)
