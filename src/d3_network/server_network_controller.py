@@ -124,6 +124,7 @@ class MockedServerNetworkController(ServerNetworkController):
         self._logger.info("Commmand {} : sent!".format(actions))
 
     def check_robot_feedback(self) -> dict:
+
         if self.has_to_send_country_code:
             self.has_to_send_country_code = False
             return {'command': Command.INFRARED_SIGNAL, 'country_code': self.country_code}

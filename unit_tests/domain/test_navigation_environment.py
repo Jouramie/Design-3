@@ -2,12 +2,11 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from src.domain.environments.navigation_environment import NavigationEnvironment
-from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.environments.navigation_environment_error import NavigationEnvironmentDataError
-from src.domain.path_calculator.path_calculator import PathCalculator
-from src.domain.path_calculator.grid import Grid
-from src.domain.objects.obstacle import Obstacle
+from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.flag_cube import FlagCube
+from src.domain.objects.obstacle import Obstacle
+from src.domain.path_calculator.grid import Grid
 
 SOME_INVALID_VALUE = -10000
 OBSTACLE_POSITION = (30, 30)
@@ -40,7 +39,7 @@ class TestNavigationEnvironment(TestCase):
                        OBSTACLE_POSITION[0] + NavigationEnvironment.OBSTACLE_RADIUS + 1):
             for y in range(OBSTACLE_POSITION[1] - NavigationEnvironment.OBSTACLE_RADIUS + Grid.DEFAULT_OFFSET,
                            OBSTACLE_POSITION[1] + NavigationEnvironment.OBSTACLE_RADIUS + 1):
-                self.assertEqual(PathCalculator.OBSTACLE_VALUE,
+                self.assertEqual(Grid.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
 
     def test_when_adding_cubes_then_add_obstacle_to_navigation_environment(self):
@@ -56,7 +55,7 @@ class TestNavigationEnvironment(TestCase):
                        CUBE_POSITION[0] + NavigationEnvironment.CUBE_HALF_SIZE + 1):
             for y in range(CUBE_POSITION[1] - NavigationEnvironment.CUBE_HALF_SIZE + Grid.DEFAULT_OFFSET,
                            CUBE_POSITION[1] + NavigationEnvironment.CUBE_HALF_SIZE + 1):
-                self.assertEqual(PathCalculator.OBSTACLE_VALUE,
+                self.assertEqual(Grid.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
 
     def test_when_add_real_world_environment_then_add_walls_to_navigation_environment(self):
@@ -75,17 +74,17 @@ class TestNavigationEnvironment(TestCase):
         # Validate all 4 walls are correctly represented
         for x in range(Grid.DEFAULT_OFFSET, max_height):
             for y in range(Grid.DEFAULT_OFFSET, Grid.DEFAULT_OFFSET + navigation_environment.BIGGEST_ROBOT_RADIUS + 1):
-                self.assertEqual(PathCalculator.OBSTACLE_VALUE,
+                self.assertEqual(Grid.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
             for y in range(max_width - navigation_environment.BIGGEST_ROBOT_RADIUS, max_width):
-                self.assertEqual(PathCalculator.OBSTACLE_VALUE,
+                self.assertEqual(Grid.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
         for y in range(Grid.DEFAULT_OFFSET, max_width):
             for x in range(Grid.DEFAULT_OFFSET, Grid.DEFAULT_OFFSET + navigation_environment.BIGGEST_ROBOT_RADIUS + 1):
-                self.assertEqual(PathCalculator.OBSTACLE_VALUE,
+                self.assertEqual(Grid.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
             for x in range(max_height - navigation_environment.BIGGEST_ROBOT_RADIUS, max_height):
-                self.assertEqual(PathCalculator.OBSTACLE_VALUE,
+                self.assertEqual(Grid.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
 
     def test_given_invalid_obstacle_then_exception_raised(self):

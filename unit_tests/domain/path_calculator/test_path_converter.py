@@ -2,86 +2,115 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from src.domain.objects.robot import Robot
-from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.direction import FORTY_FIVE_DEGREES_MOVE_LENGTH
-from src.domain.path_calculator.direction import NINETY_DEGREES_MOVE_LENGTH
 from src.domain.path_calculator.action import Forward, Rotate
 from src.domain.path_calculator.path_converter import PathConverter
+
+FORTY_FIVE_DEGREES_MOVE_LENGTH = round(2 ** (1 / 2), 1)
 
 
 class TestPathConverter(TestCase):
     def setUp(self):
         self.path_converter = PathConverter(MagicMock())
-        self.path = []
-        self.path.append((0, 0))
         self.robot = Robot((0, 0), 0)
 
     def test_when_convert_north_direction_then_command_length_is_one(self):
-        self.path.append(Direction.NORTH.direction)
+        path = [(0, 0), (0, 1)]
 
-        expected = [Rotate(90), Forward(NINETY_DEGREES_MOVE_LENGTH)], [((0, 0), (0, 1))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        self.assertEqual(expected, self.path_converter.convert_path(self.path, self.robot))
+        expected_movements = [Rotate(90), Forward(1)]
+        expected_segments = [((0, 0), (0, 1))]
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_south_direction_then_command_length_is_one(self):
-        self.path.append(Direction.SOUTH.direction)
+        path = [(0, 0), (0, -1)]
 
-        expected = [Rotate(-90), Forward(NINETY_DEGREES_MOVE_LENGTH)], [((0, 0), (0, -1))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        self.assertEqual(expected, self.path_converter.convert_path(self.path, self.robot))
+        expected_movements = [Rotate(-90), Forward(1)]
+        expected_segments = [((0, 0), (0, -1))]
+        print(', '.join(str(mouv) for mouv in movements))
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_east_direction_then_command_length_is_one(self):
-        self.path.append(Direction.EAST.direction)
+        path = [(0, 0), (1, 0)]
 
-        expected = [Forward(NINETY_DEGREES_MOVE_LENGTH)], [((0, 0), (1, 0))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        self.assertEqual(expected, self.path_converter.convert_path(self.path, self.robot))
+        expected_movements = [Forward(1)]
+        expected_segments = [((0, 0), (1, 0))]
+        print(', '.join(str(mouv) for mouv in movements))
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_west_direction_then_command_length_is_one(self):
-        self.path.append(Direction.WEST.direction)
+        path = [(0, 0), (-1, 0)]
 
-        expected = [Rotate(180), Forward(NINETY_DEGREES_MOVE_LENGTH)], [((0, 0), (-1, 0))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        self.assertEqual(expected, self.path_converter.convert_path(self.path, self.robot))
+        expected_movements = [Rotate(-180), Forward(1)]
+        expected_segments = [((0, 0), (-1, 0))]
+        print(', '.join(str(mouv) for mouv in movements))
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_north_east_direction_then_command_length_is_radical_two(self):
-        self.path.append(Direction.NORTH_EAST.direction)
+        path = [(0, 0), (1, 1)]
 
-        expected = [Rotate(45), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)], [((0, 0), (1, 1))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        self.assertEqual(expected, self.path_converter.convert_path(self.path, self.robot))
+        expected_movements = [Rotate(45), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
+        expected_segments = [((0, 0), (1, 1))]
+        print(', '.join(str(mouv) for mouv in movements))
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_south_east_direction_then_command_length_is_radical_two(self):
-        self.path.append(Direction.SOUTH_EAST.direction)
+        path = [(0, 0), (1, -1)]
 
-        expected = [Rotate(-45), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)], [((0, 0), (1, -1))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        self.assertEqual(expected, self.path_converter.convert_path(self.path, self.robot))
+        expected_movements = [Rotate(-45), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
+        expected_segments = [((0, 0), (1, -1))]
+        print(', '.join(str(mouv) for mouv in movements))
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_north_west_direction_then_command_length_is_radical_two(self):
-        self.path.append(Direction.NORTH_WEST.direction)
+        path = [(0, 0), (-1, 1)]
 
-        expected = [Rotate(135), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)], [((0, 0), (-1, 1))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        result = self.path_converter.convert_path(self.path, self.robot)
-        self.assertEqual(expected, result)
+        expected_movements = [Rotate(135), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
+        expected_segments = [((0, 0), (-1, 1))]
+        print(', '.join(str(mouv) for mouv in movements))
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_south_west_direction_then_command_length_is_radical_two(self):
-        self.path.append(Direction.SOUTH_WEST.direction)
+        path = [(0, 0), (-1, -1)]
 
-        expected = [Rotate(-135), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)], [((0, 0), (-1, -1))]
+        movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        self.assertEqual(expected, self.path_converter.convert_path(self.path, self.robot))
+        expected_movements = [Rotate(-135), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
+        expected_segments = [((0, 0), (-1, -1))]
+        print(', '.join(str(mouv) for mouv in movements))
+        self.assertEqual(expected_movements, movements)
+        self.assertEqual(expected_segments, segments)
 
     def test_when_convert_example_path_then_received_corresponding_commands(self):
-        self.path = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9), (3, 8)]
-        expected_movements = [Rotate(45), Forward(5 * FORTY_FIVE_DEGREES_MOVE_LENGTH),
-                              Rotate(45), Forward(4 * NINETY_DEGREES_MOVE_LENGTH),
-                              Rotate(90), Forward(NINETY_DEGREES_MOVE_LENGTH),
-                              Rotate(45), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
+        self.path = [(0, 0), (5, 5), (5, 9), (4, 9), (3, 8)]
 
+        result_movements, result_path = self.path_converter.convert_path(self.path, self.robot, 130)
+
+        expected_movements = [Rotate(45), Forward((round((2 * 5 ** 2) ** (1 / 2), 1))),
+                              Rotate(45), Forward(4.0),
+                              Rotate(90), Forward(1.0),
+                              Rotate(45), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH),
+                              Rotate(-95)]
         expected_path = [((0, 0), (5, 5)), ((5, 5), (5, 9)), ((5, 9), (4, 9)), ((4, 9), (3, 8))]
-
-        result_movements, result_path = self.path_converter.convert_path(self.path, self.robot)
         self.assertEqual(expected_path, result_path)
-        self.assertEqual(' '.join(str(m) for m in expected_movements), ' '.join(str(m) for m in result_movements))
+        self.assertEqual(expected_movements, result_movements)
