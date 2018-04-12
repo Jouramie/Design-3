@@ -11,37 +11,46 @@ class Action(object):
     def to_command(self):
         return {'command': self.command}
 
+
 class Grab(Action):
     def __init__(self):
         super().__init__(Command.GRAB)
+
 
 class Drop(Action):
     def __init__(self):
         super().__init__(Command.DROP)
 
+
 class IR(Action):
     def __init__(self):
         super().__init__(Command.INFRARED_SIGNAL)
+
 
 class CanIGrab(Action):
     def __init__(self):
         super().__init__(Command.CAN_I_GRAB)
 
+
 class LightItUp(Action):
     def __init__(self):
         super().__init__(Command.END_SIGNAL)
+
 
 class Hello(Action):
     def __init__(self):
         super().__init__(Command.HELLO)
 
+
 class Reset(Action):
     def __init__(self):
         super().__init__(Command.RESET)
 
+
 class Start(Action):
     def __init__(self):
         super().__init__(Command.START)
+
 
 class Movement(Action):
     def __init__(self, command: Command, amplitude):
@@ -81,4 +90,3 @@ class Left(Movement):
 class Right(Movement):
     def __init__(self, amplitude):
         super().__init__(Command.MOVE_RIGHT, amplitude)
-

@@ -1,7 +1,7 @@
+import math
 import subprocess
 import threading
 import time
-from collections import deque
 from logging import Logger
 
 import numpy as np
@@ -53,7 +53,7 @@ class StationController(object):
 
         self._model.world_camera_is_on = True
 
-        self._actions_to_send_deque = deque()
+        self.__actions_to_send = []
 
         def start_robot_thread():
             self.__logger.info('Updating robot.')
@@ -151,10 +151,13 @@ class StationController(object):
                 msg = self.__network.check_robot_feedback()
             except MessageNotReceivedYet:
                 return
-            time.sleep(5)  # TODO
+            time.sleep(1)  # TODO
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
+                self.__send_next_actions_commands()
+                if self._model.robot_is_moving:
+                    return
             elif msg['command'] == Command.INFRARED_SIGNAL:
                 self._model.country_code = msg['country_code']
                 self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
@@ -232,8 +235,37 @@ class StationController(object):
 
         return movements, path_planned
 
-    def __send_actions_commands(self, actions: [Action]) -> None:
-        self.__network.send_actions(actions)
+    def __send_next_actions_commands(self) -> None:
+        if not self.__actions_to_send:
+            self._model.robot_is_moving = False
+            return
+
+        next_action_to_send: Action = self.__actions_to_send.pop(0)
+        actions_to_be_send: [Action] = [next_action_to_send]
+        if actions_to_be_send[0].command == Command.MOVE_ROTATE:
+            if self.__actions_to_send:
+                actions_to_be_send.append(self.__actions_to_send.pop(0))
+
+        self.__network.send_actions(actions_to_be_send)
+
+        if self.__config['robot']['use_mocked_robot_detector']:
+            self.__update_mock_position(actions_to_be_send)
+
+    def __update_mock_position(self, actions):
+        for action in actions:
+            if action.command == Command.MOVE_ROTATE:
+                self.__robot_detector.robot_direction = self._model.robot.orientation = self._model.robot.orientation + action.amplitude
+            elif action.command == Command.MOVE_FORWARD:
+                new_robot_x = self._model.robot.center[0] + round(
+                    math.cos(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
+                new_robot_y = self._model.robot.center[1] + round(
+                    math.sin(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
+                self.__robot_detector.robot_position = self._model.robot.center = (new_robot_x, new_robot_y)
+
+    def __add_actions_to_actions_to_send(self, actions):
+        if actions is not None:
+            for action in actions:
+                self.__actions_to_send.append(action)
 
     def __find_robot(self) -> tuple:
         if self._model.robot is None:
@@ -270,19 +302,15 @@ class StationController(object):
     def __move_to_infra_red_station(self):
         start_position = self.__find_robot()
         end_position = (10, 10)
-        end_angle = Direction.SOUTH.angle
+        end_angle = Direction.SOUTH_WEST.angle
         actions, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
-
+        if actions is None:
+            return
 
         actions.append(IR())
-        self.__send_actions_commands(actions)
+        self.__add_actions_to_actions_to_send(actions)
         self._model.robot_is_moving = True
         self._model.infrared_signal_asked = True
-
-        # TODO move in the mock
-        if self.__config['robot']['use_mocked_robot_detector']:
-            self.__robot_detector.robot_position = end_position
-            self.__robot_detector.robot_direction = Direction.SOUTH.angle
 
     def __move_to_grab_cube(self):
         self._model.target_cube = self._model.real_world_environment.find_cube(self._model.next_cube.color)
@@ -293,26 +321,20 @@ class StationController(object):
         start_position = self.__find_robot()
         end_position, end_angle = self.__find_safe_position_near_cube(self._model.target_cube)
 
-        movements, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
-
-        if movements is None:
+        actions, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
+        if actions is None:
             return
 
-        self.__send_actions_commands(movements)
+        self.__add_actions_to_actions_to_send(actions)
 
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = True
-
-        # TODO move in the mock
-        if self.__config['robot']['use_mocked_robot_detector']:
-            self.__robot_detector.robot_position = end_position
-            self.__robot_detector.robot_direction = end_angle
 
     def __grab_cube(self):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
 
-        self.__network.send_actions(
+        self.__add_actions_to_actions_to_send(
             [Forward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center']),
              Grab(),
              Backward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'] + 1)])
@@ -334,13 +356,14 @@ class StationController(object):
 
         end_position = self.__find_where_to_place_cube()
 
-        movements, self._model.planned_path = self.__find_path(start_position, end_position, None)
-
+        actions, self._model.planned_path = self.__find_path(start_position, end_position, None)
+        if actions is None:
+            return
 
         distance_backward = self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center']
-        movements.append(Drop())
-        movements.append(Backward(distance_backward))
-        self.__send_actions_commands(movements)
+        actions.append(Drop())
+        actions.append(Backward(distance_backward))
+        self.__add_actions_to_actions_to_send(actions)
 
         self.__logger.info("Dropping cube.")
 
@@ -352,9 +375,5 @@ class StationController(object):
         self._model.robot_is_moving = True
         self._model.robot_is_holding_cube = False
 
-        if self.__config['robot']['use_mocked_robot_detector']:
-            self.__robot_detector.robot_position = (end_position[0] + distance_backward, end_position[1])
-            self.__robot_detector.robot_direction = Direction.WEST.angle
-
     def __update_path(self):
-        self._model.robot_is_moving = False
+        pass
