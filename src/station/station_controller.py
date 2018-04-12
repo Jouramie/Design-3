@@ -168,14 +168,24 @@ class StationController(object):
 
                 self.__move_to_drop_cube()
             else:
+                if self._model.robot_is_adjusting_position:
+                    if not self.__is_correctly_oriented():
+                        self.__orientate_infront_cube()
+                        return
+                    elif not self.__is_correctly_positionned_in_front_cube():
+                        self.__strafing_robot_in_front_of_cube()
+                        return
+                    else:
+
+
+
                 if self._model.robot_is_grabbing_cube:
                     self.__logger.info("Entering new step, moving to grab the cube.")
-
                     self.__grab_cube()
 
                 else:
                     self.__logger.info("Entering new step, travel to the cube.")
-                    self.__move_to_grab_cube()
+                    self.__move_to_cube_area()
         else:
             if self._model.light_is_lit:
                 self.__logger.info("Entering new step, resetting for next flag.")
@@ -191,6 +201,58 @@ class StationController(object):
 
                 self._model.robot_is_moving = True
                 self._model.light_is_lit = True
+
+    def __is_correctly_oriented(self):
+        if self._model.wall_of_next_cube == "middle":
+            if -5 < self._model.robot.orientation < 5:
+                return True
+            else:
+                return False
+        elif self._model.wall_of_next_cube == "up":
+            if 85 < self._model.robot.orientation < 95:
+                return True
+            else:
+                return False
+        elif self._model.wall_of_next_cube == "down":
+            if 265 < self._model.robot.orientation < 275:
+                return True
+            else:
+                return False
+        else:
+            self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.wall_of_next_cube)))
+            return False
+
+    def __strafing_robot_in_front_of_cube(self):
+        robot_pos_x = self._model.robot.center[0]
+        robot_pos_y = self._model.robot.center[1]
+
+        if self._model.wall_of_next_cube == "up":
+            target_position = (int(self._model.target_cube.center[0]),
+                               int(self._model.target_cube.center[1] - self.DISTANCE_FROM_CUBE))
+
+        elif self._model.wall_of_next_cube == "down":
+            target_position = (int(self._model.target_cube.center[0]),
+                               int(self._model.target_cube.center[1] + self.DISTANCE_FROM_CUBE))
+
+        elif self._model.wall_of_next_cube == "middle":
+            target_position = (int(self._model.target_cube.center[0] - self.DISTANCE_FROM_CUBE),
+                               int(self._model.target_cube.center[1]))
+
+            if robot_pos_y > (target_position[1] + 1):
+                distance = robot_pos_y - target_position
+                if distance < 3:
+
+
+
+
+
+        else:
+            self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.wall_of_next_cube)))
+
+
+
+    def __is_correctly_positionned_in_front_cube(self):
+
 
     def __generate_real_world_environments(self):
         # self.camera.take_picture()
@@ -240,28 +302,9 @@ class StationController(object):
         self.__logger.info("Robot: {}".format(self._model.robot))
         return self._model.robot.center
 
-    def __find_safe_position_near_cube(self, target_cube: FlagCube) -> (tuple, int):
-        if target_cube.center[1] < Grid.DEFAULT_OFFSET + 5:
-            self.__logger.info("Le cube {} est en bas.".format(str(target_cube)))
-            target_position = (int(target_cube.center[0]),
-                               int(target_cube.center[1] + self.DISTANCE_FROM_CUBE))
-            desired_direction = Direction.SOUTH.angle
-            pass
-        elif target_cube.center[1] > NavigationEnvironment.DEFAULT_WIDTH + Grid.DEFAULT_OFFSET - 10:
-            self.__logger.info("Le cube {} est en haut.".format(str(target_cube)))
-            target_position = (int(target_cube.center[0]),
-                               int(target_cube.center[1] - self.DISTANCE_FROM_CUBE))
-            desired_direction = Direction.NORTH.angle
-            pass
-        elif target_cube.center[0] > NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET - 5:
-            self.__logger.info("Le cube {} est au fond.".format(str(target_cube)))
-            target_position = (int(target_cube.center[0] - self.DISTANCE_FROM_CUBE),
-                               int(target_cube.center[1]))
-            desired_direction = Direction.EAST.angle
-            pass
-        else:
-            self.__logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
-            return
+    def __find_safe_position_in_cube_area(self, target_cube: FlagCube) -> (tuple, int):
+        target_position = (int(173), int(33))
+        desired_direction = Direction.EAST.angle
 
         return target_position, desired_direction
 
@@ -282,14 +325,40 @@ class StationController(object):
             self.__robot_detector.robot_position = end_position
             self.__robot_detector.robot_direction = Direction.SOUTH.angle
 
-    def __move_to_grab_cube(self):
+    def __orientate_infront_cube(self, target_cube: FlagCube) -> None:
+     if target_cube.center[1] < Grid.DEFAULT_OFFSET + 5:
+        self.__logger.info("Le cube {} est en bas.".format(str(target_cube)))
+        desired_direction = Direction.SOUTH.angle
+        self._model.wall_of_next_cube = "down"
+        movements, _ = self.__path_converter.convert_path([], self._model.robot, desired_direction)
+        self.__send_movement_commands(movements)
+        pass
+     elif target_cube.center[1] > NavigationEnvironment.DEFAULT_WIDTH + Grid.DEFAULT_OFFSET - 10:
+        self.__logger.info("Le cube {} est en haut.".format(str(target_cube)))
+        desired_direction = Direction.NORTH.angle
+        self._model.wall_of_next_cube = "up"
+        movements, _ = self.__path_converter.convert_path([], self._model.robot, desired_direction)
+        self.__send_movement_commands(movements)
+        pass
+     elif target_cube.center[0] > NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET - 5:
+        self.__logger.info("Le cube {} est au fond.".format(str(target_cube)))
+        desired_direction = Direction.EAST.angle
+        movements, _ = self.__path_converter.convert_path([], self._model.robot, desired_direction)
+        self._model.wall_of_next_cube = "middle"
+        self.__send_movement_commands(movements)
+        pass
+     else:
+        self.__logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
+        return
+
+    def __move_to_cube_area(self):
         self._model.target_cube = self._model.real_world_environment.find_cube(self._model.next_cube.color)
         if self._model.target_cube is None:
             self.__logger.warning("The target cube is None. Cannot continue, exiting.")
             return
 
         start_position = self.__find_robot()
-        end_position, end_angle = self.__find_safe_position_near_cube(self._model.target_cube)
+        end_position, end_angle = self.__find_safe_position_in_cube_area(self._model.target_cube)
 
         movements, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
 
@@ -299,7 +368,7 @@ class StationController(object):
         self.__send_movement_commands(movements)
 
         self._model.robot_is_moving = True
-        self._model.robot_is_grabbing_cube = True
+        self._model.robot_is_adjusting_position = True
 
         # TODO move in the mock
         if self.__config['robot']['use_mocked_robot_detector']:

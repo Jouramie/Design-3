@@ -14,6 +14,7 @@ class StationModel(object):
         self.country_code: int = None
         self.current_cube_index = 0
         self.next_cube: FlagCube = None
+        self.wall_of_next_cube = None
         self.target_cube = None
 
         self.frame = None
@@ -24,6 +25,7 @@ class StationModel(object):
 
         self.robot_is_started = False
         self.robot_is_moving = False
+        self.robot_is_adjusting_position = False
         self.robot_is_holding_cube = False
         self.robot_is_grabbing_cube = False
         self.light_is_lit = False
