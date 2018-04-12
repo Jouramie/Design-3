@@ -2,7 +2,8 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from src.domain.objects.robot import Robot
-from src.domain.path_calculator.movement import Forward, Rotate
+from src.domain.path_calculator.direction import FORTY_FIVE_DEGREES_MOVE_LENGTH
+from src.domain.path_calculator.action import Forward, Rotate
 from src.domain.path_calculator.path_converter import PathConverter
 
 FORTY_FIVE_DEGREES_MOVE_LENGTH = round(2 ** (1 / 2), 1)
