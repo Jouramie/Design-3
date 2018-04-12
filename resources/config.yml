@@ -7,7 +7,7 @@ log_file: "log/{date}.log"
 
 robot:
   network:
-    host_ip: "10.42.0.78"
+    host_ip: "localhost"
     port: *port
   serial:
     port: "/dev/ttyUSB0"
@@ -34,23 +34,23 @@ station:
       - ""
       - "resources/calibration/world_calibration_6.npy"
   camera:
-    use_mocked_camera: false
+    use_mocked_camera: true
     mocked_camera_image_path: "fig/saved_images/table2/00h02m31s.jpg"
     camera_id: 1
     image_width: 1600
     image_height: 1200
     image_save_dir: "fig/{date}"
   network:
-    use_mocked_network: false
+    use_mocked_network: true
     mocked_country_code: 59
     port: *port
   robot:
-    use_mocked_robot_detector: false
+    use_mocked_robot_detector: true
     mocked_robot_position:
       - 15
       - 15
     mocked_robot_orientation: 45
-    update_robot: true
+    update_robot: false
   cube_positions:
     tables:
       target_zone:

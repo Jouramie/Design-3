@@ -19,6 +19,7 @@ from src.domain.path_calculator.movement import Forward, Backward, Rotate, Right
 from src.domain.path_calculator.movement import Movement
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
+from src.domain.path_calculator.path_simplifier import PathSimplifier
 from src.vision.camera import Camera
 from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
@@ -44,6 +45,7 @@ class StationController(object):
         self.__path_converter = PathConverter(logger.getChild("PathConverter"))
         self.__navigation_environment = NavigationEnvironment(logger.getChild("NavigationEnvironment"))
         self.__navigation_environment.create_grid()
+        self.__path_simplifier = PathSimplifier(self.__navigation_environment, self.__logger)
 
         self.__real_world_environment_factory = real_world_environment_factory
         self.__robot_detector = robot_detector
@@ -146,7 +148,7 @@ class StationController(object):
                 msg = self.__network.check_robot_feedback()
             except MessageNotReceivedYet:
                 return
-
+            time.sleep(5)  # TODO
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self._model.robot_is_moving = False
@@ -211,7 +213,7 @@ class StationController(object):
         self.__navigation_environment.create_grid()
         self.__navigation_environment.add_real_world_environment(self._model.real_world_environment)
 
-    def __find_path(self, start_position: tuple, end_position: tuple, end_direction: Direction) -> ([Movement], list):
+    def __find_path(self, start_position: tuple, end_position: tuple, end_direction: int) -> ([Movement], list):
         self.__generate_navigation_environment()
         # TODO tirer une exception plutot qu'un boolean
         is_possible = self.__path_calculator.calculate_path(start_position, end_position,
@@ -219,9 +221,10 @@ class StationController(object):
         if not is_possible:
             self.__logger.warning("Path to destination {} is not possible.".format(end_position))
             return None, None
+        raw_path = self.__path_calculator.get_calculated_path()
+        simplified_path = self.__path_simplifier.simplify(raw_path)
 
-        movements, path_planned = self.__path_converter.convert_path(
-            self.__path_calculator.get_calculated_path(), self._model.robot, end_direction)
+        movements, path_planned = self.__path_converter.convert_path(simplified_path, self._model.robot, end_direction)
 
         self.__logger.info("Path planned: {}".format(" ".join(str(mouv) for mouv in movements)))
 
@@ -237,24 +240,24 @@ class StationController(object):
         self.__logger.info("Robot: {}".format(self._model.robot))
         return self._model.robot.center
 
-    def __find_safe_position_near_cube(self, target_cube: FlagCube) -> (tuple, Direction):
+    def __find_safe_position_near_cube(self, target_cube: FlagCube) -> (tuple, int):
         if target_cube.center[1] < Grid.DEFAULT_OFFSET + 5:
             self.__logger.info("Le cube {} est en bas.".format(str(target_cube)))
             target_position = (int(target_cube.center[0]),
                                int(target_cube.center[1] + self.DISTANCE_FROM_CUBE))
-            desired_direction = Direction.SOUTH
+            desired_direction = Direction.SOUTH.angle
             pass
         elif target_cube.center[1] > NavigationEnvironment.DEFAULT_WIDTH + Grid.DEFAULT_OFFSET - 10:
             self.__logger.info("Le cube {} est en haut.".format(str(target_cube)))
             target_position = (int(target_cube.center[0]),
                                int(target_cube.center[1] - self.DISTANCE_FROM_CUBE))
-            desired_direction = Direction.NORTH
+            desired_direction = Direction.NORTH.angle
             pass
         elif target_cube.center[0] > NavigationEnvironment.DEFAULT_HEIGHT + Grid.DEFAULT_OFFSET - 5:
             self.__logger.info("Le cube {} est au fond.".format(str(target_cube)))
             target_position = (int(target_cube.center[0] - self.DISTANCE_FROM_CUBE),
                                int(target_cube.center[1]))
-            desired_direction = Direction.EAST
+            desired_direction = Direction.EAST.angle
             pass
         else:
             self.__logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
@@ -265,8 +268,8 @@ class StationController(object):
     def __move_to_infra_red_station(self):
         start_position = self.__find_robot()
         end_position = (10, 10)
-        end_direction = Direction.SOUTH_WEST
-        movements, self._model.planned_path = self.__find_path(start_position, end_position, end_direction)
+        end_angle = Direction.SOUTH_WEST.angle
+        movements, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
 
         self.__send_movement_commands(movements)
 
@@ -286,9 +289,9 @@ class StationController(object):
             return
 
         start_position = self.__find_robot()
-        end_position, end_direction = self.__find_safe_position_near_cube(self._model.target_cube)
+        end_position, end_angle = self.__find_safe_position_near_cube(self._model.target_cube)
 
-        movements, self._model.planned_path = self.__find_path(start_position, end_position, end_direction)
+        movements, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
 
         if movements is None:
             return
@@ -301,7 +304,7 @@ class StationController(object):
         # TODO move in the mock
         if self.__config['robot']['use_mocked_robot_detector']:
             self.__robot_detector.robot_position = end_position
-            self.__robot_detector.robot_direction = end_direction.angle
+            self.__robot_detector.robot_direction = end_angle
 
     def __grab_cube(self):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)

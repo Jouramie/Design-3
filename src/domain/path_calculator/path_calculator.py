@@ -7,10 +7,6 @@ from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathErro
 
 class PathCalculator(object):
     MAX_ITERATIONS = 20000
-    UNASSIGNED_VALUE = -1
-    OBSTACLE_VALUE = -2
-    STEP_VALUE = 1
-    END_POINT_VALUE = 0
     DEFAULT_WEIGHT = 1
     POTENTIAL_WEIGHT = 2
     __path = []
@@ -30,28 +26,28 @@ class PathCalculator(object):
             self.__set_neighbor_step_value(ending_point)
             self.__validate_path_exist(starting_point)
             return self.__find_gluttonous_path(starting_point, ending_point)
-        except PathCalculatorError as grid_err:
-            self.logger.info(str(grid_err))
         except PathCalculatorNoPathError as path_err:
             self.logger.info(str(path_err))
+        except PathCalculatorError as grid_err:
+            self.logger.info(str(grid_err))
 
     def __reset_neighbor_step_value(self):
-        self.__grid.reset_neighbor_step_value_keep_obstacles(self.OBSTACLE_VALUE, self.UNASSIGNED_VALUE)
+        self.__grid.reset_neighbor_step_value_keep_obstacles(Grid.OBSTACLE_VALUE, Grid.UNASSIGNED_VALUE)
 
     def __set_neighbor_step_value(self, ending_point):
         processing_node = []
-        self.__grid.get_vertex(ending_point).set_step_value(self.END_POINT_VALUE)
+        self.__grid.get_vertex(ending_point).set_step_value(Grid.END_POINT_VALUE)
         processing_node.append(ending_point)
 
         while processing_node:
             current_node = processing_node.pop(0)
             for connection in self.__grid.get_vertex(current_node).get_connections():
                 vertex_direction = (connection.get_id()[0] - current_node[0], connection.get_id()[1] - current_node[1])
-                if Direction.find_direction(vertex_direction) in (
-                Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST):
-                    if self.__grid.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
+                if Direction.find_direction(vertex_direction) in (Direction.NORTH, Direction.SOUTH,
+                                                                  Direction.EAST, Direction.WEST):
+                    if self.__grid.get_vertex(connection.get_id()).get_step_value() == Grid.UNASSIGNED_VALUE:
                         self.__grid.get_vertex(connection.get_id()).set_step_value(
-                            self.STEP_VALUE + self.__grid.get_vertex(current_node).get_step_value())
+                            Grid.STEP_VALUE + self.__grid.get_vertex(current_node).get_step_value())
                         processing_node.append(connection.get_id())
 
     def __find_gluttonous_path(self, starting_point, ending_point):
@@ -76,7 +72,7 @@ class PathCalculator(object):
                                  self.__grid.get_vertex(self.__current_node).get_id()[1] + self.__last_direction[1])
 
             if self.__grid.get_vertex(fast_track_vertex).get_step_value() == self.__grid.get_vertex(
-                    self.__current_node).get_step_value() - self.STEP_VALUE:
+                    self.__current_node).get_step_value() - Grid.STEP_VALUE:
                 self.__add_node_to_path(fast_track_vertex)
                 return
 
@@ -87,7 +83,7 @@ class PathCalculator(object):
 
             # Section for the next step_value (gluttonous move)
             if self.__grid.get_vertex(connection_id).get_step_value() == self.__grid.get_vertex(
-                    self.__current_node).get_step_value() - self.STEP_VALUE:
+                    self.__current_node).get_step_value() - Grid.STEP_VALUE:
 
                 # Always go for safe move
                 if neighbor_connection_weight == self.DEFAULT_WEIGHT:
@@ -98,8 +94,8 @@ class PathCalculator(object):
         self.__last_node = self.__path[-1]
         self.__current_node = next_node
         self.__path.append(next_node)
-        self.__last_direction = (
-        self.__current_node[0] - self.__last_node[0], self.__current_node[1] - self.__last_node[1])
+        self.__last_direction = (self.__current_node[0] - self.__last_node[0],
+                                 self.__current_node[1] - self.__last_node[1])
 
     def __set_grid(self, grid):
         if not grid:
@@ -107,8 +103,8 @@ class PathCalculator(object):
         self.__grid = grid
 
     def __validate_path_exist(self, starting_point):
-        if self.__grid.get_vertex(starting_point).get_step_value() == self.UNASSIGNED_VALUE or \
-                self.__grid.get_vertex(starting_point).get_step_value() == self.OBSTACLE_VALUE:
+        if self.__grid.get_vertex(starting_point).get_step_value() == Grid.UNASSIGNED_VALUE or \
+                self.__grid.get_vertex(starting_point).get_step_value() == Grid.OBSTACLE_VALUE:
             raise PathCalculatorNoPathError("PathCalculator could not connect start and end point")
 
     def get_calculated_path(self):
