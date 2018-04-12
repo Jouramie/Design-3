@@ -1,7 +1,7 @@
+import subprocess
 from pathlib import Path
 
 import cv2
-import subprocess
 from PyQt5 import uic, QtGui
 from PyQt5.QtCore import QTime, QTimer
 from PyQt5.QtWidgets import QMainWindow
