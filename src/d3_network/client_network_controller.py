@@ -45,35 +45,21 @@ class ClientNetworkController(NetworkController):
         else:
             raise WrongCommand(Command.START, msg['command'])
 
-    def wait_infrared_ask(self) -> dict:
-        self._logger.info('Waiting for infrared signal.')
-        msg = None
-        while msg is None:
-            try:
-                msg = self._receive_message()
-            except MessageNotReceivedYet:
-                self._logger.info('Waiting for infrared signal.')
-                time.sleep(1)
-
-        self._logger.info(msg)
-
-        if msg['command'] == Command.INFRARED_SIGNAL:
-            return msg
-        else:
-            raise WrongCommand(Command.INFRARED_SIGNAL, msg['command'])
-
-    def send_infrared_ask(self, country_code: int) -> None:
+    def send_country_code(self, country_code: int) -> None:
         self._logger.info('Sending country_code {code}.'.format(code=country_code))
         self._send_command(Command.INFRARED_SIGNAL, {'country_code': country_code})
 
     def wait_message(self) -> dict:
         self._logger.info('Waiting for a command.')
         msg = None
-        while msg is None:
-            try:
-                msg = self._receive_message()
-            except MessageNotReceivedYet:
-                self._logger.info('Waiting for a command.')
-                time.sleep(1)
-        self._logger.info(msg)
+        try:
+            msg = self._receive_message()
+        except MessageNotReceivedYet:
+            time.sleep(1)
+
+        self._logger.info('Message received from network: {}'.format(str(msg)))
         return msg
+
+    def send_feedback(self, feedback: Command):
+        self._logger.info('Sending feedback to station {feedback}.'.format(feedback=feedback))
+        self._send_command(feedback)

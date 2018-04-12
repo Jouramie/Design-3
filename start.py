@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 import time
+import threading
 
 import yaml
 
@@ -19,9 +20,9 @@ from src.robot.hardware.channel import create_channel
 from src.ui.main_app import App
 from src.vision.camera import create_real_camera, MockedCamera
 from src.vision.coordinate_converter import CoordinateConverter
+from src.vision.frame_drawer import FrameDrawer
 from src.vision.robot_detector import MockedRobotDetector, VisionRobotDetector
 from src.vision.table_camera_configuration_factory import TableCameraConfigurationFactory
-from src.vision.frame_drawer import FrameDrawer
 
 
 def main() -> None:
@@ -34,7 +35,7 @@ def main() -> None:
 
 def start_system(args: dict) -> None:
     logger = logging.getLogger()
-    log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+    log_formatter = logging.Formatter("%(asctime)s [%(threadName)-7.7s][%(levelname)-5.5s] %(message)s")
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(log_formatter)
@@ -58,7 +59,6 @@ def start_system(args: dict) -> None:
     file_handler = logging.FileHandler(log_file)
     file_handler.setFormatter(log_formatter)
     logger.addHandler(file_handler)
-    logger.info("Config file loaded.\n%s", config)
 
     if args['sys'] == 'robot':
         start_robot(config['robot'], logger.getChild('robot'))
@@ -67,6 +67,9 @@ def start_system(args: dict) -> None:
 
 
 def start_robot(config: dict, logger: logging.Logger) -> None:
+    threading.current_thread().setName('Robot')
+    logger.info("Config file loaded.\n%s", config)
+
     scanner = network_scn.StaticIpProvider(config['network']['host_ip'])
     network_controller = client_network_controller.ClientNetworkController(logger.getChild("network_controller"),
                                                                            config['network']['port'],
@@ -74,6 +77,8 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
     try:
         channel = create_channel(config['serial']['port'])
         robot_controller.RobotController(logger, scanner, network_controller, channel).main_loop()
+    except Exception as e:
+        logger.error(str(e))
     finally:
         if network_controller._socket is not None:
             network_controller._socket.close()
@@ -82,6 +87,9 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
 
 
 def start_station(config: dict, logger: logging.Logger) -> None:
+    threading.current_thread().setName('Station')
+    logger.info("Config file loaded.\n%s", config)
+
     if config['network']['use_mocked_network']:
         network_controller = server_network_controller.MockedServerNetworkController(
             logger.getChild("network_controller"), config['network']['mocked_country_code'])
@@ -114,6 +122,8 @@ def start_station(config: dict, logger: logging.Logger) -> None:
                   logger.getChild("main_controller"),
                   config)
         sys.exit(app.exec_())
+    except Exception as e:
+        logger.error(str(e))
     finally:
         if not config['network']['use_mocked_network']:
             if network_controller._server is not None:

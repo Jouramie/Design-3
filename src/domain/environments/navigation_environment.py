@@ -1,11 +1,12 @@
 from logging import Logger
 
+import numpy as np
+
 from src.domain.objects.flag_cube import FlagCube
 from .navigation_environment_error import NavigationEnvironmentDataError
 from .real_world_environment import RealWorldEnvironment
 from ..objects.obstacle import Obstacle
 from ..path_calculator.grid import Grid
-from ..path_calculator.path_calculator import PathCalculator
 
 
 class NavigationEnvironment(object):
@@ -39,49 +40,42 @@ class NavigationEnvironment(object):
     def add_cubes(self, cubes: [FlagCube]):
         for cube in cubes:
             point = cube.center
-            for x in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
-                                                                             self.BIGGEST_ROBOT_RADIUS + 1):
-                for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS, self.CUBE_HALF_SIZE +
-                                                                                 self.BIGGEST_ROBOT_RADIUS + 1):
+            for x in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS,
+                           self.CUBE_HALF_SIZE + self.BIGGEST_ROBOT_RADIUS + 1):
+                for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS,
+                               self.CUBE_HALF_SIZE + self.BIGGEST_ROBOT_RADIUS + 1):
                     try:
                         self.__set_obstacle_point(x, y, point)
-
                     except NavigationEnvironmentDataError as err:
-                        # self.logger.info(str(err))
-                        pass
-
-    # TODO clean way to add robot dimension to obstacle, radius? orientation? position?
-    # Biggest robot radius for now
+                        self.logger.debug(str(err))
 
     def add_obstacles(self, obstacles: [Obstacle]):
         for obstacle in obstacles:
             point = (int(obstacle.center[0]), int(obstacle.center[1]))
-            for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS, self.OBSTACLE_RADIUS +
-                                                                              self.BIGGEST_ROBOT_RADIUS + 1):
+            for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
+                           self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
                 # Square shape obstacle
-                for y in range(-self.OBSTACLE_RADIUS, self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
+                for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
+                               self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
                     try:
                         self.__set_obstacle_point(x, y, point)
                     except NavigationEnvironmentDataError as err:
-                        # self.logger.info(str(err))
-                        pass
+                        self.logger.debug(str(err))
 
     def __add_walls(self):
-        no_go_size = self.BIGGEST_ROBOT_RADIUS + 1
-
         max_height = self.DEFAULT_HEIGHT + self.__grid.DEFAULT_OFFSET
         max_width = self.DEFAULT_WIDTH + self.__grid.DEFAULT_OFFSET
 
         for x in range(self.__grid.DEFAULT_OFFSET, max_height):
-            for y in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size):
+            for y in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + self.BIGGEST_ROBOT_RADIUS + 1):
                 self.__add_wall(x, y)
-            for y in range(max_width - no_go_size, max_width):
+            for y in range(max_width - self.BIGGEST_ROBOT_RADIUS, max_width):
                 self.__add_wall(x, y)
 
         for y in range(self.__grid.DEFAULT_OFFSET, max_width):
-            for x in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + no_go_size):
+            for x in range(self.__grid.DEFAULT_OFFSET, self.__grid.DEFAULT_OFFSET + self.BIGGEST_ROBOT_RADIUS + 1):
                 self.__add_wall(x, y)
-            for x in range(max_height - no_go_size, max_height):
+            for x in range(max_height - self.BIGGEST_ROBOT_RADIUS, max_height):
                 self.__add_wall(x, y)
 
     def __add_wall(self, x, y):
@@ -94,17 +88,10 @@ class NavigationEnvironment(object):
         self.__add_grid_obstacle(perimeter_point)
 
     def __add_grid_obstacle(self, point):
-        self.__grid.get_vertex(point).set_step_value(PathCalculator.OBSTACLE_VALUE)
+        self.__grid.get_vertex(point).set_step_value(Grid.OBSTACLE_VALUE)
         for connection in self.__grid.get_vertex(point).get_connections():
             self.__grid.get_vertex(connection.get_id()).set_new_weight(
                 self.__grid.get_vertex(point), self.INFINITY_WEIGHT)
-            for connection_decay in self.__grid.get_vertex(connection.get_id()).get_connections():
-                if not self.__grid.get_vertex(
-                        connection_decay.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE and \
-                        not self.__grid.get_vertex(
-                            connection.get_id()).get_step_value() == PathCalculator.OBSTACLE_VALUE:
-                    self.__grid.get_vertex(connection_decay.get_id()).set_new_weight(
-                        self.__grid.get_vertex(connection.get_id()), self.POTENTIAL_WEIGHT)
 
     def __validate_point_in_grid(self, point):
         try:
@@ -114,3 +101,29 @@ class NavigationEnvironment(object):
 
     def get_grid(self):
         return self.__grid
+
+    def is_crossing_obstacle(self, start_point, end_point) -> bool:
+        movement_array = np.subtract(end_point, start_point)
+        movement = (int(movement_array[0]), int(movement_array[1]))
+        if abs(movement[0]) >= abs(movement[1]):
+            if movement[0] > 0:
+                step = 1
+            else:
+                step = -1
+            for x in range(0, movement[0], step):
+                y = int(x / movement[0] * movement[1])
+                point = (start_point[0] + x, start_point[1] + y)
+                if self.__grid.is_obstacle(point):
+                    return True
+        else:
+            if movement[1] > 0:
+                step = 1
+            else:
+                step = -1
+            for y in range(0, movement[1], step):
+                x = int(y / movement[1] * movement[0])
+                point = (start_point[0] + x, start_point[1] + y)
+                if self.__grid.is_obstacle(point):
+                    return True
+
+        return False

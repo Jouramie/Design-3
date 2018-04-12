@@ -14,6 +14,7 @@ class StationModel(object):
         self.country_code: int = None
         self.current_cube_index = 0
         self.next_cube: FlagCube = None
+        self.target_cube = None
 
         self.frame = None
 

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import cv2
+import subprocess
 from PyQt5 import uic, QtGui
 from PyQt5.QtCore import QTime, QTimer
 from PyQt5.QtWidgets import QMainWindow
@@ -26,11 +27,15 @@ class StationView(QMainWindow):
         self.update_timer.timeout.connect(self.update)
 
         self.ui.StartButton.clicked.connect(self.start_robot)
+        self.ui.StopButton.clicked.connect(self.stop_robot)
 
         super(StationView, self).__init__()
 
     def start_robot(self):
         self.station_controller.start_robot()
+
+    def stop_robot(self):
+        subprocess.run(['ssh', 'design3@10.42.0.1', 'pkill', 'python3'])
 
     def update(self):
         self.station_controller.update()

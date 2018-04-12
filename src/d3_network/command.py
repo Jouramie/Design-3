@@ -12,3 +12,8 @@ class Command(object):
     MOVE_ROTATE = 'move-rotate'
     MOVE_RIGHT = 'move-right'
     MOVE_LEFT = 'move-left'
+
+    GRAB_CUBE_FAILURE = 'grab-cube-failure'
+    EXECUTED_ALL_REQUESTS = 'requests-were-executed-commander'
+
+    ACTION = 'action'
