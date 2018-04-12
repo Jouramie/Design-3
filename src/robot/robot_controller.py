@@ -103,11 +103,11 @@ class RobotController(object):
                         task = self._stm_sent_queue.get()
                         self._stm_received_queue.put(task)
                         return
-                    elif response.type == commands_from_stm.Feedback.TASK_SUCCESS:
+                    elif response.type == commands_from_stm.Feedback.TASK_SUCCESS and self._stm_sent_queue:
                         task = self._stm_sent_queue.get()
                         self._stm_done_queue.put(task)
                         return
-                    elif response.type == commands_from_stm.Feedback.TASK_FAILED:
+                    elif response.type == commands_from_stm.Feedback.TASK_FAILED and self._stm_sent_queue:
                         task = self._stm_sent_queue.get()
                         self._stm_commands_todo.appendleft(task)
                     else:

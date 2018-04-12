@@ -192,7 +192,7 @@ class StationController(object):
                 self._model.light_is_lit = True
 
     def __generate_real_world_environments(self):
-        # self.camera.take_picture()
+        self.__camera.take_picture()
         self._model.vision_environment = self.__world_vision.create_environment(self._model.frame,
                                                                                 self.__config['table_number'])
         self.__logger.info("Vision Environment:\n{}".format(str(self._model.vision_environment)))
