@@ -95,7 +95,7 @@ class SocketServerNetworkController(ServerNetworkController):
             actions_command_list.append(action.to_command())
         self._send_command(Command.ACTION, {'actions': actions_command_list})
 
-        self._logger.info("Actions {} sent".format(str(act) for act in actions))
+        self._logger.info("Actions {} sent".format(act.to_command() for act in actions))
 
 
 class MockedServerNetworkController(ServerNetworkController):
