@@ -36,4 +36,3 @@ class Left(Movement):
 class Right(Movement):
     def __init__(self, amplitude):
         super().__init__(Command.MOVE_RIGHT, amplitude)
-

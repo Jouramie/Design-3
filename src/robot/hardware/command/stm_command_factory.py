@@ -88,4 +88,3 @@ class StmCommand():
     @staticmethod
     def _light_led() -> bytearray:
         return commands_to_stm.Command.LIGHT_IT_UP.value
-

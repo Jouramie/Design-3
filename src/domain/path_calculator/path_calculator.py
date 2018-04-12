@@ -94,8 +94,8 @@ class PathCalculator(object):
         self.__last_node = self.__path[-1]
         self.__current_node = next_node
         self.__path.append(next_node)
-        self.__last_direction = (
-            self.__current_node[0] - self.__last_node[0], self.__current_node[1] - self.__last_node[1])
+        self.__last_direction = (self.__current_node[0] - self.__last_node[0],
+                                 self.__current_node[1] - self.__last_node[1])
 
     def __set_grid(self, grid):
         if not grid:

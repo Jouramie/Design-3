@@ -23,7 +23,6 @@ class TestRobotController(TestCase):
         network_scanner = Mock()
         network_scanner.attach_mock(Mock(return_value=host_ip), 'get_host_ip')
         network_ctrl = MagicMock()
-        network_ctrl.attach_mock(Mock(return_value=dict({'command': 'end-signal'})), 'wait_message')
         ctrl = RobotController(MagicMock(), network_scanner, network_ctrl, MagicMock())
 
         ctrl._start()
