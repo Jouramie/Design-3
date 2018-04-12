@@ -20,9 +20,6 @@ class WorldVision:
         table_crop = options[table]
         cropped_image = self.__crop_environment(frame, table_crop)
 
-        #cv2.imshow('frame', cropped_image)
-        #cv2.waitKey(0)
-
         cubes = []
         obstacles = []
 
