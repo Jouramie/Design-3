@@ -136,7 +136,6 @@ class RobotController(object):
 
     def main_loop(self) -> None:
         self._start()
-        self._logger.info('AAAAAAAAAAAAAAAAAAAAAHHHHHHHHHH')
         while True:
             time.sleep(1)
             self.execute()

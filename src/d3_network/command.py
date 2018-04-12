@@ -16,5 +16,4 @@ class Command(object):
     GRAB_CUBE_FAILURE = 'grab-cube-failure'
     EXECUTED_ALL_REQUESTS= 'requests-were-executed-commander'
 
-    MOVES = 'moves'
     ACTION = 'action'
