@@ -261,6 +261,12 @@ class StationController(object):
                 new_robot_y = self._model.robot.center[1] + round(
                     math.sin(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
                 self.__robot_detector.robot_position = self._model.robot.center = (new_robot_x, new_robot_y)
+            elif action.command == Command.MOVE_BACKWARD:
+                new_robot_x = self._model.robot.center[0] - round(
+                    math.cos(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
+                new_robot_y = self._model.robot.center[1] - round(
+                    math.sin(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
+                self.__robot_detector.robot_position = self._model.robot.center = (new_robot_x, new_robot_y)
 
     def __add_actions_to_actions_to_send(self, actions):
         if actions is not None:
