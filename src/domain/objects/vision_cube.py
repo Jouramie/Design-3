@@ -1,4 +1,3 @@
-from src.vision.table_crop import TableCrop
 from .color import Color
 
 

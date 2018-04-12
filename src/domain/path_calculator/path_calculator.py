@@ -1,8 +1,8 @@
 from logging import Logger
 
+from .direction import Direction
 from .grid import Grid
 from .path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
-from .direction import Direction
 
 
 class PathCalculator(object):
@@ -47,7 +47,8 @@ class PathCalculator(object):
             current_node = processing_node.pop(0)
             for connection in self.__grid.get_vertex(current_node).get_connections():
                 vertex_direction = (connection.get_id()[0] - current_node[0], connection.get_id()[1] - current_node[1])
-                if Direction.find_direction(vertex_direction) in (Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST):
+                if Direction.find_direction(vertex_direction) in (
+                Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST):
                     if self.__grid.get_vertex(connection.get_id()).get_step_value() == self.UNASSIGNED_VALUE:
                         self.__grid.get_vertex(connection.get_id()).set_step_value(
                             self.STEP_VALUE + self.__grid.get_vertex(current_node).get_step_value())
@@ -97,7 +98,8 @@ class PathCalculator(object):
         self.__last_node = self.__path[-1]
         self.__current_node = next_node
         self.__path.append(next_node)
-        self.__last_direction = (self.__current_node[0] - self.__last_node[0], self.__current_node[1] - self.__last_node[1])
+        self.__last_direction = (
+        self.__current_node[0] - self.__last_node[0], self.__current_node[1] - self.__last_node[1])
 
     def __set_grid(self, grid):
         if not grid:
