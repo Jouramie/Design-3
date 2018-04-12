@@ -1,6 +1,7 @@
 import subprocess
 import threading
 import time
+from collections import deque
 from logging import Logger
 
 import numpy as np
@@ -51,6 +52,8 @@ class StationController(object):
         self.__robot_detector = robot_detector
 
         self._model.world_camera_is_on = True
+
+        self._actions_to_send_deque = deque()
 
         def start_robot_thread():
             self.__logger.info('Updating robot.')
@@ -151,7 +154,7 @@ class StationController(object):
             time.sleep(5)  # TODO
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
-                self._model.robot_is_moving = False
+                self.__update_path()
             elif msg['command'] == Command.INFRARED_SIGNAL:
                 self._model.country_code = msg['country_code']
                 self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
@@ -352,3 +355,6 @@ class StationController(object):
         if self.__config['robot']['use_mocked_robot_detector']:
             self.__robot_detector.robot_position = (end_position[0] + distance_backward, end_position[1])
             self.__robot_detector.robot_direction = Direction.WEST.angle
+
+    def __update_path(self):
+        self._model.robot_is_moving = False
