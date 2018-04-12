@@ -308,7 +308,7 @@ class StationController(object):
     def __move_to_infra_red_station(self):
         start_position = self.__find_robot()
         end_position = (10, 10)
-        end_angle = Direction.SOUTH_WEST.angle
+        end_angle = Direction.SOUTH.angle
         actions, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
         if actions is None:
             return
