@@ -164,7 +164,7 @@ class TestScenarioStationController(TestCase):
         self.assertEqual('WHITE', station_model.next_cube.color.name)
         self.assertIsNotNone(station_model.planned_path)
         self.assertTrue(station_model.robot_is_moving)
-        self.assertTrue(station_model.robot_is_grabbing_cube)
+        self.assertTrue(station_model.robot_is_adjusting_position)
 
     def __create_station_controller(self, scenario: dict) -> (StationModel, StationController):
         station_model = StationModel()
