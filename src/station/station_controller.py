@@ -473,7 +473,8 @@ class StationController(object):
         self._model.robot_is_grabbing_cube = False
         self._model.robot_is_holding_cube = True
 
-    #def __is_correclty_placed_in_the_gripper(self):
+    def __is_correclty_placed_in_the_gripper(self):
+        return True
         # TODO trouver un facon de se reprendre si le robot ne réussi pas activer la switch...
         # demander au robot si la switch du bas est active
         # Si oui
