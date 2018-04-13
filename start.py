@@ -5,8 +5,8 @@ import argparse
 import logging
 import os
 import sys
-import time
 import threading
+import time
 
 import yaml
 
@@ -90,20 +90,9 @@ def start_station(config: dict, logger: logging.Logger) -> None:
     threading.current_thread().setName('Station')
     logger.info("Config file loaded.\n%s", config)
 
-    if config['network']['use_mocked_network']:
-        network_controller = server_network_controller.MockedServerNetworkController(
-            logger.getChild("network_controller"), config['network']['mocked_country_code'])
-    else:
-        network_controller = server_network_controller.SocketServerNetworkController(
-            logger.getChild("network_controller"), config['network']['port'], encoder.DictionaryEncoder())
-
     table_camera_config_factory = TableCameraConfigurationFactory(config['resources_path']['camera_calibration'],
                                                                   config['resources_path']['world_calibration'])
     table_camera_config = table_camera_config_factory.create(config['table_number'])
-    if config['camera']['use_mocked_camera']:
-        camera = MockedCamera(config['camera']['mocked_camera_image_path'], logger.getChild("camera"))
-    else:
-        camera = create_real_camera(config['camera'], logger.getChild("camera"))
 
     coordinate_converter = CoordinateConverter(table_camera_config, config['cube_positions']['tables']['t2'])
     if config['robot']['use_mocked_robot_detector']:
@@ -113,6 +102,23 @@ def start_station(config: dict, logger: logging.Logger) -> None:
             config['robot']['mocked_robot_orientation'])
     else:
         robot_detector = VisionRobotDetector(table_camera_config.camera_parameters, coordinate_converter)
+
+    if config['network']['use_mocked_network']:
+        if config['robot']['use_mocked_robot_detector']:
+            network_controller = server_network_controller.MockedServerNetworkController(
+                logger.getChild("network_controller"), config['network']['mocked_country_code'],
+                robot_detector=robot_detector)
+        else:
+            network_controller = server_network_controller.MockedServerNetworkController(
+                logger.getChild("network_controller"), config['network']['mocked_country_code'])
+    else:
+        network_controller = server_network_controller.SocketServerNetworkController(
+            logger.getChild("network_controller"), config['network']['port'], encoder.DictionaryEncoder())
+
+    if config['camera']['use_mocked_camera']:
+        camera = MockedCamera(config['camera']['mocked_camera_image_path'], logger.getChild("camera"))
+    else:
+        camera = create_real_camera(config['camera'], logger.getChild("camera"))
 
     real_world_environment_factory = RealWorldEnvironmentFactory(coordinate_converter)
     frame_drawer = FrameDrawer(coordinate_converter, logger.getChild("FrameDrawer"))
