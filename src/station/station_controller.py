@@ -150,7 +150,7 @@ class StationController(object):
                 msg = self.__network.check_robot_feedback()
             except MessageNotReceivedYet:
                 return
-            time.sleep(1)  # TODO
+            #  time.sleep(1)  # TODO
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
@@ -294,6 +294,8 @@ class StationController(object):
 
         actions.append(IR())
         self.__add_actions_to_actions_to_send(actions)
+        self.__send_next_actions_commands()
+
         self._model.robot_is_moving = True
         self._model.infrared_signal_asked = True
 
@@ -311,6 +313,7 @@ class StationController(object):
             return
 
         self.__add_actions_to_actions_to_send(actions)
+        self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = True
@@ -323,6 +326,7 @@ class StationController(object):
             [Forward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center']),
              Grab(),
              Backward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'] + 1)])
+        self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = False
@@ -349,6 +353,7 @@ class StationController(object):
         actions.append(Drop())
         actions.append(Backward(distance_backward))
         self.__add_actions_to_actions_to_send(actions)
+        self.__send_next_actions_commands()
 
         self.__logger.info("Dropping cube.")
 
