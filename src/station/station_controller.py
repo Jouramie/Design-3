@@ -52,6 +52,8 @@ class StationController(object):
         self._model.world_camera_is_on = True
 
         self.__actions_to_send = []
+        self.__destination = None
+        self.__todo_when_arrived_at_destination = None
 
         def start_robot_thread():
             self.__logger.info('Updating robot.')
@@ -169,7 +171,6 @@ class StationController(object):
         if not self._model.flag_is_finish:
             if self._model.robot_is_holding_cube:
                 self.__logger.info("Entering new step, moving to target_zone to place cube.")
-
                 self.__move_to_drop_cube()
             else:
                 if self._model.robot_is_adjusting_position:
@@ -335,11 +336,11 @@ class StationController(object):
         self.__navigation_environment.create_grid()
         self.__navigation_environment.add_real_world_environment(self._model.real_world_environment)
 
-    def __find_path(self, start_position: tuple, end_position: tuple, end_direction: int) -> ([Movement], list):
+    def __find_path(self, end_position: tuple, end_direction: int) -> ([Movement], list):
         self.__generate_navigation_environment()
         # TODO tirer une exception plutot qu'un boolean
         self.__logger.info("Finding path to {}".format((end_position, end_direction)))
-        is_possible = self.__path_calculator.calculate_path(start_position, end_position,
+        is_possible = self.__path_calculator.calculate_path(self._model.robot.center, end_position,
                                                             self.__navigation_environment.get_grid())
         if not is_possible:
             self.__logger.warning("Path to destination {} is not possible.".format(end_position))
@@ -369,15 +370,7 @@ class StationController(object):
 
     def __add_actions_to_actions_to_send(self, actions):
         if actions is not None:
-            for action in actions:
-                self.__actions_to_send.append(action)
-
-    def __find_robot(self) -> tuple:
-        if self._model.robot is None:
-            self.__logger.warning("Robot position is undefined. Waiting to know robot position to find path.")
-            return None
-        self.__logger.info("Robot: {}".format(self._model.robot))
-        return self._model.robot.center
+            self.__actions_to_send.append(action for action in actions)
 
     def __find_safe_position_in_cube_area(self, target_cube: FlagCube) -> (tuple, int):
         target_position = (int(166), int(33))
@@ -385,16 +378,19 @@ class StationController(object):
 
         return target_position, desired_direction
 
-    def __move_to_infra_red_station(self):
-        start_position = self.__find_robot()
-        end_position = (10, 10)
-        end_angle = Direction.SOUTH.angle
-        actions, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
-        if actions is None:
-            return
+    def __find_where_to_place_cube(self) -> tuple:
+        cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
+        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'],
+                           cube_destination[1])
+        self.__logger.info("Target position: {}".format(str(target_position)))
 
-        actions.append(IR())
-        self.__add_actions_to_actions_to_send(actions)
+        return target_position
+
+    def __move_to_infra_red_station(self):
+        self.__destination = (10, 10), Direction.SOUTH.angle
+        self.__todo_when_arrived_at_destination = [IR()]
+
+        self.__update_path()
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -431,14 +427,10 @@ class StationController(object):
             self.__logger.warning("The target cube is None. Cannot continue, exiting.")
             return
 
-        start_position = self.__find_robot()
-        end_position, end_angle = self.__find_safe_position_in_cube_area(self._model.target_cube)
+        self.__destination = self.__find_safe_position_near_cube(self._model.target_cube)
+        self.__todo_when_arrived_at_destination = None
 
-        actions, self._model.planned_path = self.__find_path(start_position, end_position, end_angle)
-        if actions is None:
-            return
-
-        self.__add_actions_to_actions_to_send(actions)
+        self.__update_path()
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -479,7 +471,12 @@ class StationController(object):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
 
-        self.__add_actions_to_actions_to_send([Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)])
+        self.__destination = None
+        self.__todo_when_arrived_at_destination = [
+            Grab(),
+            Backward(self.DISTANCE_FROM_CUBE - self.__config['distance_between_robot_center_and_cube_center'] + 1)]
+
+        self.__update_path()
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -497,8 +494,6 @@ class StationController(object):
         return target_position
 
     def __move_to_drop_cube(self):
-        start_position = self.__find_robot()
-
         end_position = self.__find_where_to_place_cube()
 
         actions, self._model.planned_path = self.__find_path(start_position, end_position, Direction.WEST.angle)
@@ -522,4 +517,14 @@ class StationController(object):
         self._model.robot_is_holding_cube = False
 
     def __update_path(self):
-        pass  # TODO
+        if self.__destination is not None:
+            end_position, end_orientation = self.__destination
+
+            actions, self._model.planned_path = self.__find_path(end_position, end_orientation)
+            if actions is None:
+                return
+
+            if self.__todo_when_arrived_at_destination is not None:
+                actions.append(action for action in self.__todo_when_arrived_at_destination)
+
+            self.__add_actions_to_actions_to_send(actions)  # TODO modifier la liste
