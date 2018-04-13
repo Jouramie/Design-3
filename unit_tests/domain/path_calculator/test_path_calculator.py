@@ -4,12 +4,11 @@ from unittest.mock import Mock
 
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.objects.obstacle import Obstacle
-from src.domain.path_calculator.path_calculator import PathCalculator
-from src.domain.path_calculator.path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 from src.domain.path_calculator.grid import Grid
+from src.domain.path_calculator.path_calculator import PathCalculator
 
 SPECIFIC_OBSTACLE_1_VALUE = (104, 0)
-SPECIFIC_OBSTACLE_2_VALUE = (42, 62)
+SPECIFIC_OBSTACLE_2_VALUE = (42, 54)
 SPECIFIC_STARTING_POINT = (50, 15)
 SPECIFIC_ENDING_POINT = (102, 33)
 
@@ -134,18 +133,5 @@ class TestPathCalculator(TestCase):
         path_calculator.calculate_path(starting_point_next_to_obstacle, ending_point_next_to_obstacle,
                                        environment.get_grid())
 
-        expected = [(19, 51), (19, 52), (19, 53), (19, 54), (19, 55), (19, 56), (19, 57), (19, 58), (19, 59), (19, 60),
-         (19, 61), (19, 62), (19, 63), (19, 64), (19, 65), (19, 66), (19, 67), (19, 68), (19, 69), (19, 70),
-         (19, 71), (19, 72), (19, 73), (19, 74), (19, 75), (19, 76), (19, 77), (19, 78), (19, 79), (19, 80),
-         (19, 81), (20, 81), (21, 81), (22, 81), (23, 81), (24, 81), (25, 81), (26, 81), (27, 81), (28, 81),
-         (29, 81), (30, 81), (31, 81), (32, 81), (33, 81), (34, 81), (35, 81), (36, 81), (37, 81), (38, 81),
-         (39, 81), (40, 81), (41, 81), (42, 81), (43, 81), (44, 81), (45, 81), (46, 81), (47, 81), (48, 81),
-         (49, 81), (50, 81), (51, 81), (52, 81), (53, 81), (54, 81), (55, 81), (56, 81), (57, 81), (58, 81),
-         (59, 81), (60, 81), (61, 81), (62, 81), (63, 81), (64, 81), (65, 81), (66, 81), (67, 81), (68, 81),
-         (69, 81), (70, 81), (71, 81), (72, 81), (73, 81), (74, 81), (75, 81), (76, 81), (77, 81), (78, 81),
-         (79, 81), (80, 81), (81, 81), (81, 80), (81, 79), (81, 78), (81, 77), (81, 76), (81, 75), (81, 74),
-         (81, 73), (81, 72), (81, 71), (81, 70), (81, 69), (81, 68), (81, 67), (81, 66), (81, 65), (81, 64),
-         (81, 63), (81, 62), (81, 61), (81, 60), (81, 59), (81, 58), (81, 57), (81, 56), (81, 55), (81, 54),
-         (81, 53), (81, 52), (81, 51), (81, 50)]
-
-        self.assertEqual(expected, path_calculator.get_calculated_path())
+        for position in path_calculator.get_calculated_path():
+            self.assertFalse(environment.get_grid().is_obstacle(position))

@@ -472,6 +472,8 @@ class StationController(object):
         self._model.robot_is_grabbing_cube = False
         self._model.robot_is_holding_cube = True
 
+        self._model.cube_is_placed_in_gripper = False  # TODO
+
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
         target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'],
