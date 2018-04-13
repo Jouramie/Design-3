@@ -84,8 +84,9 @@ class StationView(QMainWindow):
         self.ui.cube_label.show()
 
     def __draw_environment(self, frame):
-        if self.model.vision_environment is not None:
-            self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
+        if self.__config['user_interface']['draw_vision_cubes']:
+            if self.model.vision_environment is not None:
+                self.frame_drawer.draw_vision_environment(frame, self.model.vision_environment)
 
         if self.model.real_world_environment is not None:
             self.frame_drawer.draw_real_world_environment(frame, self.model.real_world_environment)
