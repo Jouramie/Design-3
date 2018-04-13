@@ -16,7 +16,7 @@ class NavigationEnvironment(object):
     INFINITY_WEIGHT = 3
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 7
-    BIGGEST_ROBOT_RADIUS = 23
+    BIGGEST_ROBOT_RADIUS = 15
 
     __width = 0
     __height = 0
