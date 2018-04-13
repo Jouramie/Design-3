@@ -7,7 +7,7 @@ log_file: "log/{date}.log"
 
 robot:
   network:
-    host_ip: "10.42.0.190"
+    host_ip: "10.42.0.78"
     port: *port
   serial:
     port: "/dev/ttyUSB0"
