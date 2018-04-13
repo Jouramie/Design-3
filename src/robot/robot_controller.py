@@ -85,10 +85,6 @@ class RobotController(object):
             elif response.type == commands_from_stm.Feedback.TASK_CUBE_FAILED:
                 # stop everything and notify station
                 self.failure = True
-                self._stm_commands_todo = deque()
-                self._network_request_queue = Queue()
-                self._stm_responses_deque = deque()
-                self._stm_received_queue = Queue()
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
 
     def execute_next_stm_task_and_check_ACK(self) -> None:
