@@ -248,26 +248,6 @@ class StationController(object):
 
         self.__network.send_actions(actions_to_be_send)
 
-        if self.__config['robot']['use_mocked_robot_detector']:
-            self.__update_mock_position(actions_to_be_send)
-
-    def __update_mock_position(self, actions):
-        for action in actions:
-            if action.command == Command.MOVE_ROTATE:
-                self.__robot_detector.robot_direction = self._model.robot.orientation = self._model.robot.orientation + action.amplitude
-            elif action.command == Command.MOVE_FORWARD:
-                new_robot_x = self._model.robot.center[0] + round(
-                    math.cos(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
-                new_robot_y = self._model.robot.center[1] + round(
-                    math.sin(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
-                self.__robot_detector.robot_position = self._model.robot.center = (new_robot_x, new_robot_y)
-            elif action.command == Command.MOVE_BACKWARD:
-                new_robot_x = self._model.robot.center[0] - round(
-                    math.cos(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
-                new_robot_y = self._model.robot.center[1] - round(
-                    math.sin(self._model.robot.orientation / 360 * 2 * math.pi), 3) * action.amplitude
-                self.__robot_detector.robot_position = self._model.robot.center = (new_robot_x, new_robot_y)
-
     def __add_actions_to_actions_to_send(self, actions):
         if actions is not None:
             for action in actions:
@@ -382,4 +362,4 @@ class StationController(object):
         self._model.robot_is_holding_cube = False
 
     def __update_path(self):
-        pass
+        pass  # TODO

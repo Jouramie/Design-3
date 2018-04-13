@@ -1,11 +1,13 @@
 from logging import Logger
+from math import sin, cos, pi
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 
+from src.domain.path_calculator.action import Movement, Rotate, Action
+from src.vision.robot_detector import MockedRobotDetector
 from .command import Command
 from .encoder import Encoder
 from .network_controller import NetworkController
 from .network_exception import NetworkException, WrongCommand
-from ..domain.path_calculator.action import Movement, Rotate, Action
 
 
 class ServerNetworkController(NetworkController):
@@ -99,11 +101,13 @@ class SocketServerNetworkController(ServerNetworkController):
 
 
 class MockedServerNetworkController(ServerNetworkController):
-    def __init__(self, logger: Logger, country_code: int, port: int = 0, encoder: Encoder = None):
+    def __init__(self, logger: Logger, country_code: int, port: int = 0,
+                 encoder: Encoder = None, robot_detector: MockedRobotDetector = None):
         super().__init__(logger, port, encoder)
         self.MOVEMENT = Rotate(30)
         self.country_code = country_code
         self.has_to_send_country_code = False
+        self.robot_detector = robot_detector
 
     def host_network(self) -> None:
         self._logger.info("Creating server on port " + str(self._port))
@@ -119,12 +123,31 @@ class MockedServerNetworkController(ServerNetworkController):
 
     def send_action(self, action: Action) -> None:
         self._logger.info("Action: {} sent!".format(action))
+        self.__update_mock_position(action)
 
     def send_actions(self, actions: [Action]) -> None:
         for action in actions:
             if action.command == Command.INFRARED_SIGNAL:
                 self.has_to_send_country_code = True
+            self.__update_mock_position(action)
         self._logger.info("Commands: {} sent!".format(', '.join(str(action) for action in actions)))
+
+    def __update_mock_position(self, action):
+        if self.robot_detector is not None:
+            if action.command == Command.MOVE_ROTATE:
+                self.robot_detector.robot_direction += action.amplitude
+            elif action.command == Command.MOVE_FORWARD:
+                new_robot_x = self.robot_detector.robot_position[0] + round(
+                    cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                new_robot_y = self.robot_detector.robot_position[1] + round(
+                    sin(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                self.robot_detector.robot_position = (new_robot_x, new_robot_y)
+            elif action.command == Command.MOVE_BACKWARD:
+                new_robot_x = self.robot_detector.robot_position[0] - round(
+                    cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                new_robot_y = self.robot_detector.robot_position[1] - round(
+                    sin(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                self.robot_detector.robot_position = (new_robot_x, new_robot_y)
 
     def check_robot_feedback(self) -> dict:
 
