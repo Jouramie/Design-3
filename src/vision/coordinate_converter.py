@@ -84,8 +84,15 @@ class CoordinateConverter:
             dist, indexes = tree.query(vision_cube.center)
             table_cube = self.table_config_cubes['cube' + str(indexes)]
             position = (table_cube['x'], table_cube['y'])
+            wall = None
+            if position[1] < (-23 + 5):
+                wall = "down"
+            if position[1] > (111 + -23 - 10):
+                wall = "up"
+            if position[0] > (231 + -23 - 5):
+                wall = "middle"
             color = vision_cube.color
-            flag_cube = FlagCube(position, color)
+            flag_cube = FlagCube(position, color, wall)
             real_cubes.append(flag_cube)
 
         return real_cubes
