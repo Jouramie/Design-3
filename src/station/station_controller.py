@@ -287,40 +287,28 @@ class StationController(object):
         if self._model.target_cube.wall == Wall.UP:
             if robot_pos_x > (self._model.target_cube.center[0] + 1):
                 distance = robot_pos_x - self._model.target_cube.center[0]
-                if distance < 2:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
 
             if robot_pos_x < (self._model.target_cube.center[0] - 1):
                 distance = self._model.target_cube.center[0] - robot_pos_x
-                if distance < 2:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
         elif self._model.target_cube.wall == Wall.DOWN:
             if robot_pos_x > (self._model.target_cube.center[0] + 1):
                 distance = robot_pos_x - self._model.target_cube.center[0]
-                if distance < 2:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
             if robot_pos_x < (self._model.target_cube.center[0] - 1):
                 distance = self._model.target_cube.center[0] - robot_pos_x
-                if distance < 3:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
             if robot_pos_y > (self._model.target_cube.center[1] + 1):
                 distance = robot_pos_y - self._model.target_cube.center[1]
-                if distance < 3:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
             if robot_pos_y < (self._model.target_cube.center[1] - 1):
                 distance = self._model.target_cube.center[1] - robot_pos_y
-                if distance < 3:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
