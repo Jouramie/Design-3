@@ -97,7 +97,7 @@ class SocketServerNetworkController(ServerNetworkController):
             actions_command_list.append(action.to_command())
         self._send_command(Command.ACTION, {'actions': actions_command_list})
 
-        self._logger.info("Actions {} sent".format(act.to_command() for act in actions))
+        self._logger.info("Actions {} sent".format(' ,'.join(str(act.to_command()) for act in actions)))
 
 
 class MockedServerNetworkController(ServerNetworkController):
@@ -135,7 +135,7 @@ class MockedServerNetworkController(ServerNetworkController):
     def __update_mock_position(self, action):
         if self.robot_detector is not None:
             if action.command == Command.MOVE_ROTATE:
-                self.robot_detector.robot_direction += action.amplitude
+                self.robot_detector.robot_direction = (self.robot_detector.robot_direction + action.amplitude) % 360
             elif action.command == Command.CAN_I_GRAB:
                 pass
             elif action.command == Command.MOVE_FORWARD:
