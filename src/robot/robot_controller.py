@@ -91,7 +91,6 @@ class RobotController(object):
         if self._stm_commands_todo:
             while True:
                 self._execute_stm_tasks()
-                time.sleep(5)
                 self.receive_stm_command()
                 if self._stm_responses_deque:
                     response = self._stm_responses_deque.popleft()
@@ -133,7 +132,6 @@ class RobotController(object):
     def main_loop(self) -> None:
         self._start()
         while True:
-            time.sleep(1)
             self.execute()
 
             if self.flag_done and self._stm_sent_queue.empty() and self._stm_received_queue.empty():
@@ -143,7 +141,6 @@ class RobotController(object):
         self.receive_network_request()
         self.treat_network_request()
         self.execute_next_stm_task_and_check_ACK()
-        time.sleep(1)
         self.receive_stm_command()
         self.treat_stm_response()
         self.check_if_all_request_were_executed()
