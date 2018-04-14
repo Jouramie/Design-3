@@ -382,7 +382,7 @@ class StationController(object):
         return target_position
 
     def __move_to_infra_red_station(self):
-        self.__destination = (10, 10), Direction.SOUTH.angle
+        self.__destination = (30, 30), Direction.SOUTH.angle
         self.__todo_when_arrived_at_destination = [IR()]
 
         self.__update_path(force=True)
