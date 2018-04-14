@@ -157,6 +157,9 @@ class StationController(object):
                 self.__send_next_actions_commands()
                 if self._model.robot_is_moving:
                     return
+                if self._model.waiting_for_grab_success:
+                    self._model.cube_is_placed_in_gripper = True
+
             elif msg['command'] == Command.INFRARED_SIGNAL:
                 self._model.country_code = msg['country_code']
                 self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
@@ -474,7 +477,7 @@ class StationController(object):
         self.__network.send_actions(
             [Forward(distance_to_travel), CanIGrab()])
 
-        self._model.cube_is_placed_in_gripper = True
+        self._model.waiting_for_grab_success = True
 
     def __grab_cube(self):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
@@ -486,6 +489,7 @@ class StationController(object):
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = False
         self._model.robot_is_holding_cube = True
+        self._model.waiting_for_grab_success = False
 
         self._model.cube_is_placed_in_gripper = False  # TODO
 

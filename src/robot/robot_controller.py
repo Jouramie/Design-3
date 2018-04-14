@@ -83,7 +83,6 @@ class RobotController(object):
                 self._stm_done_queue.put(task)
                 self._network.send_country_code(response.country)
             elif response.type == commands_from_stm.Feedback.TASK_CUBE_FAILED:
-                # stop everything and notify station
                 self.failure = True
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
 
