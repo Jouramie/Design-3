@@ -3,6 +3,7 @@ from src.domain.environments.vision_environment import VisionEnvironment
 from src.domain.objects.country import Country
 from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.robot import Robot
+from .state import State
 
 
 class StationModel(object):
@@ -22,18 +23,9 @@ class StationModel(object):
         self.vision_environment: VisionEnvironment = None
         self.real_world_environment: RealWorldEnvironment = None
 
-        self.robot_is_started = False
-        self.robot_is_moving = False
-        self.robot_is_adjusting_position = False
-        self.robot_is_moving_to_grab_cube = False
-        self.robot_is_holding_cube = False
-        self.robot_is_grabbing_cube = False
-        self.cube_is_placed_in_gripper = False
-        self.light_is_lit = False
-        self.timer_is_on = False
+        self.current_state = State.NOT_STARTED
+        self.next_state = None
         self.world_camera_is_on = False
-        self.infrared_signal_asked = False
-        self.flag_is_finish = False
 
         self.planned_path = None
         self.real_path = []

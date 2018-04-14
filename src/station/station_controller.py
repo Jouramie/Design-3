@@ -13,7 +13,6 @@ from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment_factory import RealWorldEnvironmentFactory
 from src.domain.objects.color import Color
-from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.wall import Wall
 from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, Left, Grab, Drop, LightItUp, IR, Action, \
     CanIGrab, Movement
@@ -24,6 +23,7 @@ from src.domain.path_calculator.path_simplifier import PathSimplifier
 from src.vision.camera import Camera
 from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
+from .state import State
 from .station_model import StationModel
 
 
@@ -62,7 +62,7 @@ class StationController(object):
         self.__robot_thread = threading.Thread(None, start_robot_thread, name='Robot')
 
     def start_robot(self):
-        self._model.robot_is_started = True
+        self._model.current_state = State.GETTING_COUNTRY_CODE
         self._model.start_time = time.time()
 
         if self.__config['robot']['update_robot']:
@@ -122,7 +122,7 @@ class StationController(object):
             else:
                 cube_index = cube_index + 1
         if cube_index >= 9:
-            self._model.flag_is_finish = True
+            self._model.next_cube = None
 
     def update(self):
         self._model.frame = self.__camera.get_frame()
@@ -132,7 +132,7 @@ class StationController(object):
             robot_center_3d = self._model.robot.get_center_3d()
             self._model.real_path.append(np.float32(robot_center_3d))
 
-        if not self._model.robot_is_started:
+        if self._model.current_state is State.NOT_STARTED:
             return
 
         self._model.passed_time = time.time() - self._model.start_time
@@ -140,22 +140,16 @@ class StationController(object):
         if self._model.real_world_environment is None:
             self.__generate_real_world_environments()
 
-        if not self._model.infrared_signal_asked:
-            self.__logger.info("Entering new step, asking country-code.")
-
-            self.__move_to_infra_red_station()
-            return
-
-        if self._model.robot_is_moving or self._model.country_code is None:
+        if self._model.current_state is State.WORKING:
             try:
                 msg = self.__network.check_robot_feedback()
             except MessageNotReceivedYet:
                 return
-            #  input('Press enter to continue execution.')  # TODO
+            # input('Press enter to continue execution.')  # TODO
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
                 self.__send_next_actions_commands()
-                if self._model.robot_is_moving:
+                if self._model.current_state is State.WORKING:
                     return
             elif msg['command'] == Command.INFRARED_SIGNAL:
                 self._model.country_code = msg['country_code']
@@ -167,50 +161,58 @@ class StationController(object):
                 self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
                 return
 
-        if not self._model.flag_is_finish:
-            if self._model.robot_is_holding_cube:
-                self.__logger.info("Entering new step, moving to target_zone to place cube.")
-                self.__move_to_drop_cube()
+        self.__logger.info("Entering new step: {}.".format(self._model.current_state))
+
+        if self._model.current_state is State.GETTING_COUNTRY_CODE:
+            self.__move_to_infra_red_station()
+            self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
+
+        elif self._model.current_state is State.TRAVELING_TO_CUBE_REPOSITORY:
+            self.__move_to_cube_area()
+            self._model.next_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+
+        elif self._model.current_state is State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY:
+            if not self.__is_correctly_oriented():
+                self.__logger.info("Orienting robot.")
+                self.__orientate_in_front_cube()
+                return
+            elif not self.__is_correctly_positioned_in_front_cube():
+                self.__logger.info("Strafing robot.")
+                self.__strafing_robot_in_front_of_cube()
+                return
             else:
-                if self._model.robot_is_adjusting_position:
-                    if not self.__is_correctly_oriented():
-                        self.__logger.info("Entering new step, orienting robot.")
-                        self.__orientate_in_front_cube(self._model.target_cube)
-                        return
-                    elif not self.__is_correctly_positioned_in_front_cube():
-                        self.__logger.info("Entering new step, strafing robot.")
-                        self.__strafing_robot_in_front_of_cube()
-                        return
-                    else:
-                        self._model.robot_is_adjusting_position = False
-                        self._model.robot_is_grabbing_cube = True
-                        self.__logger.info("Robot is now placed in front of the next cube to grab.")
+                self.__logger.info("Robot is now placed in front of the next cube to grab.")
+                self._model.next_state = State.MOVING_TO_GRAB_CUBE
 
-                if self._model.robot_is_grabbing_cube:
-                    if self._model.cube_is_placed_in_gripper:
-                        self.__logger.info("Entering new step, grabbing cube.")
-                        self.__grab_cube()
-                    else:
-                        self.__logger.info("Entering new step, moving to grab the cube.")
-                        self.__move_robot_to_grab_cube()
+        elif self._model.current_state == State.MOVING_TO_GRAB_CUBE:
+            self.__move_robot_to_grab_cube()
+            self._model.next_state = State.GRABBING_CUBE
 
-                else:
-                    self.__logger.info("Entering new step, travel to the cube.")
-                    self.__move_to_cube_area()
+        elif self._model.current_state == State.GRABBING_CUBE:
+            self.__grab_cube()
+            self._model.next_state = State.TRAVELLING_TO_DROP_CUBE
+
+        elif self._model.current_state == State.TRAVELLING_TO_DROP_CUBE:
+            self.__move_to_drop_cube()
+            if self._model.next_cube is None:
+                self._model.next_state = State.EXITING_TARGET_ZONE_AND_LIGHT
+            else:
+                self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
+
+        elif self._model.current_state == State.EXITING_TARGET_ZONE_AND_LIGHT:
+            # TODO Calculer le path vers l'exterieur de la zone
+            # TODO Envoyer la commande de déplacement + led
+
+            self.__network.send_actions([LightItUp()])
+            self._model.next_state = State.RESETTING
+            
+        elif self._model.current_state == State.RESETTING:
+            self._model.current_state = State.NOT_STARTED
+            return
         else:
-            if self._model.light_is_lit:
-                self.__logger.info("Entering new step, resetting for next flag.")
-                pass
-            else:
-                self.__logger.info("Entering new step, exiting zone to light led.")
+            self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
 
-                # TODO Calculer le path vers l'exterieur de la zone
-                # TODO Envoyer la commande de déplacement + led
-
-                self.__network.send_actions([LightItUp()])
-
-                self._model.robot_is_moving = True
-                self._model.light_is_lit = True
+        self._model.current_state = State.WORKING
 
     def __is_correctly_oriented(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
@@ -282,8 +284,6 @@ class StationController(object):
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
-
-        self._model.robot_is_moving = True
 
     def __is_correctly_positioned_in_front_cube(self):
         robot_pos_x = self._model.robot.center[0]
@@ -361,7 +361,8 @@ class StationController(object):
             actions_to_be_send, self.__todo_when_arrived_at_destination = self.__todo_when_arrived_at_destination, []
             pass
         else:
-            self._model.robot_is_moving = False
+            if self._model.next_state is not None:
+                self._model.current_state, self._model.next_state = self._model.next_state, None
             return
 
         self.__network.send_actions(actions_to_be_send)
@@ -389,29 +390,24 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-        self._model.robot_is_moving = True
-        self._model.infrared_signal_asked = True
-
-    def __orientate_in_front_cube(self, target_cube: FlagCube) -> None:
-        if target_cube.wall == Wall.DOWN:
-            self.__logger.info("Le cube {} est en bas.".format(str(target_cube)))
+    def __orientate_in_front_cube(self) -> None:
+        if self._model.target_cube.wall == Wall.DOWN:
+            self.__logger.info("Le cube {} est en bas.".format(str(self._model.target_cube)))
             self.__destination = None, Direction.SOUTH.angle
-        elif target_cube.wall == Wall.UP:
-            self.__logger.info("Le cube {} est en haut.".format(str(target_cube)))
+        elif self._model.target_cube.wall == Wall.UP:
+            self.__logger.info("Le cube {} est en haut.".format(str(self._model.target_cube)))
             self.__destination = None, Direction.NORTH.angle
-        elif target_cube.wall == Wall.MIDDLE:
-            self.__logger.info("Le cube {} est au fond.".format(str(target_cube)))
+        elif self._model.target_cube.wall == Wall.MIDDLE:
+            self.__logger.info("Le cube {} est au fond.".format(str(self._model.target_cube)))
             self.__destination = None, Direction.EAST.angle
         else:
-            self.__logger.warning("Le cube {} n'est pas à la bonne place.".format(str(target_cube)))
+            self.__logger.warning("Le cube {} n'est pas à la bonne place.".format(str(self._model.target_cube)))
             return
 
         self.__todo_when_arrived_at_destination = None
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
-
-        self._model.robot_is_moving = True
 
     def __move_to_cube_area(self):
         self._model.target_cube = self._model.real_world_environment.find_cube(self._model.next_cube.color)
@@ -424,9 +420,6 @@ class StationController(object):
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
-
-        self._model.robot_is_moving = True
-        self._model.robot_is_adjusting_position = True
 
     def __move_robot_to_grab_cube(self):
         robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
@@ -455,8 +448,6 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-        self._model.cube_is_placed_in_gripper = True
-
     def __grab_cube(self):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
@@ -466,12 +457,6 @@ class StationController(object):
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
-
-        self._model.robot_is_moving = True
-        self._model.robot_is_grabbing_cube = False
-        self._model.robot_is_holding_cube = True
-
-        self._model.cube_is_placed_in_gripper = False  # TODO
 
     def __move_to_drop_cube(self):
         end_position = self.__find_where_to_place_cube()
@@ -489,9 +474,6 @@ class StationController(object):
         placed_cube.place_cube()
         self._model.real_world_environment.cubes.append(placed_cube)
         self.__select_next_cube_color()
-
-        self._model.robot_is_moving = True
-        self._model.robot_is_holding_cube = False
 
     def __update_path(self, force: bool = False):
         if not force and not self.__movements_to_destination:
