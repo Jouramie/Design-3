@@ -154,7 +154,7 @@ class TestRobotController(TestCase):
         self.assertEqual(command, ctrl._stm_received_queue.get())
 
     @patch('src.robot.robot_controller.time')
-    def test_when_treats_stm_response_task_succes_then_add_to_done_queue(self, time):
+    def test_when_treats_stm_response_task_success_then_add_to_done_queue(self, time):
         ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
         command = {'command': Command.MOVE_FORWARD, 'amplitude': 2222}
         ctrl._stm_received_queue.put(command)
