@@ -28,32 +28,25 @@ class TestNavigationEnvironment(TestCase):
 
     def test_given_obstacle_when_adding_obstacles_then_add_obstacle_to_navigation_environment(self):
         obstacle = Obstacle(OBSTACLE_POSITION, NavigationEnvironment.OBSTACLE_RADIUS)
-        obs_list = []
-        obs_list.append(obstacle)
+        obs_list = [obstacle]
 
         navigation_environment = NavigationEnvironment(MagicMock())
         navigation_environment.create_grid()
         navigation_environment.add_obstacles(obs_list)
 
-        for x in range(OBSTACLE_POSITION[0] - NavigationEnvironment.OBSTACLE_RADIUS + Grid.DEFAULT_OFFSET,
-                       OBSTACLE_POSITION[0] + NavigationEnvironment.OBSTACLE_RADIUS + 1):
-            for y in range(OBSTACLE_POSITION[1] - NavigationEnvironment.OBSTACLE_RADIUS + Grid.DEFAULT_OFFSET,
-                           OBSTACLE_POSITION[1] + NavigationEnvironment.OBSTACLE_RADIUS + 1):
-                self.assertEqual(Grid.OBSTACLE_VALUE,
-                                 navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
+        self.assertTrue(navigation_environment.get_grid().is_obstacle(OBSTACLE_POSITION))
 
     def test_when_adding_cubes_then_add_obstacle_to_navigation_environment(self):
         cube = FlagCube(CUBE_POSITION, MagicMock())
-        cube_list = []
-        cube_list.append(cube)
+        cube_list = [cube]
 
         navigation_environment = NavigationEnvironment(MagicMock())
         navigation_environment.create_grid()
         navigation_environment.add_cubes(cube_list)
 
-        for x in range(CUBE_POSITION[0] - NavigationEnvironment.CUBE_HALF_SIZE + Grid.DEFAULT_OFFSET,
+        for x in range(CUBE_POSITION[0] - NavigationEnvironment.CUBE_HALF_SIZE,
                        CUBE_POSITION[0] + NavigationEnvironment.CUBE_HALF_SIZE + 1):
-            for y in range(CUBE_POSITION[1] - NavigationEnvironment.CUBE_HALF_SIZE + Grid.DEFAULT_OFFSET,
+            for y in range(CUBE_POSITION[1] - NavigationEnvironment.CUBE_HALF_SIZE,
                            CUBE_POSITION[1] + NavigationEnvironment.CUBE_HALF_SIZE + 1):
                 self.assertEqual(Grid.OBSTACLE_VALUE,
                                  navigation_environment.get_grid().get_vertex((x, y)).get_step_value())
@@ -89,8 +82,7 @@ class TestNavigationEnvironment(TestCase):
 
     def test_given_invalid_obstacle_then_exception_raised(self):
         obstacle = Obstacle(INVALID_OBSTACLE_POSITION, NavigationEnvironment.OBSTACLE_RADIUS)
-        obs_list = []
-        obs_list.append(obstacle)
+        obs_list = [obstacle]
 
         navigation_environment = NavigationEnvironment(MagicMock())
         navigation_environment.create_grid()
