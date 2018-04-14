@@ -15,8 +15,7 @@ from src.domain.environments.real_world_environment_factory import RealWorldEnvi
 from src.domain.objects.color import Color
 from src.domain.objects.flag_cube import FlagCube
 from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, Left, Grab, Drop, LightItUp, IR, Action, \
-    CanIGrab
-from src.domain.path_calculator.action import Movement
+    CanIGrab, Movement
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.path_calculator import PathCalculator
 from src.domain.path_calculator.path_converter import PathConverter
@@ -51,9 +50,9 @@ class StationController(object):
 
         self._model.world_camera_is_on = True
 
-        self.__actions_to_send = []
         self.__destination = None
-        self.__todo_when_arrived_at_destination = None
+        self.__movements_to_destination: [Movement] = []
+        self.__todo_when_arrived_at_destination: [Action] = []
 
         def start_robot_thread():
             self.__logger.info('Updating robot.')
@@ -281,7 +280,7 @@ class StationController(object):
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
             return
 
-        self.__update_path()
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -331,16 +330,21 @@ class StationController(object):
 
     def __find_path(self, end_position: tuple, end_direction: int) -> ([Movement], list):
         self.__generate_navigation_environment()
-        # TODO tirer une exception plutot qu'un boolean
+
         self.__logger.info("Finding path to {}".format((end_position, end_direction)))
-        is_possible = self.__path_calculator.calculate_path(self._model.robot.center, end_position,
-                                                            self.__navigation_environment.get_grid())
-        if not is_possible:
-            self.__logger.warning("Path to destination {} is not possible.".format(end_position))
-            return None, None
-        raw_path = self.__path_calculator.get_calculated_path()
+        if end_position is not None:
+            # TODO tirer une exception plutot qu'un boolean
+            is_possible = self.__path_calculator.calculate_path(self._model.robot.center, end_position,
+                                                                self.__navigation_environment.get_grid())
+            if not is_possible:
+                self.__logger.warning("Path to destination {} is not possible.".format(end_position))
+                return None, None
+            raw_path = self.__path_calculator.get_calculated_path()
+        else:
+            raw_path = []
+
         simplified_path = self.__path_simplifier.simplify(raw_path)
-        self.__logger.info('Simplified path: {}'.format(simplified_path))
+        self.__logger.debug('Simplified path: {}'.format(simplified_path))
 
         movements, path_planned = self.__path_converter.convert_path(simplified_path, self._model.robot, end_direction)
 
@@ -349,21 +353,25 @@ class StationController(object):
         return movements, path_planned
 
     def __send_next_actions_commands(self) -> None:
-        if not self.__actions_to_send:
+        if self.__movements_to_destination:
+            actions_to_be_send: [Action] = [self.__movements_to_destination.pop(0)]
+            if actions_to_be_send[0].command == Command.MOVE_ROTATE:
+                if self.__movements_to_destination:
+                    actions_to_be_send.append(self.__movements_to_destination.pop(0))
+
+        elif self.__todo_when_arrived_at_destination:
+            actions_to_be_send, self.__todo_when_arrived_at_destination = self.__todo_when_arrived_at_destination, []
+            pass
+        else:
             self._model.robot_is_moving = False
             return
-
-        next_action_to_send: Action = self.__actions_to_send.pop(0)
-        actions_to_be_send: [Action] = [next_action_to_send]
-        if actions_to_be_send[0].command == Command.MOVE_ROTATE:
-            if self.__actions_to_send:
-                actions_to_be_send.append(self.__actions_to_send.pop(0))
 
         self.__network.send_actions(actions_to_be_send)
 
     def __add_actions_to_actions_to_send(self, actions):
         if actions is not None:
-            self.__actions_to_send.append(action for action in actions)
+            for action in actions:
+                self.__movements_to_destination.append(action)
 
     def __find_safe_position_in_cube_area(self) -> (tuple, int):
         return (166, 33), Direction.EAST.angle
@@ -380,7 +388,7 @@ class StationController(object):
         self.__destination = (10, 10), Direction.SOUTH.angle
         self.__todo_when_arrived_at_destination = [IR()]
 
-        self.__update_path()
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -402,7 +410,7 @@ class StationController(object):
 
         self.__todo_when_arrived_at_destination = None
 
-        self.__update_path()
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -416,7 +424,7 @@ class StationController(object):
         self.__destination = self.__find_safe_position_in_cube_area()
         self.__todo_when_arrived_at_destination = None
 
-        self.__update_path()
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -446,7 +454,7 @@ class StationController(object):
         self.__destination = None
         self.__todo_when_arrived_at_destination = [Forward(distance_to_travel), CanIGrab()]
 
-        self.__update_path()
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         self._model.cube_is_placed_in_gripper = True
@@ -458,7 +466,7 @@ class StationController(object):
         self.__destination = None
         self.__todo_when_arrived_at_destination = [Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
 
-        self.__update_path()
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         self._model.robot_is_moving = True
@@ -474,7 +482,7 @@ class StationController(object):
         distance_backward = NavigationEnvironment.BIGGEST_ROBOT_RADIUS
         self.__todo_when_arrived_at_destination = [Drop(), Backward(distance_backward)]
 
-        self.__update_path()
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         self.__logger.info("Dropping cube.")
@@ -487,18 +495,20 @@ class StationController(object):
         self._model.robot_is_moving = True
         self._model.robot_is_holding_cube = False
 
-    def __update_path(self):
+    def __update_path(self, force: bool = False):
+        if not self.__movements_to_destination and not force:
+            return
+
         if self.__destination is not None:
             end_position, end_orientation = self.__destination
 
-            actions, self._model.planned_path = self.__find_path(end_position, end_orientation)
-            if actions is None:
+            movements, self._model.planned_path = self.__find_path(end_position, end_orientation)
+            if movements is None:
                 return
+        else:
+            movements = []
 
-            if self.__todo_when_arrived_at_destination is not None:
-                actions.append(action for action in self.__todo_when_arrived_at_destination)
-
-            self.__add_actions_to_actions_to_send(actions)  # TODO modifier la liste
+        self.__movements_to_destination = movements
 
 
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
