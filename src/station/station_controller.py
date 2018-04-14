@@ -184,11 +184,12 @@ class StationController(object):
                         return
                     else:
                         self.__move_forward_to_drop_target()
-                        self._model.is_ready_to_drop_cube = False
+                        self._model.is_ready_to_drop_cube = True
                         self.__logger.info("Robot is now placed at the drop target.")
 
                 else:
                     self.__drop_cube()
+                    self._model.robot_is_holding_cube = False
 
             else:
                 if self._model.robot_is_adjusting_position:
@@ -233,7 +234,7 @@ class StationController(object):
 
     def __is_correctly_oriented_for_cube_drop(self):
         if 175 < self._model.robot.orientation % 360 < 185:
-            self.__logger.info("Robot is not correctly oriented between 175 and 185 degrees:\n{}".format(str(self._model.robot.orientation)))
+            self.__logger.info("Robot is correctly oriented between 175 and 185 degrees:\n{}".format(str(self._model.robot.orientation)))
             return True
         else:
             return False
@@ -272,7 +273,7 @@ class StationController(object):
             distance = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - robot_pos_y
             if distance < 3:
                 distance = distance + 4
-            self.__todo_when_arrived_at_destination = [Left(distance)]
+            self.__todo_when_arrived_at_destination = [Right(distance)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -334,8 +335,10 @@ class StationController(object):
         robot_pos_y = self._model.robot.center[1]
         target_position_y = int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
         if (target_position_y - 1) < robot_pos_y < (target_position_y + 1):
+            self.__logger.info("Robot is positionned in front of cube drop target :\n{}".format(str(robot_pos_y)))
             return True
         else:
+            self.__logger.info("Robot is not positionned in front of cube drop target :\n{}".format(str(robot_pos_y)))
             return False
 
     def __is_correctly_positioned_in_front_cube(self):
@@ -359,6 +362,22 @@ class StationController(object):
 
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
+
+    def __move_forward_to_drop_target(self):
+        robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
+        target_position = (
+            int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
+                + self.__config['distance_between_robot_center_and_cube_center']),
+            int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]))
+
+        distance_to_travel = calculate_distance_between_two_points(robot_pos, target_position)
+        self.__logger.info("Moving to drop target : {} cm".format(str(distance_to_travel)))
+
+        self.__destination = None
+        self.__todo_when_arrived_at_destination = [Forward(distance_to_travel)]
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
 
     def __generate_real_world_environments(self):
         self.__camera.take_picture()
@@ -535,7 +554,6 @@ class StationController(object):
             target_position = ((self.__config['distance_between_robot_center_and_cube_center']
                                 + 10), 33)
         elif self._model.current_cube_index <= 5:
-
             target_position = ((self.__config['distance_between_robot_center_and_cube_center']
                                 + cube_destination_x + 10), 33)
         elif self._model.current_cube_index <= 8:
@@ -551,6 +569,9 @@ class StationController(object):
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
+        self.__logger.info("Robot moving to cube depot")
+
+        self._model.robot_is_moving = True
 
     def __drop_cube(self):
         distance_backward = NavigationEnvironment.BIGGEST_ROBOT_RADIUS
