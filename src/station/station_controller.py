@@ -175,11 +175,9 @@ class StationController(object):
             if not self.__is_correctly_oriented():
                 self.__logger.info("Orienting robot.")
                 self.__orientate_in_front_cube()
-                return
             elif not self.__is_correctly_positioned_in_front_cube():
                 self.__logger.info("Strafing robot.")
                 self.__strafing_robot_in_front_of_cube()
-                return
             else:
                 self.__logger.info("Robot is now placed in front of the next cube to grab.")
                 self._model.next_state = State.MOVING_TO_GRAB_CUBE
