@@ -494,7 +494,11 @@ class StationController(object):
         self._model.robot_is_holding_cube = False
 
     def __update_path(self, force: bool = False):
-        if not self.__movements_to_destination and not force:
+        if not force and not self.__movements_to_destination:
+            return
+
+        if not force and len(self.__movements_to_destination) == 1 and \
+                self.__movements_to_destination[-1].command == Command.MOVE_ROTATE:
             return
 
         if force:
