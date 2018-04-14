@@ -98,8 +98,7 @@ class NavigationEnvironment(object):
             self.__validate_point_in_grid(perimeter_point)
             self.__add_grid_obstacle(perimeter_point)
         except NavigationEnvironmentDataError as err:
-            # self.logger.debug(str(err))
-            pass
+            self.logger.debug(str(err))
 
     def __add_grid_obstacle(self, point):
         self.__grid.get_vertex(point).set_step_value(Grid.OBSTACLE_VALUE)
