@@ -181,6 +181,8 @@ class StationController(object):
             else:
                 self.__logger.info("Robot is now placed in front of the next cube to grab.")
                 self._model.next_state = State.MOVING_TO_GRAB_CUBE
+                return
+            self._model.next_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
 
         elif self._model.current_state == State.MOVING_TO_GRAB_CUBE:
             self.__move_robot_to_grab_cube()
