@@ -29,6 +29,7 @@ class StationModel(object):
         self.robot_is_placed_in_cube_depot = False
         self.robot_is_holding_cube = False
         self.robot_is_grabbing_cube = False
+        self.is_ready_to_drop_cube = False
         self.cube_is_placed_in_gripper = False
         self.light_is_lit = False
         self.timer_is_on = False

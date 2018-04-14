@@ -259,22 +259,23 @@ class StationController(object):
             return False
 
     def __strafing_robot_in_front_of_cube_drop_target(self):
+        self.__destination = None
+
         robot_pos_y = self._model.robot.center[1]
         if robot_pos_y > (self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] + 1):
-            distance = robot_pos_y - self.self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]
+            distance = robot_pos_y - self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]
             if distance < 3:
                 distance = distance + 4
-            actions = [Left(distance)]
-            self.__add_actions_to_actions_to_send(actions)
-            self.__send_next_actions_commands()
+            self.__todo_when_arrived_at_destination = [Left(distance)]
 
         if robot_pos_y < (self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - 1):
             distance = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - robot_pos_y
             if distance < 3:
                 distance = distance + 4
-            actions = [Right(distance)]
-            self.__add_actions_to_actions_to_send(actions)
-            self.__send_next_actions_commands()
+            self.__todo_when_arrived_at_destination = [Left(distance)]
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
 
     def __strafing_robot_in_front_of_cube(self):
         robot_pos_x = self._model.robot.center[0]
@@ -418,11 +419,6 @@ class StationController(object):
 
         self.__network.send_actions(actions_to_be_send)
 
-    def __add_actions_to_actions_to_send(self, actions):
-        if actions is not None:
-            for action in actions:
-                self.__movements_to_destination.append(action)
-
     def __find_safe_position_in_cube_area(self) -> (tuple, int):
         return (166, 33), Direction.EAST.angle
 
@@ -445,9 +441,10 @@ class StationController(object):
         self._model.infrared_signal_asked = True
 
     def __orientate_in_front_of_cube_drop_target(self) -> None:
-        desired_direction = Direction.WEST.angle
-        actions, _ = self.__path_converter.convert_path([], self._model.robot, desired_direction)
-        self.__add_actions_to_actions_to_send(actions)
+        self.__destination = None, Direction.WEST.angle
+        self.__todo_when_arrived_at_destination = None
+
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
     def __orientate_in_front_cube(self, target_cube: FlagCube) -> None:
@@ -531,15 +528,7 @@ class StationController(object):
 
         self._model.cube_is_placed_in_gripper = False  # TODO
 
-    def __find_where_to_place_cube(self) -> tuple:
-        cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
-        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'],
-                           cube_destination[1])
-        self.__logger.info("Target position: {}".format(str(target_position)))
-
-        return target_position
-
-    def __find_safe_position_to_place_cube(self) -> tuple:
+    def __find_safe_position_to_place_cube(self) -> (tuple, int):
         cube_destination_x = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
         target_position = None
         if self._model.current_cube_index <= 2:
@@ -554,28 +543,16 @@ class StationController(object):
                                 + cube_destination_x + 10), 33)
         else:
             self.__logger.info("Target position is not valid")
-        return target_position
-
-    def __ajusting_orientation_for_cube_drop(self):
-        desired_direction = Direction.EAST.angle
-        actions, _ = self.__path_converter.convert_path([], self._model.robot, desired_direction)
-        self.__add_actions_to_actions_to_send(actions)
-        self.__send_next_actions_commands()
+        return target_position, None
 
     def __move_to_cube_depot(self):
-        start_position = self.__find_robot()
+        self.__destination = self.__find_safe_position_to_place_cube()
+        self.__todo_when_arrived_at_destination = None
 
-        end_position = self.__find_safe_position_to_place_cube()
-
-        actions, self._model.planned_path = self.__find_path(start_position, end_position, Direction.WEST.angle)
-        if actions is None:
-            return
-
-        self.__add_actions_to_actions_to_send(actions)
+        self.__update_path(force=True)
         self.__send_next_actions_commands()
 
     def __drop_cube(self):
-        actions = []
         distance_backward = NavigationEnvironment.BIGGEST_ROBOT_RADIUS
         self.__todo_when_arrived_at_destination = [Drop(), Backward(distance_backward)]
 
