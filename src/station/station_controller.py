@@ -173,8 +173,10 @@ class StationController(object):
 
         if not self._model.flag_is_finish:
             if self._model.robot_is_holding_cube:
+                # TODO check robot in safe area
                 self.__logger.info("Entering new step, moving to target_zone to place cube.")
                 self.__move_to_drop_cube()
+                # TODO else go in safe area
             else:
                 if self._model.robot_is_adjusting_position:
                     if not self.__is_correctly_oriented():
