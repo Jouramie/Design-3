@@ -45,7 +45,7 @@ class RobotController(object):
 
     def receive_network_request(self):
         network_request = self._network.wait_message()
-        self._logger.info(network_request)
+        self._logger.info('Network request: {}'.format(network_request))
         if network_request is not None:
             self.failure = False
             self.waiting_for_commander = False
@@ -85,10 +85,6 @@ class RobotController(object):
             elif response.type == commands_from_stm.Feedback.TASK_CUBE_FAILED:
                 # stop everything and notify station
                 self.failure = True
-                self._stm_commands_todo = deque()
-                self._network_request_queue = Queue()
-                self._stm_responses_deque = deque()
-                self._stm_received_queue = Queue()
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
 
     def execute_next_stm_task_and_check_ACK(self) -> None:

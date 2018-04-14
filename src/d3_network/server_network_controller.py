@@ -97,7 +97,7 @@ class SocketServerNetworkController(ServerNetworkController):
             actions_command_list.append(action.to_command())
         self._send_command(Command.ACTION, {'actions': actions_command_list})
 
-        self._logger.info("Actions {} sent".format(act.to_command() for act in actions))
+        self._logger.info("Actions {} sent".format(' ,'.join(str(act.to_command()) for act in actions)))
 
 
 class MockedServerNetworkController(ServerNetworkController):
@@ -135,7 +135,9 @@ class MockedServerNetworkController(ServerNetworkController):
     def __update_mock_position(self, action):
         if self.robot_detector is not None:
             if action.command == Command.MOVE_ROTATE:
-                self.robot_detector.robot_direction += action.amplitude
+                self.robot_detector.robot_direction = (self.robot_detector.robot_direction + action.amplitude) % 360
+            elif action.command == Command.CAN_I_GRAB:
+                pass
             elif action.command == Command.MOVE_FORWARD:
                 new_robot_x = self.robot_detector.robot_position[0] + round(
                     cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
@@ -147,6 +149,18 @@ class MockedServerNetworkController(ServerNetworkController):
                     cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
                 new_robot_y = self.robot_detector.robot_position[1] - round(
                     sin(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                self.robot_detector.robot_position = (new_robot_x, new_robot_y)
+            elif action.command == Command.MOVE_RIGHT:
+                new_robot_x = self.robot_detector.robot_position[0] + round(
+                    sin(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                new_robot_y = self.robot_detector.robot_position[1] - round(
+                    cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                self.robot_detector.robot_position = (new_robot_x, new_robot_y)
+            elif action.command == Command.MOVE_LEFT:
+                new_robot_x = self.robot_detector.robot_position[0] - round(
+                    sin(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
+                new_robot_y = self.robot_detector.robot_position[1] + round(
+                    cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
                 self.robot_detector.robot_position = (new_robot_x, new_robot_y)
 
     def check_robot_feedback(self) -> dict:

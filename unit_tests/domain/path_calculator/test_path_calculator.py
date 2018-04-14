@@ -4,9 +4,8 @@ from unittest.mock import Mock
 
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.objects.obstacle import Obstacle
-from src.domain.path_calculator.path_calculator import PathCalculator
-from src.domain.path_calculator.path_calculator_error import PathCalculatorError, PathCalculatorNoPathError
 from src.domain.path_calculator.grid import Grid
+from src.domain.path_calculator.path_calculator import PathCalculator
 
 SPECIFIC_OBSTACLE_1_VALUE = (104, 0)
 SPECIFIC_OBSTACLE_2_VALUE = (42, 54)

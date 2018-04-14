@@ -1,11 +1,13 @@
 from src.domain.objects.color import Color
+from src.domain.objects.wall import Wall
 
 
 class FlagCube(object):
-    def __init__(self, center: tuple, color: Color):
+    def __init__(self, center: tuple, color: Color, wall: Wall = None):
         self.center = center
         self.color = color
         self.is_placed = False
+        self.wall = wall
 
     def get_corners(self):
         return [(self.center[0] + 4, self.center[1] + 4), (self.center[0] - 4, self.center[1] - 4)]

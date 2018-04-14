@@ -20,14 +20,15 @@ class PathConverter(object):
     def convert_path(self, path, robot: Robot, final_angle_desired: int = None):
         self.__movements = []
         self.__segments = []
-        path_cycle = cycle(path)
-        iteration = 0
-        current_angle = robot.orientation
-        next_node = next(path_cycle)
 
         if len(path) <= 1:
             self.__add_rotation(robot.orientation, final_angle_desired)
             return self.__movements, self.__segments
+
+        path_cycle = cycle(path)
+        iteration = 0
+        current_angle = robot.orientation
+        next_node = next(path_cycle)
 
         while iteration < MAX_ITERATION:
             iteration += 1
@@ -66,7 +67,11 @@ class PathConverter(object):
     def __add_movements(self, length, current_angle, new_angle):
         if new_angle is not None:
             self.__add_rotation(current_angle, new_angle)
-        self.__movements.append(Forward(length))
+        if length > 80:  # cm
+            self.__movements.append(Forward(length / 2))
+            self.__movements.append(Forward(length / 2))
+        else:
+            self.__movements.append(Forward(length))
 
     def __add_rotation(self, old_angle, new_angle):
         if new_angle is None:
