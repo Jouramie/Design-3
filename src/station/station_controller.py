@@ -173,10 +173,9 @@ class StationController(object):
 
         if not self._model.flag_is_finish:
             if self._model.robot_is_holding_cube:
-                # TODO check robot in safe area
-                self.__logger.info("Entering new step, moving to target_zone to place cube.")
-                self.__move_to_drop_cube()
-                # TODO else go in safe area
+                if self.__robot_move_to_safe_area_after_grabbing_cube():
+                    self.__logger.info("Entering new step, moving to target_zone to place cube.")
+                    self.__move_to_drop_cube()
             else:
                 if self._model.robot_is_adjusting_position:
                     if not self.__is_correctly_oriented():
@@ -217,6 +216,34 @@ class StationController(object):
 
                 self._model.robot_is_moving = True
                 self._model.light_is_lit = True
+
+
+    def __robot_move_to_safe_area_after_grabbing_cube(self):
+        safe_distance = 5
+        if self._model.robot.center[1] > (self.__navigation_environment.DEFAULT_WIDTH +
+                                            self.__navigation_environment.get_grid().DEFAULT_OFFSET -
+                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS +
+                                            self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            self.__todo_when_arrived_at_destination = [Right(safe_distance)]
+
+        elif self._model.robot.center[1] < (self.__navigation_environment.get_grid().DEFAULT_OFFSET +
+                                               self.__navigation_environment.BIGGEST_ROBOT_RADIUS +
+                                               self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            self.__todo_when_arrived_at_destination = [Left(safe_distance)]
+
+        elif self._model.robot.center[0] > (self.__navigation_environment.DEFAULT_HEIGHT +
+                                               self.__navigation_environment.get_grid().DEFAULT_OFFSET-
+                                               self.__navigation_environment.BIGGEST_ROBOT_RADIUS +
+                                               self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            self.__todo_when_arrived_at_destination = [Backward(safe_distance / 2)]
+        else:
+            return True
+        self.__logger.info("Moving to safe area with {}".format((str(self.__todo_when_arrived_at_destination))))
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
+
+        return False
+
 
     def __is_correctly_oriented(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
