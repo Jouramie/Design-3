@@ -155,8 +155,7 @@ class StationController(object):
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 if self._model.waiting_for_grab_success:
                     self._model.cube_is_placed_in_gripper = True
-                    self._model.waiting_for_grab_success = False
-                    return
+
                 self.__update_path()
                 self.__send_next_actions_commands()
                 if self._model.robot_is_moving:
@@ -462,7 +461,6 @@ class StationController(object):
         self._model.waiting_for_grab_success = True
         self._model.robot_is_moving = True
 
-
     def __grab_cube(self):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
@@ -476,6 +474,7 @@ class StationController(object):
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = False
         self._model.robot_is_holding_cube = True
+        self._model.waiting_for_grab_success = False
 
         self._model.cube_is_placed_in_gripper = False  # TODO
 
@@ -510,6 +509,7 @@ class StationController(object):
         if force:
             self.__generate_navigation_environment()
 
+        self.__logger.info('Destination : {}'.format(self.__destination))
         if self.__destination is not None:
             end_position, end_orientation = self.__destination
 
