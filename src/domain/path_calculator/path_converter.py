@@ -7,10 +7,10 @@ import numpy as np
 from .action import Rotate, Forward
 from ..objects.robot import Robot
 
-MAX_ITERATION = 10000
-
 
 class PathConverter(object):
+    MAX_ITERATION = 10000
+    MAX_FORWARD_DISTANCE = 20  # cm
 
     def __init__(self, logger: Logger):
         self.logger = logger
@@ -30,7 +30,7 @@ class PathConverter(object):
         current_angle = robot.orientation
         next_node = next(path_cycle)
 
-        while iteration < MAX_ITERATION:
+        while iteration < self.MAX_ITERATION:
             iteration += 1
 
             current_node, next_node = next_node, next(path_cycle)
@@ -56,7 +56,7 @@ class PathConverter(object):
                 self.__add_rotation(current_angle, final_angle_desired)
                 break
 
-        if iteration == MAX_ITERATION:
+        if iteration == self.MAX_ITERATION:
             self.logger.info("PathConverter MAX_ITERATION REACH")
 
         return self.__movements, self.__segments
@@ -67,11 +67,10 @@ class PathConverter(object):
     def __add_movements(self, length, current_angle, new_angle):
         if new_angle is not None:
             self.__add_rotation(current_angle, new_angle)
-        if length > 80:  # cm
-            self.__movements.append(Forward(length / 2))
-            self.__movements.append(Forward(length / 2))
-        else:
-            self.__movements.append(Forward(length))
+        while length >= self.MAX_FORWARD_DISTANCE:  # cm
+            self.__movements.append(Forward(self.MAX_FORWARD_DISTANCE))
+            length -= self.MAX_FORWARD_DISTANCE
+        self.__movements.append(Forward(length))
 
     def __add_rotation(self, old_angle, new_angle):
         if new_angle is None:
