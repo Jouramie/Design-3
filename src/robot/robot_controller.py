@@ -88,7 +88,7 @@ class RobotController(object):
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
 
     def execute_next_stm_task_and_check_ACK(self) -> None:
-        if self._stm_commands_todo:
+        if self._stm_commands_todo and self._stm_received_queue.empty():
             while True:
                 self._execute_stm_tasks()
                 time.sleep(5)
