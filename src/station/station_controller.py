@@ -151,8 +151,7 @@ class StationController(object):
                 msg = self.__network.check_robot_feedback()
             except MessageNotReceivedYet:
                 return
-            #  time.sleep(1)  # TODO
-            # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
+            input('Press enter to continue execution.')  # TODO
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
                 self.__send_next_actions_commands()
@@ -330,8 +329,6 @@ class StationController(object):
         self.__navigation_environment.add_real_world_environment(self._model.real_world_environment)
 
     def __find_path(self, end_position: tuple, end_direction: int) -> ([Movement], list):
-        self.__generate_navigation_environment()
-
         self.__logger.info("Finding path to {}".format((end_position, end_direction)))
         if end_position is not None:
             # TODO tirer une exception plutot qu'un boolean
@@ -499,6 +496,9 @@ class StationController(object):
     def __update_path(self, force: bool = False):
         if not self.__movements_to_destination and not force:
             return
+
+        if force:
+            self.__generate_navigation_environment()
 
         if self.__destination is not None:
             end_position, end_orientation = self.__destination

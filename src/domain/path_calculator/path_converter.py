@@ -68,8 +68,8 @@ class PathConverter(object):
         if new_angle is not None:
             self.__add_rotation(current_angle, new_angle)
         if length > 80:  # cm
-            self.__movements.append(Forward(length/2))
-            self.__movements.append(Forward(length/2))
+            self.__movements.append(Forward(length / 2))
+            self.__movements.append(Forward(length / 2))
         else:
             self.__movements.append(Forward(length))
 

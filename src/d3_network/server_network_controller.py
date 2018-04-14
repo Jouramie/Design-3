@@ -135,7 +135,7 @@ class MockedServerNetworkController(ServerNetworkController):
     def __update_mock_position(self, action):
         if self.robot_detector is not None:
             if action.command == Command.MOVE_ROTATE:
-                self.robot_detector.robot_direction += action.amplitude
+                self.robot_detector.robot_direction = (self.robot_detector.robot_direction + action.amplitude) % 360
             elif action.command == Command.CAN_I_GRAB:
                 pass
             elif action.command == Command.MOVE_FORWARD:
@@ -153,13 +153,13 @@ class MockedServerNetworkController(ServerNetworkController):
             elif action.command == Command.MOVE_RIGHT:
                 new_robot_x = self.robot_detector.robot_position[0] + round(
                     sin(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
-                new_robot_y = self.robot_detector.robot_position[1] + round(
+                new_robot_y = self.robot_detector.robot_position[1] - round(
                     cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
                 self.robot_detector.robot_position = (new_robot_x, new_robot_y)
             elif action.command == Command.MOVE_LEFT:
                 new_robot_x = self.robot_detector.robot_position[0] - round(
                     sin(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
-                new_robot_y = self.robot_detector.robot_position[1] - round(
+                new_robot_y = self.robot_detector.robot_position[1] + round(
                     cos(self.robot_detector.robot_direction / 360 * 2 * pi), 3) * action.amplitude
                 self.robot_detector.robot_position = (new_robot_x, new_robot_y)
 
