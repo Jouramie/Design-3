@@ -20,14 +20,15 @@ class PathConverter(object):
     def convert_path(self, path, robot: Robot, final_angle_desired: int = None):
         self.__movements = []
         self.__segments = []
-        path_cycle = cycle(path)
-        iteration = 0
-        current_angle = robot.orientation
-        next_node = next(path_cycle)
 
         if len(path) <= 1:
             self.__add_rotation(robot.orientation, final_angle_desired)
             return self.__movements, self.__segments
+
+        path_cycle = cycle(path)
+        iteration = 0
+        current_angle = robot.orientation
+        next_node = next(path_cycle)
 
         while iteration < MAX_ITERATION:
             iteration += 1

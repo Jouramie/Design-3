@@ -5,6 +5,7 @@ from scipy import spatial
 from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.obstacle import Obstacle
 from src.domain.objects.vision_cube import VisionCube
+from src.domain.objects.wall import Wall
 from .table_camera_configuration import TableCameraConfiguration
 from .transform import Transform
 
@@ -84,8 +85,15 @@ class CoordinateConverter:
             dist, indexes = tree.query(vision_cube.center)
             table_cube = self.table_config_cubes['cube' + str(indexes)]
             position = (table_cube['x'], table_cube['y'])
+            wall = None
+            if position[1] < (-23 + 5):
+                wall = Wall.DOWN
+            if position[1] > (111 + -23 - 10):
+                wall = Wall.UP
+            if position[0] > (231 + -23 - 5):
+                wall = Wall.MIDDLE
             color = vision_cube.color
-            flag_cube = FlagCube(position, color)
+            flag_cube = FlagCube(position, color, wall)
             real_cubes.append(flag_cube)
 
         return real_cubes
