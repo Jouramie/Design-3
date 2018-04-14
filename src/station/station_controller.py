@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import sqrt, ceil
+from math import sqrt, ceil, floor
 
 import numpy as np
 
@@ -153,12 +153,14 @@ class StationController(object):
             #  time.sleep(1)  # TODO
             # TODO Envoyer update de position ou envoyer la prochaine commande de déplacement/grab/drop
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
+                if self._model.waiting_for_grab_success:
+                    self._model.cube_is_placed_in_gripper = True
+                    self._model.waiting_for_grab_success = False
+                    return
                 self.__update_path()
                 self.__send_next_actions_commands()
                 if self._model.robot_is_moving:
                     return
-                if self._model.waiting_for_grab_success:
-                    self._model.cube_is_placed_in_gripper = True
 
             elif msg['command'] == Command.INFRARED_SIGNAL:
                 self._model.country_code = msg['country_code']
@@ -189,6 +191,7 @@ class StationController(object):
                         self._model.robot_is_adjusting_position = False
                         self._model.robot_is_grabbing_cube = True
                         self.__logger.info("Robot is now placed in front of the next cube to grab.")
+                        return
 
                 if self._model.robot_is_grabbing_cube:
                     if self._model.cube_is_placed_in_gripper:
@@ -197,7 +200,6 @@ class StationController(object):
                     else:
                         self.__logger.info("Entering new step, moving to grab the cube.")
                         self.__move_robot_to_grab_cube()
-
                 else:
                     self.__logger.info("Entering new step, travel to the cube.")
                     self.__move_to_cube_area()
@@ -449,13 +451,13 @@ class StationController(object):
         self._model.robot_is_adjusting_position = True
 
     def __calculate_distance_between_two_points(self, point1: tuple, point2: tuple) -> int:
-        distance_between_two_points = sqrt((point2[1] - point1[1]) ** 2 + (point2[0] - point1[0]) ** 2)
+        distance_between_two_points = sqrt((floor(point2[1]) - floor(point1[1])) ** 2 + floor((point2[0]) - floor(point1[0])) ** 2)
         ceil_distance_between_two_points = ceil(distance_between_two_points)
 
         return int(ceil_distance_between_two_points)
 
     def __move_robot_to_grab_cube(self):
-        robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
+        robot_pos = (floor(self._model.robot.center[0]), floor(self._model.robot.center[1]))
         target_position = None
         if self._model.target_cube.wall == Wall.UP:
             target_position = (int(self._model.target_cube.center[0]),
@@ -473,11 +475,18 @@ class StationController(object):
                 int(self._model.target_cube.center[1]))
 
         distance_to_travel = self.__calculate_distance_between_two_points(robot_pos, target_position)
-        self.__logger.info("Moving to grab cube by : {} cm".format(str(distance_to_travel)))
-        self.__network.send_actions(
-            [Forward(distance_to_travel), CanIGrab()])
 
+        if distance_to_travel != 0:
+            self.__logger.info("Moving to grab cube by : {} cm".format(str(distance_to_travel)))
+
+        else:
+            self.__logger.info("Distance to cube is 0 cm. I should grab cube")
+
+        self.__add_actions_to_actions_to_send([Forward(distance_to_travel), CanIGrab()])
+        self.__send_next_actions_commands()
         self._model.waiting_for_grab_success = True
+        self._model.robot_is_moving = True
+
 
     def __grab_cube(self):
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
@@ -489,7 +498,6 @@ class StationController(object):
         self._model.robot_is_moving = True
         self._model.robot_is_grabbing_cube = False
         self._model.robot_is_holding_cube = True
-        self._model.waiting_for_grab_success = False
 
         self._model.cube_is_placed_in_gripper = False  # TODO
 
