@@ -9,7 +9,7 @@ from src.vision.transform import Transform
 
 
 class RobotDetector(object):
-    def detect(self, img):
+    def detect(self, img) -> (tuple, int):
         raise NotImplementedError("This is an interface...")
 
 
@@ -27,7 +27,7 @@ class VisionRobotDetector(RobotDetector):
         ids = np.array([[2], [23], [25], [103]])
         self.board = aruco.Board_create(points, self.marker_dict, ids)
 
-    def detect(self, img):
+    def detect(self, img) -> (tuple, int):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         corners, ids, rejected_img_points = aruco.detectMarkers(gray, self.marker_dict, parameters=self.parameters,
                                                                 cameraMatrix=self.cam_param.camera_matrix,
@@ -61,5 +61,5 @@ class MockedRobotDetector(RobotDetector):
         self.robot_position = robot_position
         self.robot_direction = robot_direction
 
-    def detect(self, img):
+    def detect(self, img) -> (tuple, int):
         return Robot(self.robot_position, self.robot_direction)
