@@ -26,6 +26,7 @@ class StationModel(object):
         self.robot_is_moving = False
         self.robot_is_adjusting_position = False
         self.robot_is_moving_to_grab_cube = False
+        self.robot_is_placed_in_cube_depot = False
         self.robot_is_holding_cube = False
         self.robot_is_grabbing_cube = False
         self.cube_is_placed_in_gripper = False
