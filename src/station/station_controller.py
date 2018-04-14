@@ -240,43 +240,44 @@ class StationController(object):
     def __strafing_robot_in_front_of_cube(self):
         robot_pos_x = self._model.robot.center[0]
         robot_pos_y = self._model.robot.center[1]
+        cube_distance_tolerance = 1.5
 
         self.__destination = None
 
         if self._model.target_cube.wall == Wall.UP:
-            if robot_pos_x > (self._model.target_cube.center[0] + 1):
+            if robot_pos_x > (self._model.target_cube.center[0] + cube_distance_tolerance):
                 distance = robot_pos_x - self._model.target_cube.center[0]
                 if distance < 2:
                     distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
 
-            if robot_pos_x < (self._model.target_cube.center[0] - 1):
+            if robot_pos_x < (self._model.target_cube.center[0] - cube_distance_tolerance):
                 distance = self._model.target_cube.center[0] - robot_pos_x
                 if distance < 2:
                     distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
         elif self._model.target_cube.wall == Wall.DOWN:
-            if robot_pos_x > (self._model.target_cube.center[0] + 1):
+            if robot_pos_x > (self._model.target_cube.center[0] + cube_distance_tolerance):
                 distance = robot_pos_x - self._model.target_cube.center[0]
                 if distance < 2:
                     distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
-            if robot_pos_x < (self._model.target_cube.center[0] - 1):
+            if robot_pos_x < (self._model.target_cube.center[0] - cube_distance_tolerance):
                 distance = self._model.target_cube.center[0] - robot_pos_x
                 if distance < 3:
                     distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
-            if robot_pos_y > (self._model.target_cube.center[1] + 1):
+            if robot_pos_y > (self._model.target_cube.center[1] + cube_distance_tolerance):
                 distance = robot_pos_y - self._model.target_cube.center[1]
                 if distance < 3:
                     distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
-            if robot_pos_y < (self._model.target_cube.center[1] - 1):
+            if robot_pos_y < (self._model.target_cube.center[1] - cube_distance_tolerance):
                 distance = self._model.target_cube.center[1] - robot_pos_y
                 if distance < 3:
                     distance = distance + 4
