@@ -15,7 +15,8 @@ class WorldVision:
         self.config = config
 
     def create_environment(self, frame, table):
-        options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 4: TableCrop.TABLE4, 6: TableCrop.TABLE6}
+        options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 3: TableCrop.TABLE3, 4: TableCrop.TABLE4,
+                   5: TableCrop.TABLE5, 6: TableCrop.TABLE6}
         table_crop = options[table]
         cropped_image = self.__crop_environment(frame, table_crop)
 
@@ -72,7 +73,7 @@ class WorldVision:
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if cv2.contourArea(contour) > 1000:
+            if 6000 > cv2.contourArea(contour) > 1000:
                 if ((0.8 * width < x < 0.92 * width) and (y <= 0.10 * height) or
                         ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
@@ -91,7 +92,7 @@ class WorldVision:
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if cv2.contourArea(contour) > 600:
+            if 5000 > cv2.contourArea(contour) > 700:
                 if ((0.8 * width < x < 0.92 * width) and (y <= 0.09 * height) or
                         ((0.96 * width < x < width) and (0.10 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):
@@ -114,7 +115,7 @@ class WorldVision:
         for contour in contours:
             x = contour[0][0][0]
             y = contour[0][0][1]
-            if cv2.contourArea(contour) > 1000:
+            if 6000 > cv2.contourArea(contour) > 1000:
                 if ((0.8 * width < x < 0.92 * width) and (y <= 0.8 * height) or
                         ((0.96 * width < x < width) and (0.12 * height < y <= 0.82 * height)) or
                         ((0.78 * width < x < 0.92 * width) and (0.86 * height < y < height))):

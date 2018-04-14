@@ -1,5 +1,5 @@
-image_path : /home/willvalin/Pictures/table3calibration2.png
-camera_calibration : ../../resources/calibration/table2_2018-03-21.yml
+image_path : /home/willvalin/Downloads/03h56m08s.jpg
+camera_calibration : ../../resources/calibration/calibrationtable2demo3.yml
 id : 25
 size : 16.35
 output_file : ../../resources/calibration/world_calibration_2.npy

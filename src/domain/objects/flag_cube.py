@@ -1,8 +1,9 @@
 from src.domain.objects.color import Color
+from src.domain.objects.wall import Wall
 
 
 class FlagCube(object):
-    def __init__(self, center: tuple, color: Color, wall: str = None):
+    def __init__(self, center: tuple, color: Color, wall: Wall = None):
         self.center = center
         self.color = color
         self.is_placed = False
