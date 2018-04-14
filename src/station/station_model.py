@@ -34,6 +34,7 @@ class StationModel(object):
         self.world_camera_is_on = False
         self.infrared_signal_asked = False
         self.flag_is_finish = False
+        self.waiting_for_grab_success = False
 
         self.planned_path = None
         self.real_path = []
