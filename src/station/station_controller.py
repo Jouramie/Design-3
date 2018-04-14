@@ -151,7 +151,7 @@ class StationController(object):
                 msg = self.__network.check_robot_feedback()
             except MessageNotReceivedYet:
                 return
-            input('Press enter to continue execution.')  # TODO
+            #  input('Press enter to continue execution.')  # TODO
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
                 self.__send_next_actions_commands()
