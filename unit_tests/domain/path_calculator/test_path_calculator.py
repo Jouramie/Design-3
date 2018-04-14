@@ -135,3 +135,4 @@ class TestPathCalculator(TestCase):
 
         for position in path_calculator.get_calculated_path():
             self.assertFalse(environment.get_grid().is_obstacle(position))
+

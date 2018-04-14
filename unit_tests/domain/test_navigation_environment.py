@@ -43,8 +43,7 @@ class TestNavigationEnvironment(TestCase):
 
     def test_when_adding_cubes_then_add_obstacle_to_navigation_environment(self):
         cube = FlagCube(CUBE_POSITION, MagicMock())
-        cube_list = []
-        cube_list.append(cube)
+        cube_list = [cube]
 
         navigation_environment = NavigationEnvironment(MagicMock())
         navigation_environment.create_grid()
@@ -88,8 +87,7 @@ class TestNavigationEnvironment(TestCase):
 
     def test_given_invalid_obstacle_then_exception_raised(self):
         obstacle = Obstacle(INVALID_OBSTACLE_POSITION, NavigationEnvironment.OBSTACLE_RADIUS)
-        obs_list = []
-        obs_list.append(obstacle)
+        obs_list = [obstacle]
 
         navigation_environment = NavigationEnvironment(MagicMock())
         navigation_environment.create_grid()
