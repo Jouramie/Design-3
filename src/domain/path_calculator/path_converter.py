@@ -10,7 +10,7 @@ from ..objects.robot import Robot
 
 class PathConverter(object):
     MAX_ITERATION = 100
-    MAX_FORWARD_DISTANCE = 20  # cm
+    MAX_FORWARD_DISTANCE = 50  # cm
 
     def __init__(self, logger: Logger):
         self.logger = logger

@@ -7,6 +7,7 @@ from src.domain.environments.real_world_environment import RealWorldEnvironment
 from src.domain.objects.color import Color
 from src.domain.objects.flag_cube import FlagCube
 from src.domain.objects.obstacle import Obstacle
+from src.station.state import State
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
 from src.vision.camera import MockedCamera
@@ -151,20 +152,24 @@ class TestScenarioStationController(TestCase):
 
         station_controller.update()
 
-        self.assertTrue(station_model.infrared_signal_asked)
-        self.assertEqual([((15, 15), (10, 10))], station_model.planned_path)
+        self.assertIs(State.WORKING, station_model.current_state)
+        self.assertIs(State.TRAVELING_TO_CUBE_REPOSITORY, station_model.next_state)
+        self.assertEqual([((15, 15), (30, 30))], station_model.planned_path)
 
     def test_scenario2(self):
         station_model, station_controller = self.__create_station_controller(SCENARIO_2)
 
         station_controller.update()
         station_controller.update()
+        station_controller.update()
+        station_controller.update()
+        station_controller.update()
 
         self.assertEqual('Burundi', station_model.country.name)
         self.assertEqual('WHITE', station_model.next_cube.color.name)
         self.assertIsNotNone(station_model.planned_path)
-        self.assertTrue(station_model.robot_is_moving)
-        self.assertTrue(station_model.robot_is_adjusting_position)
+        self.assertIs(State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY, station_model.next_state)
+        self.assertIs(State.WORKING, station_model.current_state)
 
     def __create_station_controller(self, scenario: dict) -> (StationModel, StationController):
         station_model = StationModel()
@@ -191,8 +196,8 @@ class TestScenarioStationController(TestCase):
         station_controller.frame_drawer = MagicMock()
 
         if 'infrared_signal_asked' in scenario:
-            station_model.infrared_signal_asked = scenario['infrared_signal_asked']
-            server_network_controller.has_to_send_country_code = True
+            station_model.current_state = State.GETTING_COUNTRY_CODE
+            station_model.next_state = None
 
         station_controller.start_robot()
 

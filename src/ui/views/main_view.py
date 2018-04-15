@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QMainWindow
 from src.station.station_controller import StationController
 from src.station.station_model import StationModel
 from src.vision.frame_drawer import FrameDrawer
+from src.domain.objects.color import Color
 
 
 class StationView(QMainWindow):
@@ -80,7 +81,10 @@ class StationView(QMainWindow):
         self.ui.CountryName.setText(self.model.country.name)
 
     def __display_next_cube_color(self):
-        self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube.color.name.lower() + ';')
+        if self.model.next_cube is None:
+            self.ui.cube_label.setStyleSheet('background-color:' + Color.TRANSPARENT.name.lower() + ';')
+        else:
+            self.ui.cube_label.setStyleSheet('background-color:' + self.model.next_cube.color.name.lower() + ';')
         self.ui.cube_label.show()
 
     def __draw_environment(self, frame):
