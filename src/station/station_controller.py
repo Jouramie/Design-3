@@ -218,9 +218,11 @@ class StationController(object):
             elif not self.__is_correctly_positioned_for_cube_drop():
                 self.__logger.info("Strafing robot.")
                 self.__strafing_for_cube_drop()
+            elif not self.__is_correctly_aligned_for_cube_drop():
+                self.__logger.info("Aligning robot.")
+                self.__align_for_cube_drop()
             else:
                 self.__logger.info("Robot is correctly placed.")
-                self.__move_forward_to_drop_target()
                 self._model.current_state = State.DROP_CUBE
                 return
             self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
@@ -378,7 +380,7 @@ class StationController(object):
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
 
-    def __move_forward_to_drop_target(self):
+    def __align_for_cube_drop(self):
         robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
         target_position = (
             int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
@@ -389,7 +391,10 @@ class StationController(object):
         self.__logger.info("Moving to drop target : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
-        self.__todo_when_arrived_at_destination = [Forward(distance_to_travel)]
+        if robot_pos[0] < target_position[0]:
+            self.__todo_when_arrived_at_destination = [Backward(distance_to_travel)]
+        else:
+            self.__todo_when_arrived_at_destination = [Forward(distance_to_travel)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -604,6 +609,13 @@ class StationController(object):
             movements = []
 
         self.__movements_to_destination = movements
+
+    def __is_correctly_aligned_for_cube_drop(self):
+        robot_pos_x = self._model.robot.center[0]
+        target_position_x = int(
+            self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0] +
+            self.__config['distance_between_robot_center_and_cube_center'])
+        return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
 
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
