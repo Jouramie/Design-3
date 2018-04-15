@@ -84,6 +84,7 @@ class RobotController(object):
                 self._network.send_country_code(response.country)
             elif response.type == commands_from_stm.Feedback.TASK_CUBE_FAILED:
                 self.failure = True
+                task = self._stm_received_queue.get()
                 self._network.send_feedback(Command.GRAB_CUBE_FAILURE)
 
     def execute_next_stm_task_and_check_ACK(self) -> None:
