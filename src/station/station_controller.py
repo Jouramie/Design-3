@@ -198,7 +198,14 @@ class StationController(object):
 
         elif self._model.current_state == State.GRABBING_CUBE:
             self.__grab_cube()
-            self._model.next_state = State.TRAVELLING_TO_DROP_CUBE
+            self._model.next_state = State.MOVING_OUT_OF_DANGER_ZONE
+
+        elif self._model.current_state == State.MOVING_OUT_OF_DANGER_ZONE:
+            if self.__robot_move_to_safe_area_after_grabbing_cube():
+                self._model.current_state = State.TRAVELLING_TO_DROP_CUBE
+                return
+            else:
+                self._model.next_state = State.TRAVELLING_TO_DROP_CUBE
 
         elif self._model.current_state == State.TRAVELLING_TO_DROP_CUBE:
             self.__move_to_drop_cube()
@@ -221,6 +228,45 @@ class StationController(object):
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
 
         self._model.current_state = State.WORKING
+
+    def __robot_move_to_safe_area_after_grabbing_cube(self):
+        safe_distance = 5
+        safe_area = 5
+
+        if self._model.robot.center[0] > (self.__navigation_environment.DEFAULT_HEIGHT +
+                                          self.__navigation_environment.get_grid().DEFAULT_OFFSET -
+                                          self.__navigation_environment.BIGGEST_ROBOT_RADIUS - safe_area -
+                                          self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            if self._model.last_grabbed_cube.wall == Wall.MIDDLE:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance / 2)]
+            elif self._model.last_grabbed_cube.wall == Wall.UP:
+                self.__todo_when_arrived_at_destination = [Left(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Right(safe_distance)]
+        elif self._model.robot.center[1] < (self.__navigation_environment.get_grid().DEFAULT_OFFSET +
+                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS + safe_area +
+                                            self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            if self._model.last_grabbed_cube.wall == Wall.DOWN:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Left(safe_distance)]
+        elif self._model.robot.center[1] > (self.__navigation_environment.DEFAULT_WIDTH +
+                                            self.__navigation_environment.get_grid().DEFAULT_OFFSET -
+                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS - safe_area -
+                                            self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            if self._model.last_grabbed_cube.wall == Wall.UP:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Right(safe_distance)]
+        else:
+            self.__logger.info("Robot is in safe area, will start using PathCalculator")
+            return True
+
+        self.__logger.info("Moving to safe area with {}".format((str(self.__todo_when_arrived_at_destination))))
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
+
+        return False
 
     def __is_correctly_oriented(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
@@ -287,7 +333,7 @@ class StationController(object):
 
         if self._model.target_cube.wall == Wall.UP or self._model.target_cube.wall == Wall.DOWN:
             target_position_x = self._model.target_cube.center[0]
-            if (target_position_x - 1.5) < robot_pos_x < (target_position_x + 1.5):
+            if (target_position_x - 1) < robot_pos_x < (target_position_x + 1):
                 return True
             else:
                 return False
@@ -295,7 +341,7 @@ class StationController(object):
         elif self._model.target_cube.wall == Wall.MIDDLE:
             target_position_y = self._model.target_cube.center[1]
 
-            if (target_position_y - 1.5) < robot_pos_y < (target_position_y + 1.5):
+            if (target_position_y - 1) < robot_pos_y < (target_position_y + 1):
                 return True
             else:
                 return False
@@ -444,6 +490,7 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __grab_cube(self):
+        self._model.last_grabbed_cube = self._model.target_cube
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
 
