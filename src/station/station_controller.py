@@ -161,7 +161,7 @@ class StationController(object):
             elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
                 self.__todo_when_arrived_at_destination = None
-                self._model.current_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+                self._model.current_state = State.ADJUSTING_IN_CUBE_REPOSITORY
                 self._model.next_state = None
                 return
 
@@ -177,20 +177,20 @@ class StationController(object):
 
         elif self._model.current_state is State.TRAVELING_TO_CUBE_REPOSITORY:
             self.__move_to_cube_area()
-            self._model.next_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+            self._model.next_state = State.ADJUSTING_IN_CUBE_REPOSITORY
 
-        elif self._model.current_state is State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY:
-            if not self.__is_correctly_oriented():
+        elif self._model.current_state is State.ADJUSTING_IN_CUBE_REPOSITORY:
+            if not self.__is_correctly_oriented_for_cube_grab():
                 self.__logger.info("Orienting robot.")
-                self.__orientate_in_front_cube()
-            elif not self.__is_correctly_positioned_in_front_cube():
+                self.__orientate_for_cube_grab()
+            elif not self.__is_correctly_positioned_for_cube_grab():
                 self.__logger.info("Strafing robot.")
-                self.__strafing_robot_in_front_of_cube()
+                self.__strafing_for_cube_grab()
             else:
-                self.__logger.info("Robot is now placed in front of the next cube to grab.")
+                self.__logger.info("Robot is correctly placed.")
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
                 return
-            self._model.next_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+            self._model.next_state = State.ADJUSTING_IN_CUBE_REPOSITORY
 
         elif self._model.current_state == State.MOVING_TO_GRAB_CUBE:
             self.__move_robot_to_grab_cube()
@@ -202,24 +202,29 @@ class StationController(object):
 
         elif self._model.current_state == State.MOVING_OUT_OF_DANGER_ZONE:
             if self.__robot_move_to_safe_area_after_grabbing_cube():
-                self._model.current_state = State.TRAVELLING_TO_DROP_CUBE
+                self._model.current_state = State.TRAVELLING_TO_CUBE_DEPOT
                 return
             else:
-                self._model.next_state = State.TRAVELLING_TO_DROP_CUBE
+                self._model.next_state = State.TRAVELLING_TO_CUBE_DEPOT
 
         elif self._model.current_state == State.TRAVELLING_TO_CUBE_DEPOT:
-            self.__move_to_cube_depot()
+            self.__travel_to_cube_depot()
             self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
 
         elif self._model.current_state == State.ADJUSTING_IN_CUBE_DEPOT:
             if not self.__is_correctly_oriented_for_cube_drop():
-                self.__orientate_in_front_of_cube_drop_target()
-            elif not self.__is_correctly_positioned_in_front_cube_drop_target():
-                self.__strafing_robot_in_front_of_cube_drop_target()
+                self.__logger.info("Orienting robot.")
+                self.__orientate_for_cube_drop()
+            elif not self.__is_correctly_positioned_for_cube_drop():
+                self.__logger.info("Strafing robot.")
+                self.__strafing_for_cube_drop()
             else:
+                self.__logger.info("Robot is correctly placed.")
                 self.__move_forward_to_drop_target()
                 self._model.current_state = State.DROP_CUBE
                 return
+            self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
+
         elif self._model.current_state == State.DROP_CUBE:
             self.__drop_cube()
             if self._model.next_cube is None:
@@ -308,7 +313,7 @@ class StationController(object):
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
             return False
 
-    def __strafing_robot_in_front_of_cube_drop_target(self):
+    def __strafing_for_cube_drop(self):
         self.__destination = None
 
         robot_pos_y = self._model.robot.center[1]
@@ -327,7 +332,7 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __strafing_robot_in_front_of_cube(self):
+    def __strafing_for_cube_grab(self):
         robot_pos_x = self._model.robot.center[0]
         robot_pos_y = self._model.robot.center[1]
 
@@ -366,7 +371,7 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __is_correctly_positioned_in_front_cube_drop_target(self):
+    def __is_correctly_positioned_for_cube_drop(self):
         robot_pos_y = self._model.robot.center[1]
         target_position_y = int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
         if (target_position_y - 1) < robot_pos_y < (target_position_y + 1):
@@ -376,7 +381,7 @@ class StationController(object):
             self.__logger.info("Robot is not positionned in front of cube drop target :\n{}".format(str(robot_pos_y)))
             return False
 
-    def __is_correctly_positioned_in_front_cube(self):
+    def __is_correctly_positioned_for_cube_grab(self):
         robot_pos_x = self._model.robot.center[0]
         robot_pos_y = self._model.robot.center[1]
 
@@ -467,7 +472,7 @@ class StationController(object):
         self.__network.send_actions(actions_to_be_send)
 
     def __find_safe_position_in_cube_area(self) -> (tuple, int):
-        return (166, 33), Direction.EAST.angle
+        return (166, 33), None
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
@@ -484,14 +489,14 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __orientate_in_front_of_cube_drop_target(self) -> None:
+    def __orientate_for_cube_drop(self) -> None:
         self.__destination = None, Direction.WEST.angle
         self.__todo_when_arrived_at_destination = None
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __orientate_in_front_cube(self) -> None:
+    def __orientate_for_cube_grab(self) -> None:
         if self._model.target_cube.wall == Wall.DOWN:
             self.__logger.info("Le cube {} est en bas.".format(str(self._model.target_cube)))
             self.__destination = None, Direction.SOUTH.angle
@@ -576,7 +581,7 @@ class StationController(object):
             self.__logger.info("Target position is not valid")
         return target_position, None
 
-    def __move_to_cube_depot(self):
+    def __travel_to_cube_depot(self):
         self.__destination = self.__find_safe_position_to_place_cube()
         self.__todo_when_arrived_at_destination = None
 

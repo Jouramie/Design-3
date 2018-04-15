@@ -168,7 +168,7 @@ class TestScenarioStationController(TestCase):
         self.assertEqual('Burundi', station_model.country.name)
         self.assertEqual('WHITE', station_model.next_cube.color.name)
         self.assertIsNotNone(station_model.planned_path)
-        self.assertIs(State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY, station_model.next_state)
+        self.assertIs(State.ADJUSTING_IN_CUBE_REPOSITORY, station_model.next_state)
         self.assertIs(State.WORKING, station_model.current_state)
 
     def __create_station_controller(self, scenario: dict) -> (StationModel, StationController):
