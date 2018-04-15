@@ -16,6 +16,7 @@ class StationModel(object):
         self.current_cube_index = 0
         self.next_cube: FlagCube = None
         self.target_cube = None
+        self.last_grabbed_cube = None
 
         self.frame = None
 

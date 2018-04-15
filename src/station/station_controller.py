@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import sqrt, ceil
+from math import sqrt, ceil, floor
 
 import numpy as np
 
@@ -151,17 +151,25 @@ class StationController(object):
                 self.__send_next_actions_commands()
                 if self._model.current_state is State.WORKING:
                     return
+
             elif msg['command'] == Command.INFRARED_SIGNAL:
                 self._model.country_code = msg['country_code']
                 self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
                 self.__find_country()
                 self.__select_next_cube_color()
                 return
+            elif msg['command'] == Command.GRAB_CUBE_FAILURE:
+                self.__destination = None
+                self.__todo_when_arrived_at_destination = None
+                self._model.current_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+                self._model.next_state = None
+                return
+
             else:
                 self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
                 return
 
-        self.__logger.info("Entering new step: {}.".format(self._model.current_state))
+        self.__logger.info("ENTERING NEW STATE: {}.".format(self._model.current_state))
 
         if self._model.current_state is State.GETTING_COUNTRY_CODE:
             self.__move_to_infra_red_station()
@@ -190,7 +198,14 @@ class StationController(object):
 
         elif self._model.current_state == State.GRABBING_CUBE:
             self.__grab_cube()
-            self._model.next_state = State.TRAVELLING_TO_DROP_CUBE
+            self._model.next_state = State.MOVING_OUT_OF_DANGER_ZONE
+
+        elif self._model.current_state == State.MOVING_OUT_OF_DANGER_ZONE:
+            if self.__robot_move_to_safe_area_after_grabbing_cube():
+                self._model.current_state = State.TRAVELLING_TO_DROP_CUBE
+                return
+            else:
+                self._model.next_state = State.TRAVELLING_TO_DROP_CUBE
 
         elif self._model.current_state == State.TRAVELLING_TO_DROP_CUBE:
             self.__move_to_drop_cube()
@@ -213,6 +228,45 @@ class StationController(object):
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
 
         self._model.current_state = State.WORKING
+
+    def __robot_move_to_safe_area_after_grabbing_cube(self):
+        safe_distance = 5
+        safe_area = 5
+
+        if self._model.robot.center[0] > (self.__navigation_environment.DEFAULT_HEIGHT +
+                                          self.__navigation_environment.get_grid().DEFAULT_OFFSET -
+                                          self.__navigation_environment.BIGGEST_ROBOT_RADIUS - safe_area -
+                                          self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            if self._model.last_grabbed_cube.wall == Wall.MIDDLE:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance / 2)]
+            elif self._model.last_grabbed_cube.wall == Wall.UP:
+                self.__todo_when_arrived_at_destination = [Left(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Right(safe_distance)]
+        elif self._model.robot.center[1] < (self.__navigation_environment.get_grid().DEFAULT_OFFSET +
+                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS + safe_area +
+                                            self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            if self._model.last_grabbed_cube.wall == Wall.DOWN:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Left(safe_distance)]
+        elif self._model.robot.center[1] > (self.__navigation_environment.DEFAULT_WIDTH +
+                                            self.__navigation_environment.get_grid().DEFAULT_OFFSET -
+                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS - safe_area -
+                                            self.__navigation_environment.CUBE_HALF_SIZE * 2):
+            if self._model.last_grabbed_cube.wall == Wall.UP:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Right(safe_distance)]
+        else:
+            self.__logger.info("Robot is in safe area, will start using PathCalculator")
+            return True
+
+        self.__logger.info("Moving to safe area with {}".format((str(self.__todo_when_arrived_at_destination))))
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
+
+        return False
 
     def __is_correctly_oriented(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
@@ -241,42 +295,30 @@ class StationController(object):
         self.__destination = None
 
         if self._model.target_cube.wall == Wall.UP:
-            if robot_pos_x > (self._model.target_cube.center[0] + 1):
+            if robot_pos_x > (self._model.target_cube.center[0]):
                 distance = robot_pos_x - self._model.target_cube.center[0]
-                if distance < 2:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
 
-            if robot_pos_x < (self._model.target_cube.center[0] - 1):
+            if robot_pos_x < (self._model.target_cube.center[0]):
                 distance = self._model.target_cube.center[0] - robot_pos_x
-                if distance < 2:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
         elif self._model.target_cube.wall == Wall.DOWN:
-            if robot_pos_x > (self._model.target_cube.center[0] + 1):
+            if robot_pos_x > (self._model.target_cube.center[0]):
                 distance = robot_pos_x - self._model.target_cube.center[0]
-                if distance < 2:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
-            if robot_pos_x < (self._model.target_cube.center[0] - 1):
+            if robot_pos_x < (self._model.target_cube.center[0]):
                 distance = self._model.target_cube.center[0] - robot_pos_x
-                if distance < 3:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
-            if robot_pos_y > (self._model.target_cube.center[1] + 1):
+            if robot_pos_y > (self._model.target_cube.center[1]):
                 distance = robot_pos_y - self._model.target_cube.center[1]
-                if distance < 3:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Right(distance)]
 
-            if robot_pos_y < (self._model.target_cube.center[1] - 1):
+            if robot_pos_y < (self._model.target_cube.center[1]):
                 distance = self._model.target_cube.center[1] - robot_pos_y
-                if distance < 3:
-                    distance = distance + 4
                 self.__todo_when_arrived_at_destination = [Left(distance)]
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
@@ -290,14 +332,14 @@ class StationController(object):
         robot_pos_y = self._model.robot.center[1]
 
         if self._model.target_cube.wall == Wall.UP or self._model.target_cube.wall == Wall.DOWN:
-            target_position_x = int(self._model.target_cube.center[0])
+            target_position_x = self._model.target_cube.center[0]
             if (target_position_x - 1) < robot_pos_x < (target_position_x + 1):
                 return True
             else:
                 return False
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
-            target_position_y = int(self._model.target_cube.center[1])
+            target_position_y = self._model.target_cube.center[1]
 
             if (target_position_y - 1) < robot_pos_y < (target_position_y + 1):
                 return True
@@ -359,7 +401,6 @@ class StationController(object):
 
         elif self.__todo_when_arrived_at_destination:
             actions_to_be_send, self.__todo_when_arrived_at_destination = self.__todo_when_arrived_at_destination, []
-            pass
         else:
             if self._model.next_state is not None:
                 self._model.current_state, self._model.next_state = self._model.next_state, None
@@ -422,7 +463,7 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __move_robot_to_grab_cube(self):
-        robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
+        robot_pos = (floor(self._model.robot.center[0]), floor(self._model.robot.center[1]))
         target_position = None
         if self._model.target_cube.wall == Wall.UP:
             target_position = (int(self._model.target_cube.center[0]),
@@ -449,6 +490,7 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __grab_cube(self):
+        self._model.last_grabbed_cube = self._model.target_cube
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
 
@@ -486,6 +528,7 @@ class StationController(object):
         if force:
             self.__generate_navigation_environment()
 
+        self.__logger.info('Destination : {}'.format(self.__destination))
         if self.__destination is not None:
             end_position, end_orientation = self.__destination
 
@@ -499,7 +542,9 @@ class StationController(object):
 
 
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
-    distance_between_two_points = sqrt((point2[1] - point1[1]) ** 2 + (point2[0] - point1[0]) ** 2)
+    distance_between_two_points = sqrt(
+        (floor(point2[1]) - floor(point1[1])) ** 2 + floor((point2[0]) - floor(point1[0])) ** 2)
     ceil_distance_between_two_points = ceil(distance_between_two_points)
 
     return int(ceil_distance_between_two_points)
+
