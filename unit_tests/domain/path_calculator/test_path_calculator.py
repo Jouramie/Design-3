@@ -31,7 +31,7 @@ class TestPathCalculator(TestCase):
 
         path_calculator.calculate_path(starting_point, ending_point, grid)
 
-        self.assertEquals(2, starting_vertex.get_step_value.call_count)
+        self.assertEqual(2, starting_vertex.get_step_value.call_count)
 
     def test_when_calculate_path_then_set_ending_point_step_value(self):
         environment = NavigationEnvironment(MagicMock())
@@ -135,3 +135,4 @@ class TestPathCalculator(TestCase):
 
         for position in path_calculator.get_calculated_path():
             self.assertFalse(environment.get_grid().is_obstacle(position))
+

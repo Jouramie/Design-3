@@ -44,23 +44,33 @@ class NavigationEnvironment(object):
                            self.CUBE_HALF_SIZE + self.BIGGEST_ROBOT_RADIUS + 1):
                 for y in range(-self.CUBE_HALF_SIZE - self.BIGGEST_ROBOT_RADIUS,
                                self.CUBE_HALF_SIZE + self.BIGGEST_ROBOT_RADIUS + 1):
-                    try:
                         self.__set_obstacle_point(x, y, point)
-                    except NavigationEnvironmentDataError as err:
-                        self.logger.debug(str(err))
 
     def add_obstacles(self, obstacles: [Obstacle]):
+        minor_y_offset = self.BIGGEST_ROBOT_RADIUS - 2
+        major_y_offset = self.BIGGEST_ROBOT_RADIUS - 2
+        half_octobstacle_long_side = 10
+
         for obstacle in obstacles:
             point = (int(obstacle.center[0]), int(obstacle.center[1]))
+
+            # A nice octobstacle shape
             for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
                            self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
-                # Square shape obstacle
-                for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
-                               self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
-                    try:
-                        self.__set_obstacle_point(x, y, point)
-                    except NavigationEnvironmentDataError as err:
-                        self.logger.debug(str(err))
+                if x < -half_octobstacle_long_side:
+                    minor_y_offset = minor_y_offset - 1
+                    for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS + minor_y_offset,
+                                   self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS - minor_y_offset + 1):
+                            self.__set_obstacle_point(x, y, point)
+                elif x < half_octobstacle_long_side:
+                    for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
+                                   self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
+                            self.__set_obstacle_point(x, y, point)
+                else:
+                    major_y_offset = major_y_offset - 1
+                    for y in range(-half_octobstacle_long_side - major_y_offset,
+                                   half_octobstacle_long_side + major_y_offset + 1):
+                            self.__set_obstacle_point(x, y, point)
 
     def __add_walls(self):
         max_height = self.DEFAULT_HEIGHT + self.__grid.DEFAULT_OFFSET
@@ -83,9 +93,12 @@ class NavigationEnvironment(object):
         self.__set_obstacle_point(0, 0, point)
 
     def __set_obstacle_point(self, x, y, point: tuple):
-        perimeter_point = (point[0] + x, point[1] + y)
-        self.__validate_point_in_grid(perimeter_point)
-        self.__add_grid_obstacle(perimeter_point)
+        try:
+            perimeter_point = (point[0] + x, point[1] + y)
+            self.__validate_point_in_grid(perimeter_point)
+            self.__add_grid_obstacle(perimeter_point)
+        except NavigationEnvironmentDataError as err:
+            self.logger.debug(str(err))
 
     def __add_grid_obstacle(self, point):
         self.__grid.get_vertex(point).set_step_value(Grid.OBSTACLE_VALUE)
