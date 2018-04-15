@@ -154,7 +154,7 @@ class TestScenarioStationController(TestCase):
 
         self.assertIs(State.WORKING, station_model.current_state)
         self.assertIs(State.TRAVELING_TO_CUBE_REPOSITORY, station_model.next_state)
-        self.assertEqual([((15, 15), (10, 10))], station_model.planned_path)
+        self.assertEqual([((15, 15), (30, 30))], station_model.planned_path)
 
     def test_scenario2(self):
         station_model, station_controller = self.__create_station_controller(SCENARIO_2)

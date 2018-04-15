@@ -147,9 +147,6 @@ class StationController(object):
                 return
             # input('Press enter to continue execution.')  # TODO
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
-                if self._model.waiting_for_grab_success:
-                    self._model.cube_is_placed_in_gripper = True
-
                 self.__update_path()
                 self.__send_next_actions_commands()
                 if self._model.current_state is State.WORKING:
@@ -161,11 +158,18 @@ class StationController(object):
                 self.__find_country()
                 self.__select_next_cube_color()
                 return
+            elif msg['command'] == Command.GRAB_CUBE_FAILURE:
+                self.__destination = None
+                self.__todo_when_arrived_at_destination = None
+                self._model.current_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+                self._model.next_state = None
+                return
+
             else:
                 self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
                 return
 
-        self.__logger.info("Entering new step: {}.".format(self._model.current_state))
+        self.__logger.info("ENTERING NEW STATE: {}.".format(self._model.current_state))
 
         if self._model.current_state is State.GETTING_COUNTRY_CODE:
             self.__move_to_infra_red_station()
@@ -460,8 +464,6 @@ class StationController(object):
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
-
-        self._model.cube_is_placed_in_gripper = False  # TODO
 
     def __move_to_drop_cube(self):
         end_position = self.__find_where_to_place_cube()
