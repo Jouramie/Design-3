@@ -287,28 +287,15 @@ class StationController(object):
         return False
 
     def __is_correctly_oriented_for_cube_drop(self):
-        if 175 < self._model.robot.orientation % 360 < 185:
-            self.__logger.info("Robot is correctly oriented between 175 and 185 degrees:\n{}".format(str(self._model.robot.orientation)))
-            return True
-        else:
-            return False
+        return 175 < self._model.robot.orientation % 360 < 185
 
     def __is_correctly_oriented_for_cube_grab(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
-            if 5 > self._model.robot.orientation % 360 or 355 < self._model.robot.orientation % 360:
-                return True
-            else:
-                return False
+            return 5 > self._model.robot.orientation % 360 or 355 < self._model.robot.orientation % 360
         elif self._model.target_cube.wall == Wall.UP:
-            if 85 < self._model.robot.orientation % 360 < 95:
-                return True
-            else:
-                return False
+            return 85 < self._model.robot.orientation % 360 < 95
         elif self._model.target_cube.wall == Wall.DOWN:
-            if 265 < self._model.robot.orientation % 360 < 275:
-                return True
-            else:
-                return False
+            return 265 < self._model.robot.orientation % 360 < 275
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
             return False
@@ -374,12 +361,7 @@ class StationController(object):
     def __is_correctly_positioned_for_cube_drop(self):
         robot_pos_y = self._model.robot.center[1]
         target_position_y = int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
-        if (target_position_y - 1) < robot_pos_y < (target_position_y + 1):
-            self.__logger.info("Robot is positionned in front of cube drop target :\n{}".format(str(robot_pos_y)))
-            return True
-        else:
-            self.__logger.info("Robot is not positionned in front of cube drop target :\n{}".format(str(robot_pos_y)))
-            return False
+        return (target_position_y - 1) < robot_pos_y < (target_position_y + 1)
 
     def __is_correctly_positioned_for_cube_grab(self):
         robot_pos_x = self._model.robot.center[0]
