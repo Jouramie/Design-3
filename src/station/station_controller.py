@@ -220,7 +220,7 @@ class StationController(object):
                 self.__strafing_for_cube_drop()
             elif not self.__is_correctly_aligned_for_cube_drop():
                 self.__logger.info("Aligning robot.")
-                self.__align_for_cube_drop()
+                self.__aligning_for_cube_drop()
             else:
                 self.__logger.info("Robot is correctly placed.")
                 self._model.current_state = State.DROP_CUBE
@@ -380,7 +380,7 @@ class StationController(object):
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
 
-    def __align_for_cube_drop(self):
+    def __aligning_for_cube_drop(self):
         robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
         target_position = (
             int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
