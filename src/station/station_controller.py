@@ -161,7 +161,7 @@ class StationController(object):
             elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
                 self.__todo_when_arrived_at_destination = None
-                self._model.current_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+                self._model.current_state = State.ADJUSTING_IN_CUBE_REPOSITORY
                 self._model.next_state = None
                 return
 
@@ -177,20 +177,20 @@ class StationController(object):
 
         elif self._model.current_state is State.TRAVELING_TO_CUBE_REPOSITORY:
             self.__move_to_cube_area()
-            self._model.next_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+            self._model.next_state = State.ADJUSTING_IN_CUBE_REPOSITORY
 
-        elif self._model.current_state is State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY:
-            if not self.__is_correctly_oriented():
+        elif self._model.current_state is State.ADJUSTING_IN_CUBE_REPOSITORY:
+            if not self.__is_correctly_oriented_for_cube_grab():
                 self.__logger.info("Orienting robot.")
-                self.__orientate_in_front_cube()
-            elif not self.__is_correctly_positioned_in_front_cube():
+                self.__orientate_for_cube_grab()
+            elif not self.__is_correctly_positioned_for_cube_grab():
                 self.__logger.info("Strafing robot.")
-                self.__strafing_robot_in_front_of_cube()
+                self.__strafing_for_cube_grab()
             else:
-                self.__logger.info("Robot is now placed in front of the next cube to grab.")
+                self.__logger.info("Robot is correctly placed.")
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
                 return
-            self._model.next_state = State.ADJUSTING_IN_FRONT_CUBE_REPOSITORY
+            self._model.next_state = State.ADJUSTING_IN_CUBE_REPOSITORY
 
         elif self._model.current_state == State.MOVING_TO_GRAB_CUBE:
             self.__move_robot_to_grab_cube()
@@ -202,13 +202,31 @@ class StationController(object):
 
         elif self._model.current_state == State.MOVING_OUT_OF_DANGER_ZONE:
             if self.__robot_move_to_safe_area_after_grabbing_cube():
-                self._model.current_state = State.TRAVELLING_TO_DROP_CUBE
+                self._model.current_state = State.TRAVELLING_TO_CUBE_DEPOT
                 return
             else:
-                self._model.next_state = State.TRAVELLING_TO_DROP_CUBE
+                self._model.next_state = State.TRAVELLING_TO_CUBE_DEPOT
 
-        elif self._model.current_state == State.TRAVELLING_TO_DROP_CUBE:
-            self.__move_to_drop_cube()
+        elif self._model.current_state == State.TRAVELLING_TO_CUBE_DEPOT:
+            self.__travel_to_cube_depot()
+            self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
+
+        elif self._model.current_state == State.ADJUSTING_IN_CUBE_DEPOT:
+            if not self.__is_correctly_oriented_for_cube_drop():
+                self.__logger.info("Orienting robot.")
+                self.__orientate_for_cube_drop()
+            elif not self.__is_correctly_positioned_for_cube_drop():
+                self.__logger.info("Strafing robot.")
+                self.__strafing_for_cube_drop()
+            else:
+                self.__logger.info("Robot is correctly placed.")
+                self.__move_forward_to_drop_target()
+                self._model.current_state = State.DROP_CUBE
+                return
+            self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
+
+        elif self._model.current_state == State.DROP_CUBE:
+            self.__drop_cube()
             if self._model.next_cube is None:
                 self._model.next_state = State.EXITING_TARGET_ZONE_AND_LIGHT
             else:
@@ -220,7 +238,7 @@ class StationController(object):
 
             self.__network.send_actions([LightItUp()])
             self._model.next_state = State.RESETTING
-            
+
         elif self._model.current_state == State.RESETTING:
             self._model.current_state = State.NOT_STARTED
             return
@@ -268,27 +286,40 @@ class StationController(object):
 
         return False
 
-    def __is_correctly_oriented(self):
+    def __is_correctly_oriented_for_cube_drop(self):
+        return 175 < self._model.robot.orientation % 360 < 185
+
+    def __is_correctly_oriented_for_cube_grab(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
-            if 5 > self._model.robot.orientation % 360 or 355 < self._model.robot.orientation % 360:
-                return True
-            else:
-                return False
+            return 5 > self._model.robot.orientation % 360 or 355 < self._model.robot.orientation % 360
         elif self._model.target_cube.wall == Wall.UP:
-            if 85 < self._model.robot.orientation % 360 < 95:
-                return True
-            else:
-                return False
+            return 85 < self._model.robot.orientation % 360 < 95
         elif self._model.target_cube.wall == Wall.DOWN:
-            if 265 < self._model.robot.orientation % 360 < 275:
-                return True
-            else:
-                return False
+            return 265 < self._model.robot.orientation % 360 < 275
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
             return False
 
-    def __strafing_robot_in_front_of_cube(self):
+    def __strafing_for_cube_drop(self):
+        self.__destination = None
+
+        robot_pos_y = self._model.robot.center[1]
+        if robot_pos_y > (self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] + 1):
+            distance = robot_pos_y - self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]
+            if distance < 3:
+                distance = distance + 4
+            self.__todo_when_arrived_at_destination = [Left(distance)]
+
+        if robot_pos_y < (self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - 1):
+            distance = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - robot_pos_y
+            if distance < 3:
+                distance = distance + 4
+            self.__todo_when_arrived_at_destination = [Right(distance)]
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
+
+    def __strafing_for_cube_grab(self):
         robot_pos_x = self._model.robot.center[0]
         robot_pos_y = self._model.robot.center[1]
 
@@ -327,27 +358,41 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __is_correctly_positioned_in_front_cube(self):
+    def __is_correctly_positioned_for_cube_drop(self):
+        robot_pos_y = self._model.robot.center[1]
+        target_position_y = int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
+        return (target_position_y - 1) < robot_pos_y < (target_position_y + 1)
+
+    def __is_correctly_positioned_for_cube_grab(self):
         robot_pos_x = self._model.robot.center[0]
         robot_pos_y = self._model.robot.center[1]
 
         if self._model.target_cube.wall == Wall.UP or self._model.target_cube.wall == Wall.DOWN:
             target_position_x = self._model.target_cube.center[0]
-            if (target_position_x - 1) < robot_pos_x < (target_position_x + 1):
-                return True
-            else:
-                return False
+            return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
             target_position_y = self._model.target_cube.center[1]
-
-            if (target_position_y - 1) < robot_pos_y < (target_position_y + 1):
-                return True
-            else:
-                return False
+            return (target_position_y - 1) < robot_pos_y < (target_position_y + 1)
 
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
+
+    def __move_forward_to_drop_target(self):
+        robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
+        target_position = (
+            int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
+                + self.__config['distance_between_robot_center_and_cube_center']),
+            int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]))
+
+        distance_to_travel = calculate_distance_between_two_points(robot_pos, target_position)
+        self.__logger.info("Moving to drop target : {} cm".format(str(distance_to_travel)))
+
+        self.__destination = None
+        self.__todo_when_arrived_at_destination = [Forward(distance_to_travel)]
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
 
     def __generate_real_world_environments(self):
         self.__camera.take_picture()
@@ -408,13 +453,8 @@ class StationController(object):
 
         self.__network.send_actions(actions_to_be_send)
 
-    def __add_actions_to_actions_to_send(self, actions):
-        if actions is not None:
-            for action in actions:
-                self.__movements_to_destination.append(action)
-
     def __find_safe_position_in_cube_area(self) -> (tuple, int):
-        return (166, 33), Direction.EAST.angle
+        return (166, 33), None
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
@@ -431,7 +471,14 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __orientate_in_front_cube(self) -> None:
+    def __orientate_for_cube_drop(self) -> None:
+        self.__destination = None, Direction.WEST.angle
+        self.__todo_when_arrived_at_destination = None
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
+
+    def __orientate_for_cube_grab(self) -> None:
         if self._model.target_cube.wall == Wall.DOWN:
             self.__logger.info("Le cube {} est en bas.".format(str(self._model.target_cube)))
             self.__destination = None, Direction.SOUTH.angle
@@ -500,17 +547,35 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __move_to_drop_cube(self):
-        end_position = self.__find_where_to_place_cube()
+    def __find_safe_position_to_place_cube(self) -> (tuple, int):
+        cube_destination_x = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
+        target_position = None
+        if self._model.current_cube_index <= 2:
+            target_position = ((self.__config['distance_between_robot_center_and_cube_center']
+                                + 10), 33)
+        elif self._model.current_cube_index <= 5:
+            target_position = ((self.__config['distance_between_robot_center_and_cube_center']
+                                + cube_destination_x + 10), 33)
+        elif self._model.current_cube_index <= 8:
+            target_position = ((self.__config['distance_between_robot_center_and_cube_center']
+                                + cube_destination_x + 10), 33)
+        else:
+            self.__logger.info("Target position is not valid")
+        return target_position, None
 
-        self.__destination = end_position, Direction.WEST.angle
+    def __travel_to_cube_depot(self):
+        self.__destination = self.__find_safe_position_to_place_cube()
+        self.__todo_when_arrived_at_destination = None
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
+
+    def __drop_cube(self):
         distance_backward = NavigationEnvironment.BIGGEST_ROBOT_RADIUS
         self.__todo_when_arrived_at_destination = [Drop(), Backward(distance_backward)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
-
-        self.__logger.info("Dropping cube.")
 
         placed_cube = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1]
         placed_cube.place_cube()
