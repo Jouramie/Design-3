@@ -217,33 +217,44 @@ class StationController(object):
                 self._model.robot_is_moving = True
                 self._model.light_is_lit = True
 
-
     def __robot_move_to_safe_area_after_grabbing_cube(self):
         safe_distance = 5
-        if self._model.robot.center[1] > (self.__navigation_environment.DEFAULT_WIDTH +
+        safe_area = 5
+
+        if self._model.robot.center[0] > (self.__navigation_environment.DEFAULT_HEIGHT +
                                           self.__navigation_environment.get_grid().DEFAULT_OFFSET -
-                                          self.__navigation_environment.BIGGEST_ROBOT_RADIUS +
+                                          self.__navigation_environment.BIGGEST_ROBOT_RADIUS - safe_area -
                                           self.__navigation_environment.CUBE_HALF_SIZE * 2):
-            self.__todo_when_arrived_at_destination = [Right(safe_distance)]
-
+            if self._model.last_grabbed_cube.wall == Wall.MIDDLE:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance / 2)]
+            elif self._model.last_grabbed_cube.wall == Wall.UP:
+                self.__todo_when_arrived_at_destination = [Left(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Right(safe_distance)]
         elif self._model.robot.center[1] < (self.__navigation_environment.get_grid().DEFAULT_OFFSET +
-                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS +
+                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS + safe_area +
                                             self.__navigation_environment.CUBE_HALF_SIZE * 2):
-            self.__todo_when_arrived_at_destination = [Left(safe_distance)]
-
-        elif self._model.robot.center[0] > (self.__navigation_environment.DEFAULT_HEIGHT +
+            if self._model.last_grabbed_cube.wall == Wall.DOWN:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Left(safe_distance)]
+        elif self._model.robot.center[1] > (self.__navigation_environment.DEFAULT_WIDTH +
                                             self.__navigation_environment.get_grid().DEFAULT_OFFSET -
-                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS +
+                                            self.__navigation_environment.BIGGEST_ROBOT_RADIUS - safe_area -
                                             self.__navigation_environment.CUBE_HALF_SIZE * 2):
-            self.__todo_when_arrived_at_destination = [Backward(safe_distance / 2)]
+            if self._model.last_grabbed_cube.wall == Wall.UP:
+                self.__todo_when_arrived_at_destination = [Backward(safe_distance)]
+            else:
+                self.__todo_when_arrived_at_destination = [Right(safe_distance)]
         else:
+            self.__logger.info("Robot is in safe area, will start using PathCalculator")
             return True
+
         self.__logger.info("Moving to safe area with {}".format((str(self.__todo_when_arrived_at_destination))))
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
         return False
-
 
     def __is_correctly_oriented(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
@@ -491,6 +502,7 @@ class StationController(object):
         self._model.robot_is_moving = True
 
     def __grab_cube(self):
+        self._model.last_grabbed_cube = self._model.target_cube
         self._model.real_world_environment.cubes.remove(self._model.target_cube)
         self._model.target_cube = None
 
