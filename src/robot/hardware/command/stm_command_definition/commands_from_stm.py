@@ -11,7 +11,7 @@ class Target(Enum):
 class Message(Enum):
     SUCCESSFULL_TASK = bytearray(b'\xfc\x12\x34\xbe')
     UNSUCCESSFULL_TASK = bytearray(b'\xec\x12\x34\xce')
-    TASK_CUBE_FAILED = bytearray(b'\xec\x6c\x6c\x3c')
+    TASK_CUBE_FAILED = bytearray(b'\x6e\x12\x34\x4c')
     TASK_RECEIVED_ACK = bytearray(b'\xcd\x2a\x3a\xcf')
     NOTHING = bytearray(b'')
     OPEN_CLOSE_MSG = bytearray(b'\xff')
