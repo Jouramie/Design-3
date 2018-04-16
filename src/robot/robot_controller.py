@@ -120,7 +120,6 @@ class RobotController(object):
         if command['command'] == Command.END_SIGNAL:
             self.flag_done = True
         command = StmCommand.factory(command)
-        self._logger.info('Sending bytes to STM {:02x} {:02x} {:02x}'.format(command[0], command[1], command[2]))
         self._channel.send_command(command)
 
     def _execute_stm_tasks(self) -> None:
