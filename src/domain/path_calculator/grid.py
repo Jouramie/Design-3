@@ -61,3 +61,6 @@ class Grid(object):
 
     def is_obstacle(self, point):
         return self.get_vertex(point).get_step_value() == Grid.OBSTACLE_VALUE
+    
+    def is_destination(self, point):
+        return self.get_vertex(point).get_step_value() != Grid.END_POINT_VALUE

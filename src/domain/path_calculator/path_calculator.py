@@ -32,7 +32,7 @@ class PathCalculator(object):
             self.logger.info(str(grid_err))
 
     def __reset_neighbor_step_value(self, ending_point):
-        if self.__grid.get_vertex(ending_point).get_step_value() != 0:
+        if self.__grid.is_destination(ending_point):
             self.__grid.reset_neighbor_step_value_keep_obstacles(Grid.OBSTACLE_VALUE, Grid.UNASSIGNED_VALUE)
 
     def __set_neighbor_step_value(self, ending_point):
