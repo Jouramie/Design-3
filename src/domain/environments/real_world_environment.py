@@ -32,11 +32,10 @@ class RealWorldEnvironment(object):
 
         for cube in matching_color_cubes:
             if cube.wall == Wall.MIDDLE:
-                distance_between_two_points = sqrt(
-                    (floor(safe_area[1]) - floor(cube.center[1])) ** 2
-                    + floor((safe_area[0]) - floor(cube.center[0])) ** 2)
-                if distance_between_two_points < shortest_distance_between_cube_center_and_safe_area:
-                    shortest_distance_between_cube_center_and_safe_area = distance_between_two_points
+                distance_between_robot_and_cube = sqrt((safe_area[1] - cube.center[1]) ** 2
+                                                       + (safe_area[0] - cube.center[0] ** 2))
+                if distance_between_robot_and_cube < shortest_distance_between_cube_center_and_safe_area:
+                    shortest_distance_between_cube_center_and_safe_area = distance_between_robot_and_cube
                     closest_cube = cube
 
         if closest_cube is not None:
