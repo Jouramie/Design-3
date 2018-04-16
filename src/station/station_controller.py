@@ -163,7 +163,7 @@ class StationController(object):
             elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
                 self.__todo_when_arrived_at_destination = None
-                self._model.current_state = State.ADJUSTING_IN_CUBE_REPOSITORY
+                self._model.current_state = State.MOVING_TO_GRAB_CUBE
                 self._model.next_state = None
                 return
 
@@ -564,24 +564,24 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __move_robot_to_grab_cube(self):
-        robot_pos = (floor(self._model.robot.center[0]), floor(self._model.robot.center[1]))
-        target_position = None
         if self._model.target_cube.wall == Wall.UP:
-            target_position = (int(self._model.target_cube.center[0]),
-                               int(self._model.target_cube.center[1] - self.__config[
-                                   'distance_between_robot_center_and_cube_center']))
+            robot_pos = self._model.robot.center[1]
+            target_position = self._model.target_cube.center[1] - self.__config['distance_between_robot_center_and_cube_center']
 
         elif self._model.target_cube.wall == Wall.DOWN:
-            target_position = (int(self._model.target_cube.center[0]),
-                               int(self._model.target_cube.center[1] + self.__config[
-                                   'distance_between_robot_center_and_cube_center']))
+            robot_pos = self._model.robot.center[1]
+            target_position = self._model.target_cube.center[1] + self.__config[
+                                   'distance_between_robot_center_and_cube_center']
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
-            target_position = (
-                int(self._model.target_cube.center[0] - self.__config['distance_between_robot_center_and_cube_center']),
-                int(self._model.target_cube.center[1]))
+            robot_pos = self._model.robot.center[0]
+            target_position = self._model.target_cube.center[0] - self.__config['distance_between_robot_center_and_cube_center']
 
-        distance_to_travel = calculate_distance_between_two_points(robot_pos, target_position)
+        else:
+            self.__logger.info("Where tf is the cube? {}".format(self._model.target_cube.wall.name))
+            return
+
+        distance_to_travel = abs(floor(target_position) - floor(robot_pos))
         self.__logger.info("Moving to grab cube by : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
