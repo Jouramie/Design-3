@@ -13,11 +13,13 @@ class Channel(object):
 
     def receive_message(self) -> commands_from_stm.Feedback:
         if self.serial.is_open:
-            msg = self.serial.read(commands_from_stm.Message.BYTES_TO_READ.value)
             try:
+                msg = bytearray(self.serial.read(commands_from_stm.Message.BYTES_TO_READ.value))
+                self._logger.info(
+                    'Channel received : {:02x} {:02x} {:02x} {:02x}'.format(msg[0], msg[1], msg[2], msg[3]))
                 return commands_from_stm.Feedback(msg)
             except Exception:
-                self._logger.debug('Channel received : {}'.format(msg))
+                pass
         else:
             raise ChannelException('Serial connection not opened')
 

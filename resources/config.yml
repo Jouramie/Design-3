@@ -36,7 +36,7 @@ station:
   camera:
     use_mocked_camera: false
     mocked_camera_image_path: "fig/saved_images/table2/00h02m31s.jpg"
-    camera_id: 1
+    camera_id: 2
     image_width: 1600
     image_height: 1200
     image_save_dir: "fig/{date}"

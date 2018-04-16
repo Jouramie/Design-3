@@ -41,7 +41,7 @@ def start_system(args: dict) -> None:
     console_handler.setFormatter(log_formatter)
     logger.addHandler(console_handler)
 
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     with open("resources/config.yml", 'r') as stream:
         try:
