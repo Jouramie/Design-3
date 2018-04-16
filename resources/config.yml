@@ -50,7 +50,7 @@ station:
       - 15
       - 15
     mocked_robot_orientation: 45
-    update_robot: false
+    update_robot: true
   user_interface:
     draw_vision_cubes: false
   cube_positions:
