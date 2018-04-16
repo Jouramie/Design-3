@@ -1,3 +1,4 @@
+from src.domain.objects.wall import Wall
 from ..objects.color import Color
 from ..objects.flag_cube import FlagCube
 from ..objects.obstacle import Obstacle
@@ -25,7 +26,17 @@ class RealWorldEnvironment(object):
         :param color: The desired color
         :return: A cube of the desired color
         """
+        matching_color_cubes = []
         for cube in self.cubes:
             if cube.color == color:
+                matching_color_cubes.append(cube)
+
+        for cube in matching_color_cubes:
+            if cube.wall == Wall.MIDDLE:
                 return cube
-        return None
+
+        if matching_color_cubes.count() != 0:
+            return matching_color_cubes[0]
+        else:
+            return None
+
