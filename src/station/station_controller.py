@@ -235,9 +235,8 @@ class StationController(object):
                 self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state == State.EXITING_TARGET_ZONE_AND_LIGHT:
-            self.__travel_out_of_target_zone()
+            self.__travel_out_of_target_zone_and_light_led()
 
-            self.__network.send_actions([LightItUp()])
             self._model.next_state = State.RESETTING
 
         elif self._model.current_state == State.RESETTING:
@@ -616,7 +615,7 @@ class StationController(object):
             self.__config['distance_between_robot_center_and_cube_center'])
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
-    def __travel_out_of_target_zone(self):
+    def __travel_out_of_target_zone_and_light_led(self):
         target_left = (90, 60)
         target_center = (90, 30)
         target_right = (90, 0)
@@ -627,7 +626,7 @@ class StationController(object):
         elif not self.__navigation_environment.get_grid().is_obstacle(target_right):
             self.__destination = target_right, None
 
-        self.__todo_when_arrived_at_destination = None
+        self.__todo_when_arrived_at_destination = [LightItUp()]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
