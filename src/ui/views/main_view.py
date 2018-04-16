@@ -10,6 +10,7 @@ from src.station.station_controller import StationController
 from src.station.station_model import StationModel
 from src.vision.frame_drawer import FrameDrawer
 from src.domain.objects.color import Color
+from src.station.state import State
 
 
 class StationView(QMainWindow):
@@ -28,6 +29,7 @@ class StationView(QMainWindow):
         self.update_timer.timeout.connect(self.update)
 
         self.ui.StartButton.clicked.connect(self.start_robot)
+        self.ui.StartButton.clicked.connect(self.__display_start_label)
         self.ui.StopButton.clicked.connect(self.stop_robot)
 
         super(StationView, self).__init__()
@@ -54,10 +56,21 @@ class StationView(QMainWindow):
             self.__display_country_name()
             self.__display_next_cube_color()
 
+        if self.model.current_state == State.FINISHED:
+            self.__display_done_label()
+            self.update_timer.stop()
+
     def __update_timer_display(self):
         t = self.time.addSecs(self.model.passed_time)
         display_time = t.toString()
         self.ui.lcdNumber.display(display_time)
+
+    def __display_start_label(self):
+        self.ui.StartedLabel.setText("Go")
+        self.ui.StartedLabel.setStyleSheet('font: 32pt;')
+
+    def __display_done_label(self):
+        self.ui.StartedLabel.setText("Done")
 
     def __display_world_camera_image(self):
         resized_image = cv2.resize(self.model.frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_CUBIC)
