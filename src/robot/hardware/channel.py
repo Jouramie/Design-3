@@ -13,12 +13,7 @@ class Channel(object):
 
     def receive_message(self) -> commands_from_stm.Feedback:
         if self.serial.is_open:
-            # TODO dont push this into master
-            msg = self.serial.read(commands_from_stm.Message.BYTES_TO_READ.value)
-            try:
-                return commands_from_stm.Feedback(msg)
-            except Exception:
-                self._logger.debug('Channel received : {}'.format(msg))
+            return commands_from_stm.Feedback(self.serial.read(commands_from_stm.Message.BYTES_TO_READ.value))
         else:
             raise ChannelException('Serial connection not opened')
 
