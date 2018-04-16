@@ -647,6 +647,7 @@ class StationController(object):
         if force:
             self.__generate_navigation_environment()
 
+        self.__logger.info('Robot: {}'.format(str(self._model.robot)))
         self.__logger.info('Destination : {}'.format(self.__destination))
         if self.__destination is not None:
             end_position, end_orientation = self.__destination
