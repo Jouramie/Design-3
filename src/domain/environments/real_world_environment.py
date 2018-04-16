@@ -35,7 +35,7 @@ class RealWorldEnvironment(object):
             if cube.wall == Wall.MIDDLE:
                 return cube
 
-        if matching_color_cubes.count() != 0:
+        if len(matching_color_cubes) != 0:
             return matching_color_cubes[0]
         else:
             return None
