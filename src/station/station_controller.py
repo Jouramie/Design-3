@@ -235,8 +235,7 @@ class StationController(object):
                 self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state == State.EXITING_TARGET_ZONE_AND_LIGHT:
-            # TODO Calculer le path vers l'exterieur de la zone
-            # TODO Envoyer la commande de déplacement + led
+            self.__travel_out_of_target_zone()
 
             self.__network.send_actions([LightItUp()])
             self._model.next_state = State.RESETTING
@@ -617,6 +616,12 @@ class StationController(object):
             self.__config['distance_between_robot_center_and_cube_center'])
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
+    def __travel_out_of_target_zone(self):
+        self.__destination = (80, 32), 0
+        self.__todo_when_arrived_at_destination = None
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
 
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
     distance_between_two_points = sqrt(
