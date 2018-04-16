@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 
 from src.robot.hardware.channel import Channel
 from src.robot.hardware.channel_exception import ChannelException
@@ -20,7 +20,7 @@ class TestChannel(TestCase):
 
     def test_when_receive_message_then_calls_read(self):
         self.serial.read = Mock(return_value=commands_from_stm.Message.SUCCESSFULL_TASK.value)
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         channel.receive_message()
 
@@ -28,13 +28,13 @@ class TestChannel(TestCase):
 
     def test_when_receive_open_close_message_then_return_hey_type(self):
         self.serial.read = Mock(return_value=commands_from_stm.Message.OPEN_CLOSE_MSG.value)
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         self.assertEqual(commands_from_stm.Feedback.HEY, channel.receive_message().type)
 
     def test_when_receive_nothing_message_then_return_hey_type(self):
         self.serial.read = Mock(return_value=commands_from_stm.Message.NOTHING.value)
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         msg = channel.receive_message()
 
@@ -42,7 +42,7 @@ class TestChannel(TestCase):
 
     def test_when_receive_country_code_then_return_country_type(self):
         self.serial.read = Mock(return_value=bytearray(b'\xb0\x12\x00\x3e'))
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         msg = channel.receive_message()
 
@@ -50,7 +50,7 @@ class TestChannel(TestCase):
 
     def test_when_receive_country_code_then_return_country_code(self):
         self.serial.read = Mock(return_value=bytearray(b'\xb0\x12\x00\x3e'))
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         msg = channel.receive_message()
 
@@ -60,7 +60,7 @@ class TestChannel(TestCase):
     def test_when_closed_listen_raises_exception(self):
         self.serial.isOpen = Mock(return_value=False)
         self.serial.read = Mock(return_value=bytearray(b'\xb0\x12\x00\x3e'))
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         channel.receive_message()
 
@@ -68,7 +68,7 @@ class TestChannel(TestCase):
 
     def test_when_write_then_calls_write_on_port(self):
         self.serial.write = Mock()
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         channel.send_command(self.message)
 
@@ -76,7 +76,7 @@ class TestChannel(TestCase):
 
     def test_given_a_message_when_write_then_checksum_added(self):
         self.serial.write = Mock()
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         channel.send_command(self.message)
 
@@ -84,7 +84,7 @@ class TestChannel(TestCase):
 
     def test_given_another_message_when_write_then_correct_checksum_added(self):
         self.serial.write = Mock()
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         channel.send_command(self.other_message)
 
@@ -92,6 +92,6 @@ class TestChannel(TestCase):
 
     def test_when_calculate_checksum_right_checksum_returned(self):
         self.serial.write = Mock()
-        channel = Channel(self.serial)
+        channel = Channel(self.serial, MagicMock())
 
         self.assertEqual(self.drop_cube_checksum, channel.calculate_checksum(self.send_drop_cube))

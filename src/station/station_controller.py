@@ -28,6 +28,8 @@ from .station_model import StationModel
 
 
 class StationController(object):
+    SAFE_DISTANCE_FROM_CUBE = 9
+
     def __init__(self, model: StationModel, network: ServerNetworkController, camera: Camera,
                  real_world_environment_factory: RealWorldEnvironmentFactory, robot_detector: RobotDetector,
                  logger: Logger, config: dict):
@@ -186,6 +188,9 @@ class StationController(object):
             elif not self.__is_correctly_positioned_for_cube_grab():
                 self.__logger.info("Strafing robot.")
                 self.__strafing_for_cube_grab()
+            elif not self.__is_safe_distance_for_cube_grab():
+                self.__logger.info("Approaching robot.")
+                self.__approach_for_cube_grab()
             else:
                 self.__logger.info("Robot is correctly placed.")
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
@@ -218,9 +223,11 @@ class StationController(object):
             elif not self.__is_correctly_positioned_for_cube_drop():
                 self.__logger.info("Strafing robot.")
                 self.__strafing_for_cube_drop()
+            elif not self.__is_correctly_aligned_for_cube_drop():
+                self.__logger.info("Aligning robot.")
+                self.__aligning_for_cube_drop()
             else:
                 self.__logger.info("Robot is correctly placed.")
-                self.__move_forward_to_drop_target()
                 self._model.current_state = State.DROP_CUBE
                 return
             self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
@@ -233,8 +240,7 @@ class StationController(object):
                 self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state == State.EXITING_TARGET_ZONE_AND_LIGHT:
-            # TODO Calculer le path vers l'exterieur de la zone
-            # TODO Envoyer la commande de déplacement + led
+            self.__travel_out_of_target_zone()
 
             self.__network.send_actions([LightItUp()])
             self._model.next_state = State.FINISHED
@@ -303,17 +309,17 @@ class StationController(object):
         self.__destination = None
 
         robot_pos_y = self._model.robot.center[1]
-        if robot_pos_y > (self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] + 1):
-            distance = robot_pos_y - self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]
-            if distance < 3:
-                distance = distance + 4
-            self.__todo_when_arrived_at_destination = [Left(distance)]
+        if robot_pos_y > (
+                self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] + 1):
+            distance = robot_pos_y - \
+                       self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]
+            self.__todo_when_arrived_at_destination = [Left(abs(distance))]
 
-        if robot_pos_y < (self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - 1):
-            distance = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - robot_pos_y
-            if distance < 3:
-                distance = distance + 4
-            self.__todo_when_arrived_at_destination = [Right(distance)]
+        if robot_pos_y < (
+                self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1] - 1):
+            distance = robot_pos_y - \
+                       self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]
+            self.__todo_when_arrived_at_destination = [Right(abs(distance))]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -359,7 +365,8 @@ class StationController(object):
 
     def __is_correctly_positioned_for_cube_drop(self):
         robot_pos_y = self._model.robot.center[1]
-        target_position_y = int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
+        target_position_y = int(
+            self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
         return (target_position_y - 1) < robot_pos_y < (target_position_y + 1)
 
     def __is_correctly_positioned_for_cube_grab(self):
@@ -377,7 +384,52 @@ class StationController(object):
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
 
-    def __move_forward_to_drop_target(self):
+    def __is_safe_distance_for_cube_grab(self):
+        robot_pos_x = self._model.robot.center[0]
+        robot_pos_y = self._model.robot.center[1]
+
+        if self._model.target_cube.wall == Wall.UP:
+            target_position_y = self._model.target_cube.center[1] - self.SAFE_DISTANCE_FROM_CUBE \
+                                - self.__config['distance_between_robot_center_and_cube_center']
+            return target_position_y <= robot_pos_y
+        if self._model.target_cube.wall == Wall.DOWN:
+            target_position_y = self._model.target_cube.center[1] + self.SAFE_DISTANCE_FROM_CUBE \
+                                + self.__config['distance_between_robot_center_and_cube_center']
+            return target_position_y >= robot_pos_y
+        elif self._model.target_cube.wall == Wall.MIDDLE:
+            target_position_x = self._model.target_cube.center[0] - self.SAFE_DISTANCE_FROM_CUBE \
+                                - self.__config['distance_between_robot_center_and_cube_center']
+            return target_position_x <= robot_pos_x
+        else:
+            self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
+
+    def __approach_for_cube_grab(self):
+        robot_pos_x = self._model.robot.center[0]
+        robot_pos_y = self._model.robot.center[1]
+
+        if self._model.target_cube.wall == Wall.UP:
+            target_position_y = self._model.target_cube.center[1] - self.SAFE_DISTANCE_FROM_CUBE \
+                                - self.__config['distance_between_robot_center_and_cube_center']
+            distance = target_position_y - robot_pos_y
+        elif self._model.target_cube.wall == Wall.DOWN:
+            target_position_y = self._model.target_cube.center[1] + self.SAFE_DISTANCE_FROM_CUBE \
+                                + self.__config['distance_between_robot_center_and_cube_center']
+            distance = target_position_y - robot_pos_y
+        elif self._model.target_cube.wall == Wall.MIDDLE:
+            target_position_x = self._model.target_cube.center[0] - self.SAFE_DISTANCE_FROM_CUBE \
+                                - self.__config['distance_between_robot_center_and_cube_center']
+            distance = target_position_x - robot_pos_x
+        else:
+            self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
+            return
+
+        self.__destination = None
+        self.__todo_when_arrived_at_destination = [Forward(abs(distance))]
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
+
+    def __aligning_for_cube_drop(self):
         robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
         target_position = (
             int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
@@ -388,7 +440,10 @@ class StationController(object):
         self.__logger.info("Moving to drop target : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
-        self.__todo_when_arrived_at_destination = [Forward(distance_to_travel)]
+        if robot_pos[0] < target_position[0]:
+            self.__todo_when_arrived_at_destination = [Backward(distance_to_travel)]
+        else:
+            self.__todo_when_arrived_at_destination = [Forward(distance_to_travel)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -604,6 +659,19 @@ class StationController(object):
 
         self.__movements_to_destination = movements
 
+    def __is_correctly_aligned_for_cube_drop(self):
+        robot_pos_x = self._model.robot.center[0]
+        target_position_x = int(
+            self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0] +
+            self.__config['distance_between_robot_center_and_cube_center'])
+        return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
+
+    def __travel_out_of_target_zone(self):
+        self.__destination = (80, 32), 0
+        self.__todo_when_arrived_at_destination = None
+
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
 
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
     distance_between_two_points = sqrt(
@@ -611,4 +679,3 @@ def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
     ceil_distance_between_two_points = ceil(distance_between_two_points)
 
     return int(ceil_distance_between_two_points)
-

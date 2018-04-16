@@ -14,8 +14,7 @@ class TestScenarioRobotController(TestCase):
         network_ctrl.attach_mock(Mock(return_value=None), 'wait_message')
         self.ctrl = RobotController(MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
-    @patch('src.robot.robot_controller.time')
-    def test_scenario_1_easy_going(self, time):
+    def test_scenario_1_easy_going(self):
         self.__set_up_scenario_1()
         self.ctrl.main_loop()
 
@@ -23,8 +22,7 @@ class TestScenarioRobotController(TestCase):
         self.assertEqual(1, self.ctrl._stm_sent_queue.empty())
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
 
-    @patch('src.robot.robot_controller.time')
-    def test_scenario_2_task_failure(self, time):
+    def test_scenario_2_task_failure(self):
         self.__set_up_scenario_1()
         self.ctrl.main_loop()
 
@@ -32,8 +30,7 @@ class TestScenarioRobotController(TestCase):
         self.assertEqual(1, self.ctrl._stm_sent_queue.empty())
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
 
-    @patch('src.robot.robot_controller.time')
-    def test_scenario_3_ir_signal(self, time):
+    def test_scenario_3_ir_signal(self):
         self.__set_up_scenario_3()
         self.ctrl.main_loop()
 
@@ -41,8 +38,7 @@ class TestScenarioRobotController(TestCase):
         self.assertTrue(self.ctrl._stm_sent_queue.empty())
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
 
-    @patch('src.robot.robot_controller.time')
-    def test_scenario_4_many_moves_and_ir(self, time):
+    def test_scenario_4_many_moves_and_ir(self):
         self.__set_up_scenario_4()
 
         self.ctrl.main_loop()
@@ -51,8 +47,7 @@ class TestScenarioRobotController(TestCase):
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
         self.assertEqual(5, self.ctrl._stm_done_queue.qsize())
 
-    @patch('src.robot.robot_controller.time')
-    def test_scenario_5_no_ack_but_success(self, time):
+    def test_scenario_5_no_ack_but_success(self):
         self.__set_up_scenario_5()
 
         self.ctrl.main_loop()
@@ -61,8 +56,7 @@ class TestScenarioRobotController(TestCase):
         self.assertRaises(IndexError, self.ctrl._stm_commands_todo.pop)
         self.assertEqual(3, self.ctrl._stm_done_queue.qsize())
 
-    @patch('src.robot.robot_controller.time')
-    def test_scenario_6_no_ack_but_failed(self, time):
+    def test_scenario_6_no_ack_but_failed(self):
         self.__set_up_scenario_6()
 
         self.ctrl.main_loop()
