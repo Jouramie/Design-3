@@ -54,10 +54,10 @@ class ClientNetworkController(NetworkController):
         msg = None
         try:
             msg = self._receive_message()
-            self._logger.info('Message received from network: {}'.format(str(msg)))
+            if msg is not None:
+                self._logger.info('Message received from network: {}'.format(str(msg)))
         except MessageNotReceivedYet:
-            time.sleep(1)
-
+            pass
         return msg
 
     def send_feedback(self, feedback: Command):

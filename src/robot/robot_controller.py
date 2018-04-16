@@ -44,7 +44,7 @@ class RobotController(object):
 
     def receive_network_request(self):
         network_request = self._network.wait_message()
-        self._logger.info('Network request: {}'.format(network_request))
+        self._logger.debug('Network request: {}'.format(network_request))
         if network_request is not None:
             self.failure = False
             self.waiting_for_commander = False
