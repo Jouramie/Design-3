@@ -507,7 +507,8 @@ class StationController(object):
         self.__network.send_actions(actions_to_be_send)
 
     def __find_safe_position_in_cube_area(self) -> (tuple, int):
-        return (166, 33), None
+        return (self.__config['cube_positions']['tables']['cube_area1']['x'],
+                self.__config['cube_positions']['tables']['cube_area1']['y']), None
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
@@ -554,7 +555,11 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __move_to_cube_area(self):
-        self._model.target_cube = self._model.real_world_environment.find_cube(self._model.next_cube.color)
+
+        self._model.target_cube = self._model.real_world_environment.find_cube(
+            self._model.next_cube.color,
+            (self.__config['cube_positions']['tables']['cube_area1']['x'],
+             self.__config['cube_positions']['tables']['cube_area1']['y']))
         if self._model.target_cube is None:
             self.__logger.warning("The target cube is None. Cannot continue, exiting.")
             return
