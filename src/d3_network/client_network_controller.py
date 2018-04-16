@@ -50,14 +50,14 @@ class ClientNetworkController(NetworkController):
         self._send_command(Command.INFRARED_SIGNAL, {'country_code': country_code})
 
     def wait_message(self) -> dict:
-        self._logger.info('Waiting for a command.')
+        self._logger.debug('Waiting for a command.')
         msg = None
         try:
             msg = self._receive_message()
+            if msg is not None:
+                self._logger.info('Message received from network: {}'.format(str(msg)))
         except MessageNotReceivedYet:
-            time.sleep(1)
-
-        self._logger.info('Message received from network: {}'.format(str(msg)))
+            pass
         return msg
 
     def send_feedback(self, feedback: Command):

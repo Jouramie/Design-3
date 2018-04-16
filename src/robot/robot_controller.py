@@ -1,4 +1,3 @@
-import time
 from collections import deque
 from logging import Logger
 from queue import Queue
@@ -45,7 +44,7 @@ class RobotController(object):
 
     def receive_network_request(self):
         network_request = self._network.wait_message()
-        self._logger.info('Network request: {}'.format(network_request))
+        self._logger.debug('Network request: {}'.format(network_request))
         if network_request is not None:
             self.failure = False
             self.waiting_for_commander = False
@@ -55,7 +54,7 @@ class RobotController(object):
         msg = self._channel.receive_message()
         if msg is not None and msg.type != commands_from_stm.Feedback.HEY:
             self._stm_responses_deque.append(msg)
-        self._logger.info('Received from STM : {}'.format(msg.type))
+            self._logger.info('Received from STM : {}'.format(msg.type))
 
     def treat_network_request(self) -> None:
         if not self._network_request_queue.empty():
@@ -120,7 +119,6 @@ class RobotController(object):
         if command['command'] == Command.END_SIGNAL:
             self.flag_done = True
         command = StmCommand.factory(command)
-        self._logger.info('Sending bytes to STM {:02x} {:02x} {:02x}'.format(command[0], command[1], command[2]))
         self._channel.send_command(command)
 
     def _execute_stm_tasks(self) -> None:
