@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import sqrt, ceil, floor
+from math import sqrt, ceil, floor, sin, degrees
 
 import numpy as np
 
@@ -468,7 +468,10 @@ class StationController(object):
         return target_position
 
     def __move_to_infra_red_station(self):
-        self.__destination = None, 210
+        robot_position = (self._model.robot.center[0], self._model.robot.center[1])
+        in_fron_of_ir_position = (0, -23)
+        angle = degrees(sin(robot_position[1] + in_fron_of_ir_position[1] / robot_position[0])) + 180
+        self.__destination = None, angle
         self.__todo_when_arrived_at_destination = [IR()]
 
         self.__update_path(force=True)
