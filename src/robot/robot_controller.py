@@ -1,4 +1,3 @@
-import time
 from collections import deque
 from logging import Logger
 from queue import Queue
@@ -55,7 +54,7 @@ class RobotController(object):
         msg = self._channel.receive_message()
         if msg is not None and msg.type != commands_from_stm.Feedback.HEY:
             self._stm_responses_deque.append(msg)
-        self._logger.info('Received from STM : {}'.format(msg.type))
+            self._logger.info('Received from STM : {}'.format(msg.type))
 
     def treat_network_request(self) -> None:
         if not self._network_request_queue.empty():
