@@ -581,7 +581,7 @@ class StationController(object):
             self.__logger.info("Where tf is the cube? {}".format(self._model.target_cube.wall.name))
             return
 
-        distance_to_travel = abs(floor(target_position) - floor(robot_pos))
+        distance_to_travel = floor(abs(target_position - robot_pos))
         self.__logger.info("Moving to grab cube by : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
