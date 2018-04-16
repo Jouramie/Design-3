@@ -17,7 +17,7 @@ class Channel(object):
             try:
                 msg = bytearray(self.serial.read(commands_from_stm.Message.BYTES_TO_READ.value))
                 self._logger.info(
-                    'Channel received : {:04x} {:04x} {:04x} {:04x}'.format(msg[0], msg[1], msg[2], msg[3]))
+                    'Channel received : {:02x} {:02x} {:02x} {:02x}'.format(msg[0], msg[1], msg[2], msg[3]))
                 return commands_from_stm.Feedback(msg)
             except Exception:
                 pass
