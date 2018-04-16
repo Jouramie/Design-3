@@ -90,7 +90,6 @@ class TestPathCalculator(TestCase):
                            (81, 29), (82, 29), (83, 29), (84, 29), (85, 29), (86, 29), (87, 29), (88, 29), (89, 29),
                            (90, 29), (91, 29), (92, 29), (93, 29), (94, 29), (95, 29), (96, 29), (97, 29), (98, 29),
                            (99, 29), (100, 29), (101, 29), (102, 29), (102, 30), (102, 31), (102, 32), (102, 33)]
-        print(path_calculator.get_calculated_path())
 
         self.assertEqual(expected_square, path_calculator.get_calculated_path())
 
