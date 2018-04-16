@@ -44,7 +44,7 @@ def create_channel(port: str, logger: Logger) -> Channel:
     ser.port = port
     ser.baudrate = 115200
     ser.bytesize = serial.EIGHTBITS
-    ser.parity = serial.PARITY_NONE
+    ser.parity = serial.PARITY_ODD
     ser.stopbits = 1
     ser.timeout = 2
     ser.open()
