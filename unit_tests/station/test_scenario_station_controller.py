@@ -35,6 +35,10 @@ RESOURCES_PATH = {
 
 CUBE_POSITION = {
     'tables': {
+        'cube_area1': {
+            'x': 166,
+            'y': 33
+        },
         'target_zone': {
             'x': 66.2,
             'y': 66.2
