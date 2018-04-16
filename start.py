@@ -75,7 +75,7 @@ def start_robot(config: dict, logger: logging.Logger) -> None:
                                                                            config['network']['port'],
                                                                            encoder.DictionaryEncoder())
     try:
-        channel = create_channel(config['serial']['port'])
+        channel = create_channel(config['serial']['port'], logger)
         robot_controller.RobotController(logger, scanner, network_controller, channel).main_loop()
     except Exception as e:
         logger.error(str(e))
