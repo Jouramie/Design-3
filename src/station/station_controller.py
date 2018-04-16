@@ -617,7 +617,16 @@ class StationController(object):
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
     def __travel_out_of_target_zone(self):
-        self.__destination = (80, 32), 0
+        target_left = (90, 60)
+        target_center = (90, 30)
+        target_right = (90, 0)
+        if not self.__navigation_environment.get_grid().is_obstacle(target_left):
+            self.__destination = target_left, None
+        elif not self.__navigation_environment.get_grid().is_obstacle(target_center):
+            self.__destination = target_center, None
+        elif not self.__navigation_environment.get_grid().is_obstacle(target_right):
+            self.__destination = target_right, None
+
         self.__todo_when_arrived_at_destination = None
 
         self.__update_path(force=True)
