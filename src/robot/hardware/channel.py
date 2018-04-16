@@ -27,15 +27,10 @@ class Channel(object):
     def send_command(self, message: bytes) -> None:
         message = bytearray(message)
         message.append(self.calculate_checksum(message))
-        self._logger.info('Sending bytes to SERIAL from channel {:02x} {:02x} {:02x} {:02x}'.format(message[0], message[1], message[2], message[3]))
-        self.serial.write(message[0])
-        sleep(0.005)
-        self.serial.write(message[1])
-        sleep(0.005)
-        self.serial.write(message[2])
-        sleep(0.005)
-        self.serial.write(message[3])
-        sleep(0.005)
+        self._logger.info(
+            'Sending bytes to SERIAL from channel {:02x} {:02x} {:02x} {:02x}'.format(
+                message[0], message[1], message[2], message[3]))
+        self.serial.write(message)
 
     @staticmethod
     def calculate_checksum(message: bytes) -> int:
