@@ -243,10 +243,9 @@ class StationController(object):
             self.__travel_out_of_target_zone()
 
             self.__network.send_actions([LightItUp()])
-            self._model.next_state = State.RESETTING
+            self._model.next_state = State.FINISHED
 
-        elif self._model.current_state == State.RESETTING:
-            self._model.current_state = State.NOT_STARTED
+        elif self._model.current_state == State.FINISHED:
             return
         else:
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))

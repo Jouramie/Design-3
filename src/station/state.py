@@ -13,5 +13,5 @@ class State(Enum):
     ADJUSTING_IN_CUBE_DEPOT = 8
     DROP_CUBE = 9
     EXITING_TARGET_ZONE_AND_LIGHT = 12
-    RESETTING = -1
+    FINISHED = -1
     WORKING = -2
