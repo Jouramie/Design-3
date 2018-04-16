@@ -237,10 +237,9 @@ class StationController(object):
             # TODO Envoyer la commande de déplacement + led
 
             self.__network.send_actions([LightItUp()])
-            self._model.next_state = State.RESETTING
+            self._model.next_state = State.FINISHED
 
-        elif self._model.current_state == State.RESETTING:
-            self._model.current_state = State.NOT_STARTED
+        elif self._model.current_state == State.FINISHED:
             return
         else:
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
