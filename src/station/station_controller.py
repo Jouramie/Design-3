@@ -186,6 +186,9 @@ class StationController(object):
             elif not self.__is_correctly_positioned_for_cube_grab():
                 self.__logger.info("Strafing robot.")
                 self.__strafing_for_cube_grab()
+            elif not self.__is_safe_distance_for_cube_grab():
+                self.__logger.info("Approaching robot.")
+                self.__approach_for_cube_grab()
             else:
                 self.__logger.info("Robot is correctly placed.")
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
@@ -379,6 +382,47 @@ class StationController(object):
 
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
+
+    def __is_safe_distance_for_cube_grab(self):
+        robot_pos_x = self._model.robot.center[0]
+        robot_pos_y = self._model.robot.center[1]
+        distance_between_target_cube_and_grabber_cube = 6
+
+        if self._model.target_cube.wall == Wall.UP:
+            target_position_y = self._model.target_cube.center[1] - distance_between_target_cube_and_grabber_cube
+            return target_position_y <= (robot_pos_y + self.__config['distance_between_robot_center_and_cube_center'])
+        if self._model.target_cube.wall == Wall.DOWN:
+            target_position_y = self._model.target_cube.center[1] + distance_between_target_cube_and_grabber_cube
+            return target_position_y >= (robot_pos_y - self.__config['distance_between_robot_center_and_cube_center'])
+        elif self._model.target_cube.wall == Wall.MIDDLE:
+            target_position_x = self._model.target_cube.center[0] - distance_between_target_cube_and_grabber_cube
+            return target_position_x <= (robot_pos_x + self.__config['distance_between_robot_center_and_cube_center'])
+        else:
+            self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
+
+    def __approach_for_cube_grab(self):
+        robot_pos_x = self._model.robot.center[0]
+        robot_pos_y = self._model.robot.center[1]
+        distance_between_target_cube_and_grabber_cube = 6
+
+        self.__destination = None
+
+        if self._model.target_cube.wall == Wall.UP:
+            target_position_y = self._model.target_cube.center[1] - distance_between_target_cube_and_grabber_cube
+            distance = target_position_y - (robot_pos_y + self.__config['distance_between_robot_center_and_cube_center'])
+        elif self._model.target_cube.wall == Wall.DOWN:
+            target_position_y = self._model.target_cube.center[1] + distance_between_target_cube_and_grabber_cube
+            distance = target_position_y - abs(robot_pos_y - self.__config['distance_between_robot_center_and_cube_center'])
+        elif self._model.target_cube.wall == Wall.MIDDLE:
+            target_position_x = self._model.target_cube.center[0] - distance_between_target_cube_and_grabber_cube
+            distance = target_position_x - (robot_pos_x + self.__config['distance_between_robot_center_and_cube_center'])
+        else:
+            distance = 0
+            self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
+
+        self.__todo_when_arrived_at_destination = [Forward(distance)]
+        self.__update_path(force=True)
+        self.__send_next_actions_commands()
 
     def __aligning_for_cube_drop(self):
         robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
