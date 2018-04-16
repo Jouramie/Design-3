@@ -4,7 +4,7 @@ from ..objects.flag_cube import FlagCube
 from ..objects.obstacle import Obstacle
 from ..objects.target_zone import TargetZone
 
-from math import sqrt, floor
+from math import sqrt
 
 
 class RealWorldEnvironment(object):
