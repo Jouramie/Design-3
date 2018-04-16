@@ -19,4 +19,4 @@ class FlagCube(object):
         return "Position: {}, Color: {}".format(self.center, self.color)
 
     def __eq__(self, other):
-        return self.center == other.center and self.color == other.color
+        return self.center == other.center and self.color == other.color and self.wall == other.wall
