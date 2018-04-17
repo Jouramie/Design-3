@@ -613,7 +613,7 @@ class StationController(object):
         self._model.target_cube = None
 
         self.__destination = None
-        self.__todo_when_arrived_at_destination = [Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
+        self.__todo_when_arrived_at_destination = [Backward(0.5), Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -689,10 +689,10 @@ class StationController(object):
         target_left = (90, 55)
         target_center = (90, 30)
         target_right = (90, 5)
-        if not self.__navigation_environment.get_grid().is_obstacle(target_left):
-            self.__destination = target_left, None
-        elif not self.__navigation_environment.get_grid().is_obstacle(target_center):
+        if not self.__navigation_environment.get_grid().is_obstacle(target_center):
             self.__destination = target_center, None
+        elif not self.__navigation_environment.get_grid().is_obstacle(target_left):
+            self.__destination = target_left, None
         elif not self.__navigation_environment.get_grid().is_obstacle(target_right):
             self.__destination = target_right, None
 
