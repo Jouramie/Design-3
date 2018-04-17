@@ -511,7 +511,7 @@ class StationController(object):
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
-        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'] + 3,
+        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'] + 5,
                            cube_destination[1])
         self.__logger.info("Target position: {}".format(str(target_position)))
 
