@@ -520,8 +520,9 @@ class StationController(object):
 
     def __move_to_infra_red_station(self):
         robot_position = (self._model.robot.center[0], self._model.robot.center[1])
-        in_fron_of_ir_position = (0, -23)
-        angle = degrees(sin((robot_position[1] + abs(in_fron_of_ir_position[1])) / robot_position[0])) + 180
+        in_front_of_ir_position = (0, -23)
+        angle = degrees(sin((robot_position[1] - in_front_of_ir_position[1]) /
+                            (robot_position[0] - in_front_of_ir_position[0]))) + 180
         self.__destination = None, angle
         self.__todo_when_arrived_at_destination = [IR()]
 
@@ -689,6 +690,7 @@ class StationController(object):
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
+
 
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
     distance_between_two_points = sqrt(
