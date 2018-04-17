@@ -51,7 +51,7 @@ class TestPathConverter(TestCase):
 
         movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        expected_movements = [Rotate(-180), Forward(1)]
+        expected_movements = [Rotate(-180*0.9), Forward(1)]
         expected_segments = [((0, 0), (-1, 0))]
         print(', '.join(str(mouv) for mouv in movements))
         self.assertEqual(expected_movements, movements)
@@ -84,9 +84,8 @@ class TestPathConverter(TestCase):
 
         movements, segments = self.path_converter.convert_path(path, self.robot)
 
-        expected_movements = [Rotate(135), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
+        expected_movements = [Rotate(135*0.9), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
         expected_segments = [((0, 0), (-1, 1))]
-        print(', '.join(str(mouv) for mouv in movements))
         self.assertEqual(expected_movements, movements)
         self.assertEqual(expected_segments, segments)
 
@@ -94,10 +93,8 @@ class TestPathConverter(TestCase):
         path = [(0, 0), (-1, -1)]
 
         movements, segments = self.path_converter.convert_path(path, self.robot)
-
-        expected_movements = [Rotate(-135), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
+        expected_movements = [Rotate(-135*0.9), Forward(FORTY_FIVE_DEGREES_MOVE_LENGTH)]
         expected_segments = [((0, 0), (-1, -1))]
-        print(', '.join(str(mouv) for mouv in movements))
         self.assertEqual(expected_movements, movements)
         self.assertEqual(expected_segments, segments)
 
@@ -105,7 +102,7 @@ class TestPathConverter(TestCase):
         self.path = [(0, 0), (5, 5), (5, 9), (4, 9), (3, 8)]
 
         result_movements, result_path = self.path_converter.convert_path(self.path, self.robot, 130)
-
+        print(result_path)
         expected_movements = [Rotate(45), Forward((round((2 * 5 ** 2) ** (1 / 2), 1))),
                               Rotate(45), Forward(4.0),
                               Rotate(90), Forward(1.0),
