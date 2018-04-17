@@ -86,11 +86,11 @@ class CoordinateConverter:
             table_cube = self.table_config_cubes['cube' + str(indexes)]
             position = (table_cube['x'], table_cube['y'])
             wall = None
-            if position[1] < (-23 + 5):
+            if position[1] < (-23 + 10):
                 wall = Wall.DOWN
-            if position[1] > (111 + -23 - 10):
+            if position[1] > (88 - 10):
                 wall = Wall.UP
-            if position[0] > (231 + -23 - 5):
+            if position[0] > (208 - 10):
                 wall = Wall.MIDDLE
             color = vision_cube.color
             flag_cube = FlagCube(position, color, wall)

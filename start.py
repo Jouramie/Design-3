@@ -94,7 +94,12 @@ def start_station(config: dict, logger: logging.Logger) -> None:
                                                                   config['resources_path']['world_calibration'])
     table_camera_config = table_camera_config_factory.create(config['table_number'])
 
-    coordinate_converter = CoordinateConverter(table_camera_config, config['cube_positions']['tables']['t2'])
+    if config['table_number'] == 1:
+        cube_dict = config['cube_positions']['tables']['t1']
+    else:
+        cube_dict = config['cube_positions']['tables']['t2']
+
+    coordinate_converter = CoordinateConverter(table_camera_config, cube_dict)
     if config['robot']['use_mocked_robot_detector']:
         robot_detector = MockedRobotDetector(
             (config['robot']['mocked_robot_position'][0],
