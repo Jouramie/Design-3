@@ -50,12 +50,10 @@ class RealCamera(Camera):
 
     def get_frame(self):
         self.__check_capture_object_is_opened()
-        frame = None
-        old_frame = None
-        while frame is not None:
-            old_frame = frame
-            _, frame = self.capture_object.read()
-        return old_frame
+        is_frame_returned = False
+        while not is_frame_returned:
+            is_frame_returned, frame = self.capture_object.read()
+        return frame
 
     def get_fps(self):
         self.__check_capture_object_is_opened()
