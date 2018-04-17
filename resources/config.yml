@@ -55,6 +55,9 @@ station:
     draw_vision_cubes: false
   cube_positions:
     tables:
+      cube_area1:
+        x: 166
+        y: 33
       target_zone:
         length: 66.2
       t2:

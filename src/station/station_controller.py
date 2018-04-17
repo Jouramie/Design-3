@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import sqrt, ceil, floor
+from math import sqrt, ceil, floor, sin, degrees
 
 import numpy as np
 
@@ -240,9 +240,8 @@ class StationController(object):
                 self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state == State.EXITING_TARGET_ZONE_AND_LIGHT:
-            self.__travel_out_of_target_zone()
+            self.__travel_out_of_target_zone_and_light_led()
 
-            self.__network.send_actions([LightItUp()])
             self._model.next_state = State.FINISHED
 
         elif self._model.current_state == State.FINISHED:
@@ -508,7 +507,8 @@ class StationController(object):
         self.__network.send_actions(actions_to_be_send)
 
     def __find_safe_position_in_cube_area(self) -> (tuple, int):
-        return (166, 33), None
+        return (self.__config['cube_positions']['tables']['cube_area1']['x'],
+                self.__config['cube_positions']['tables']['cube_area1']['y']), None
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
@@ -519,7 +519,10 @@ class StationController(object):
         return target_position
 
     def __move_to_infra_red_station(self):
-        self.__destination = (30, 30), 250
+        robot_position = (self._model.robot.center[0], self._model.robot.center[1])
+        in_fron_of_ir_position = (0, -23)
+        angle = degrees(sin((robot_position[1] + abs(in_fron_of_ir_position[1])) / robot_position[0])) + 180
+        self.__destination = None, angle
         self.__todo_when_arrived_at_destination = [IR()]
 
         self.__update_path(force=True)
@@ -552,7 +555,11 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __move_to_cube_area(self):
-        self._model.target_cube = self._model.real_world_environment.find_cube(self._model.next_cube.color)
+
+        self._model.target_cube = self._model.real_world_environment.find_cube(
+            self._model.next_cube.color,
+            (self.__config['cube_positions']['tables']['cube_area1']['x'],
+             self.__config['cube_positions']['tables']['cube_area1']['y']))
         if self._model.target_cube is None:
             self.__logger.warning("The target cube is None. Cannot continue, exiting.")
             return
@@ -666,9 +673,18 @@ class StationController(object):
             self.__config['distance_between_robot_center_and_cube_center'])
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
-    def __travel_out_of_target_zone(self):
-        self.__destination = (80, 32), 0
-        self.__todo_when_arrived_at_destination = None
+    def __travel_out_of_target_zone_and_light_led(self):
+        target_left = (90, 60)
+        target_center = (90, 30)
+        target_right = (90, 0)
+        if not self.__navigation_environment.get_grid().is_obstacle(target_left):
+            self.__destination = target_left, None
+        elif not self.__navigation_environment.get_grid().is_obstacle(target_center):
+            self.__destination = target_center, None
+        elif not self.__navigation_environment.get_grid().is_obstacle(target_right):
+            self.__destination = target_right, None
+
+        self.__todo_when_arrived_at_destination = [LightItUp()]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
