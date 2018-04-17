@@ -127,6 +127,11 @@ class StationController(object):
             self._model.next_cube = None
 
     def update(self):
+        if self._model.current_state is State.WORKING:
+            try:
+                msg = self.__network.check_robot_feedback()
+            except MessageNotReceivedYet:
+                msg = None
         self._model.frame = self.__camera.get_frame()
         self._model.robot = self.__robot_detector.detect(self._model.frame)
 
@@ -142,11 +147,7 @@ class StationController(object):
         if self._model.real_world_environment is None:
             self.__generate_real_world_environments()
 
-        if self._model.current_state is State.WORKING:
-            try:
-                msg = self.__network.check_robot_feedback()
-            except MessageNotReceivedYet:
-                return
+        if self._model.current_state is State.WORKING and msg is not None:
             # input('Press enter to continue execution.')  # TODO
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
@@ -160,6 +161,7 @@ class StationController(object):
                 self.__find_country()
                 self.__select_next_cube_color()
                 return
+
             elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
                 self.__todo_when_arrived_at_destination = None
@@ -170,8 +172,8 @@ class StationController(object):
             else:
                 self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
                 return
-
-        self.__logger.info("ENTERING NEW STATE: {}.".format(self._model.current_state))
+        if self._model.current_state is not State.WORKING:
+            self.__logger.info("ENTERING NEW STATE: {}.".format(self._model.current_state))
 
         if self._model.current_state is State.GETTING_COUNTRY_CODE:
             self.__move_to_infra_red_station()
@@ -246,6 +248,10 @@ class StationController(object):
 
         elif self._model.current_state == State.FINISHED:
             return
+
+        elif self._model.current_state == State.WORKING:
+            return
+
         else:
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
 
@@ -491,9 +497,10 @@ class StationController(object):
     def __send_next_actions_commands(self) -> None:
         if self.__movements_to_destination:
             actions_to_be_send: [Action] = [self.__movements_to_destination.pop(0)]
-            if actions_to_be_send[0].command == Command.MOVE_ROTATE:
-                if self.__movements_to_destination:
-                    actions_to_be_send.append(self.__movements_to_destination.pop(0))
+            if actions_to_be_send[0].command == Command.MOVE_ROTATE and \
+                    self.__movements_to_destination and \
+                    self.__movements_to_destination[0].command != Command.MOVE_ROTATE:
+                actions_to_be_send.append(self.__movements_to_destination.pop(0))
 
         elif self.__todo_when_arrived_at_destination:
             actions_to_be_send, self.__todo_when_arrived_at_destination = self.__todo_when_arrived_at_destination, []
@@ -510,7 +517,7 @@ class StationController(object):
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
-        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'],
+        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'] + 5,
                            cube_destination[1])
         self.__logger.info("Target position: {}".format(str(target_position)))
 
@@ -604,7 +611,7 @@ class StationController(object):
         self._model.target_cube = None
 
         self.__destination = None
-        self.__todo_when_arrived_at_destination = [Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
+        self.__todo_when_arrived_at_destination = [Backward(0.5), Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -677,13 +684,13 @@ class StationController(object):
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
     def __travel_out_of_target_zone_and_light_led(self):
-        target_left = (90, 60)
+        target_left = (90, 55)
         target_center = (90, 30)
-        target_right = (90, 0)
-        if not self.__navigation_environment.get_grid().is_obstacle(target_left):
-            self.__destination = target_left, None
-        elif not self.__navigation_environment.get_grid().is_obstacle(target_center):
+        target_right = (90, 5)
+        if not self.__navigation_environment.get_grid().is_obstacle(target_center):
             self.__destination = target_center, None
+        elif not self.__navigation_environment.get_grid().is_obstacle(target_left):
+            self.__destination = target_left, None
         elif not self.__navigation_environment.get_grid().is_obstacle(target_right):
             self.__destination = target_right, None
 

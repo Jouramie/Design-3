@@ -15,7 +15,7 @@ class NavigationEnvironment(object):
     POTENTIAL_WEIGHT = 2
     INFINITY_WEIGHT = 3
     CUBE_HALF_SIZE = 4
-    OBSTACLE_RADIUS = 7
+    OBSTACLE_RADIUS = 10
     BIGGEST_ROBOT_RADIUS = 17
 
     __width = 0
@@ -49,7 +49,7 @@ class NavigationEnvironment(object):
     def add_obstacles(self, obstacles: [Obstacle]):
         minor_y_offset = self.BIGGEST_ROBOT_RADIUS - 2
         major_y_offset = self.BIGGEST_ROBOT_RADIUS - 2
-        half_octobstacle_long_side = 10
+        half_octobstacle_long_side = 13
 
         for obstacle in obstacles:
             point = (int(obstacle.center[0]), int(obstacle.center[1]))
