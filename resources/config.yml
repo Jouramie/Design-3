@@ -27,7 +27,7 @@ station:
       - "resources/calibration/table5_2018-03-21.yml"
       - "resources/calibration/table6_2018-03-21.yml"
     world_calibration:
-      - ""
+      - "resources/calibration/world_calibration_1.npy"
       - "resources/calibration/world_calibration_4.npy"
       - "resources/calibration/world_calibration_3.npy"
       - "resources/calibration/world_calibration_4.npy"
