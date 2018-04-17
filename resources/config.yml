@@ -14,20 +14,20 @@ robot:
 
 station:
   distance_between_robot_center_and_cube_center: 18 #cm
-  table_number: 4
+  table_number: 1
   resources_path:
     countries_list: "resources/countries/A-Liste_UTF-16.txt"
     country_flag: "resources/countries/Flag_{country}.gif"
     ui: "src/ui/main_windows.ui"
     camera_calibration:
-      - "resources/calibration/table1_2018-03-21.yml"
+      - "resources/calibration/table4_2018-03-01.yml"
       - "resources/calibration/table4_2018-03-01.yml"
       - "resources/calibration/table3_2018-03-21.yml"
       - "resources/calibration/table4_2018-03-01.yml"
       - "resources/calibration/table5_2018-03-21.yml"
       - "resources/calibration/table6_2018-03-21.yml"
     world_calibration:
-      - "resources/calibration/world_calibration_1.npy"
+      - "resources/calibration/world_calibration_4.npy"
       - "resources/calibration/world_calibration_4.npy"
       - "resources/calibration/world_calibration_3.npy"
       - "resources/calibration/world_calibration_4.npy"
