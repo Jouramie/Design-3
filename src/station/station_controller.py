@@ -129,9 +129,9 @@ class StationController(object):
     def update(self):
         if self._model.current_state is State.WORKING:
             try:
-                self.msg = self.__network.check_robot_feedback()
+                msg = self.__network.check_robot_feedback()
             except MessageNotReceivedYet:
-                self.msg = None
+                msg = None
         self._model.frame = self.__camera.get_frame()
         self._model.robot = self.__robot_detector.detect(self._model.frame)
 
@@ -147,24 +147,22 @@ class StationController(object):
         if self._model.real_world_environment is None:
             self.__generate_real_world_environments()
 
-        if self._model.current_state is State.WORKING and self.msg is not None:
+        if self._model.current_state is State.WORKING and msg is not None:
             # input('Press enter to continue execution.')  # TODO
-            if self.msg['command'] == Command.EXECUTED_ALL_REQUESTS:
-                self._model.frame = self.__camera.get_frame()
-                self._model.robot = self.__robot_detector.detect(self._model.frame)
+            if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
                 self.__send_next_actions_commands()
                 if self._model.current_state is State.WORKING:
                     return
 
-            elif self.msg['command'] == Command.INFRARED_SIGNAL:
-                self._model.country_code = self.msg['country_code']
+            elif msg['command'] == Command.INFRARED_SIGNAL:
+                self._model.country_code = msg['country_code']
                 self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
                 self.__find_country()
                 self.__select_next_cube_color()
                 return
 
-            elif self.msg['command'] == Command.GRAB_CUBE_FAILURE:
+            elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
                 self.__todo_when_arrived_at_destination = None
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
@@ -172,7 +170,7 @@ class StationController(object):
                 return
 
             else:
-                self.__logger.warning('Received strange message from robot: {}'.format(str(self.msg)))
+                self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
                 return
         if self._model.current_state is not State.WORKING:
             self.__logger.info("ENTERING NEW STATE: {}.".format(self._model.current_state))
