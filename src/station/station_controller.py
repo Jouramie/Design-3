@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import sqrt, ceil, floor
+from math import sqrt, ceil
 
 import numpy as np
 
@@ -365,8 +365,7 @@ class StationController(object):
 
     def __is_correctly_positioned_for_cube_drop(self):
         robot_pos_y = self._model.robot.center[1]
-        target_position_y = int(
-            self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
+        target_position_y = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]
         return (target_position_y - 1) < robot_pos_y < (target_position_y + 1)
 
     def __is_correctly_positioned_for_cube_grab(self):
@@ -431,10 +430,9 @@ class StationController(object):
 
     def __aligning_for_cube_drop(self):
         robot_pos = (self._model.robot.center[0], self._model.robot.center[1])
-        target_position = (
-            int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
-                + self.__config['distance_between_robot_center_and_cube_center']),
-            int(self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1]))
+        target_position = (self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0]
+                           + self.__config['distance_between_robot_center_and_cube_center'],
+                           self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
 
         distance_to_travel = calculate_distance_between_two_points(robot_pos, target_position)
         self.__logger.info("Moving to drop target : {} cm".format(str(distance_to_travel)))
@@ -566,22 +564,24 @@ class StationController(object):
     def __move_robot_to_grab_cube(self):
         if self._model.target_cube.wall == Wall.UP:
             robot_pos = self._model.robot.center[1]
-            target_position = self._model.target_cube.center[1] - self.__config['distance_between_robot_center_and_cube_center']
+            target_position = self._model.target_cube.center[1] - self.__config[
+                'distance_between_robot_center_and_cube_center']
 
         elif self._model.target_cube.wall == Wall.DOWN:
             robot_pos = self._model.robot.center[1]
             target_position = self._model.target_cube.center[1] + self.__config[
-                                   'distance_between_robot_center_and_cube_center']
+                'distance_between_robot_center_and_cube_center']
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
             robot_pos = self._model.robot.center[0]
-            target_position = self._model.target_cube.center[0] - self.__config['distance_between_robot_center_and_cube_center']
+            target_position = self._model.target_cube.center[0] - self.__config[
+                'distance_between_robot_center_and_cube_center']
 
         else:
             self.__logger.info("Where tf is the cube? {}".format(self._model.target_cube.wall.name))
             return
 
-        distance_to_travel = floor(abs(target_position - robot_pos))
+        distance_to_travel = ceil(abs(target_position - robot_pos))
         self.__logger.info("Moving to grab cube by : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
@@ -662,9 +662,8 @@ class StationController(object):
 
     def __is_correctly_aligned_for_cube_drop(self):
         robot_pos_x = self._model.robot.center[0]
-        target_position_x = int(
-            self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0] +
-            self.__config['distance_between_robot_center_and_cube_center'])
+        target_position_x = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[0] + \
+                            self.__config['distance_between_robot_center_and_cube_center']
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
     def __travel_out_of_target_zone(self):
@@ -674,9 +673,9 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
+
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
-    distance_between_two_points = sqrt(
-        (floor(point2[1]) - floor(point1[1])) ** 2 + floor((point2[0]) - floor(point1[0])) ** 2)
-    ceil_distance_between_two_points = ceil(distance_between_two_points)
+    distance_between_two_points = sqrt((point2[1] - point1[1]) ** 2 + (point2[0] - point1[0]) ** 2)
+    ceil_distance_between_two_points = distance_between_two_points
 
     return int(ceil_distance_between_two_points)

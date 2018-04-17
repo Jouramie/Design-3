@@ -57,6 +57,52 @@ station:
     tables:
       target_zone:
         length: 66.2
+      t1:
+        cube0:
+          x: 166.5
+          y: 84.5
+          pixel_x: 1360
+          pixel_y: 240
+        cube1:
+          x: 180.5
+          y: 84.5
+          pixel_x: 1424
+          pixel_y: 240
+        cube2:
+          x: 203.5
+          y: 62
+          pixel_x: 1575
+          pixel_y: 402
+        cube3:
+          x: 203.5
+          y: 48
+          pixel_x: 1575
+          pixel_y: 501
+        cube4:
+          x: 203.5
+          y: 34
+          pixel_x: 1575
+          pixel_y: 600
+        cube5:
+          x: 203.5
+          y: 20
+          pixel_x: 1575
+          pixel_y: 700
+        cube6:
+          x: 203.5
+          y: 6
+          pixel_x: 1575
+          pixel_y: 800
+        cube7:
+          x: 180.5
+          y: -18
+          pixel_x: 1424
+          pixel_y: 960
+        cube8:
+          x: 166.5
+          y: -18
+          pixel_x: 1350
+          pixel_y: 960
       t2:
         cube0:
           x: 166.5
