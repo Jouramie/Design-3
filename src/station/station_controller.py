@@ -510,7 +510,7 @@ class StationController(object):
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
-        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'],
+        target_position = (cube_destination[0] + self.__config['distance_between_robot_center_and_cube_center'] + 3,
                            cube_destination[1])
         self.__logger.info("Target position: {}".format(str(target_position)))
 
@@ -677,9 +677,9 @@ class StationController(object):
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
     def __travel_out_of_target_zone_and_light_led(self):
-        target_left = (90, 60)
+        target_left = (90, 55)
         target_center = (90, 30)
-        target_right = (90, 0)
+        target_right = (90, 5)
         if not self.__navigation_environment.get_grid().is_obstacle(target_left):
             self.__destination = target_left, None
         elif not self.__navigation_environment.get_grid().is_obstacle(target_center):
