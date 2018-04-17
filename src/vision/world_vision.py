@@ -1,3 +1,5 @@
+import os
+import time
 from logging import Logger
 
 import cv2
@@ -15,6 +17,8 @@ class WorldVision:
         self.config = config
 
     def create_environment(self, frame, table):
+        self.__log_frame(frame)
+
         options = {1: TableCrop.TABLE1, 2: TableCrop.TABLE2, 3: TableCrop.TABLE3, 4: TableCrop.TABLE4,
                    5: TableCrop.TABLE5, 6: TableCrop.TABLE6}
         table_crop = options[table]
@@ -154,3 +158,9 @@ class WorldVision:
         crop_img = frame[y:y + h, x:x + w]
 
         return crop_img
+
+    def __log_frame(self, frame):
+        directory = self.config['camera']['image_save_dir'].format(date=time.strftime("%Y-%m-%d"))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        cv2.imwrite(directory + time.strftime("/%Hh%Mm%Ss.jpg"), frame)

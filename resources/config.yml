@@ -7,7 +7,7 @@ log_file: "log/{date}.log"
 
 robot:
   network:
-    host_ip: "10.42.0.190"
+    host_ip: "10.42.0.78"
     port: *port
   serial:
     port: "/dev/ttyUSB0"
@@ -55,6 +55,9 @@ station:
     draw_vision_cubes: false
   cube_positions:
     tables:
+      cube_area1:
+        x: 166
+        y: 33
       target_zone:
         length: 66.2
       t2:

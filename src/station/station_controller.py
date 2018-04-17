@@ -163,7 +163,7 @@ class StationController(object):
             elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
                 self.__todo_when_arrived_at_destination = None
-                self._model.current_state = State.ADJUSTING_IN_CUBE_REPOSITORY
+                self._model.current_state = State.MOVING_TO_GRAB_CUBE
                 self._model.next_state = None
                 return
 
@@ -507,7 +507,8 @@ class StationController(object):
         self.__network.send_actions(actions_to_be_send)
 
     def __find_safe_position_in_cube_area(self) -> (tuple, int):
-        return (166, 33), None
+        return (self.__config['cube_positions']['tables']['cube_area1']['x'],
+                self.__config['cube_positions']['tables']['cube_area1']['y']), None
 
     def __find_where_to_place_cube(self) -> tuple:
         cube_destination = self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center
@@ -555,7 +556,11 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __move_to_cube_area(self):
-        self._model.target_cube = self._model.real_world_environment.find_cube(self._model.next_cube.color)
+
+        self._model.target_cube = self._model.real_world_environment.find_cube(
+            self._model.next_cube.color,
+            (self.__config['cube_positions']['tables']['cube_area1']['x'],
+             self.__config['cube_positions']['tables']['cube_area1']['y']))
         if self._model.target_cube is None:
             self.__logger.warning("The target cube is None. Cannot continue, exiting.")
             return
@@ -567,24 +572,24 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __move_robot_to_grab_cube(self):
-        robot_pos = (floor(self._model.robot.center[0]), floor(self._model.robot.center[1]))
-        target_position = None
         if self._model.target_cube.wall == Wall.UP:
-            target_position = (int(self._model.target_cube.center[0]),
-                               int(self._model.target_cube.center[1] - self.__config[
-                                   'distance_between_robot_center_and_cube_center']))
+            robot_pos = self._model.robot.center[1]
+            target_position = self._model.target_cube.center[1] - self.__config['distance_between_robot_center_and_cube_center']
 
         elif self._model.target_cube.wall == Wall.DOWN:
-            target_position = (int(self._model.target_cube.center[0]),
-                               int(self._model.target_cube.center[1] + self.__config[
-                                   'distance_between_robot_center_and_cube_center']))
+            robot_pos = self._model.robot.center[1]
+            target_position = self._model.target_cube.center[1] + self.__config[
+                                   'distance_between_robot_center_and_cube_center']
 
         elif self._model.target_cube.wall == Wall.MIDDLE:
-            target_position = (
-                int(self._model.target_cube.center[0] - self.__config['distance_between_robot_center_and_cube_center']),
-                int(self._model.target_cube.center[1]))
+            robot_pos = self._model.robot.center[0]
+            target_position = self._model.target_cube.center[0] - self.__config['distance_between_robot_center_and_cube_center']
 
-        distance_to_travel = calculate_distance_between_two_points(robot_pos, target_position)
+        else:
+            self.__logger.info("Where tf is the cube? {}".format(self._model.target_cube.wall.name))
+            return
+
+        distance_to_travel = floor(abs(target_position - robot_pos))
         self.__logger.info("Moving to grab cube by : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
@@ -650,6 +655,7 @@ class StationController(object):
         if force:
             self.__generate_navigation_environment()
 
+        self.__logger.info('Robot: {}'.format(str(self._model.robot)))
         self.__logger.info('Destination : {}'.format(self.__destination))
         if self.__destination is not None:
             end_position, end_orientation = self.__destination

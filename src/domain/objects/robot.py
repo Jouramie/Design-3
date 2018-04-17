@@ -35,4 +35,4 @@ class Robot:
         return corner
 
     def __str__(self):
-        return "Position: {} cm\nOrientation : {}°".format(self.center, self.orientation)
+        return "Position: {} cm  Orientation: {}°".format(self.center, self.orientation)
