@@ -77,10 +77,18 @@ class PathConverter(object):
             return
         delta_angle = new_angle - old_angle
         if (180 >= delta_angle > 0) or (-180 <= delta_angle < 0):
-            self.__movements.append(Rotate(delta_angle))
+            self.__append_rotation(delta_angle)
         elif delta_angle % 360 == 0:
             pass
         elif delta_angle > 180:
-            self.__movements.append(Rotate(delta_angle - 360))
+            self.__append_rotation(delta_angle - 360)
         elif delta_angle < -180:
-            self.__movements.append(Rotate(delta_angle + 360))
+            self.__append_rotation(delta_angle + 360)
+
+    def __append_rotation(self, angle):
+        if abs(angle) > 120:
+            self.__movements.append(Rotate(angle / 2))
+            self.__movements.append(Rotate(angle / 2))
+        else:
+            self.__movements.append(Rotate(angle))
+
