@@ -109,6 +109,7 @@ SCENARIO_1 = {
         'resources_path': RESOURCES_PATH,
         'camera': {
             'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
+            'image_save_dir': "fig/saved_images/"
         },
         'robot': {
             'update_robot': False,
@@ -133,6 +134,7 @@ SCENARIO_2 = {
         'resources_path': RESOURCES_PATH,
         'camera': {
             'mocked_camera_image_path': "fig/saved_images/table2/00h02m31s.jpg",
+            'image_save_dir': "fig/saved_images/"
         },
         'robot': {
             'update_robot': False,
