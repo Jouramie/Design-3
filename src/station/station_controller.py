@@ -291,15 +291,15 @@ class StationController(object):
         return False
 
     def __is_correctly_oriented_for_cube_drop(self):
-        return 175 < self._model.robot.orientation % 360 < 185
+        return 177 < self._model.robot.orientation % 360 < 183
 
     def __is_correctly_oriented_for_cube_grab(self):
         if self._model.target_cube.wall == Wall.MIDDLE:
-            return 5 > self._model.robot.orientation % 360 or 355 < self._model.robot.orientation % 360
+            return 3 > self._model.robot.orientation % 360 or 357 < self._model.robot.orientation % 360
         elif self._model.target_cube.wall == Wall.UP:
-            return 85 < self._model.robot.orientation % 360 < 95
+            return 87 < self._model.robot.orientation % 360 < 93
         elif self._model.target_cube.wall == Wall.DOWN:
-            return 265 < self._model.robot.orientation % 360 < 275
+            return 267 < self._model.robot.orientation % 360 < 273
         else:
             self.__logger.info("Wall_of_next_cube is not correctly set:\n{}".format(str(self._model.target_cube.wall)))
             return False
