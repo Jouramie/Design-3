@@ -20,7 +20,7 @@ station:
     country_flag: "resources/countries/Flag_{country}.gif"
     ui: "src/ui/main_windows.ui"
     camera_calibration:
-      - "resources/calibration/table1_2018-03-21.yml"
+      - "resources/calibration/table4_2018-03-01.yml"
       - "resources/calibration/table4_2018-03-01.yml"
       - "resources/calibration/table3_2018-03-21.yml"
       - "resources/calibration/table4_2018-03-01.yml"
