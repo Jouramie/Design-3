@@ -633,6 +633,8 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __drop_cube(self):
+        self.__destination = None
+
         distance_backward = NavigationEnvironment.BIGGEST_ROBOT_RADIUS
         self.__todo_when_arrived_at_destination = [Drop(), Backward(distance_backward)]
 
