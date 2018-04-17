@@ -127,6 +127,11 @@ class StationController(object):
             self._model.next_cube = None
 
     def update(self):
+        if self._model.current_state is State.WORKING:
+            try:
+                self.msg = self.__network.check_robot_feedback()
+            except MessageNotReceivedYet:
+                self.msg = None
         self._model.frame = self.__camera.get_frame()
         self._model.robot = self.__robot_detector.detect(self._model.frame)
 
@@ -142,25 +147,24 @@ class StationController(object):
         if self._model.real_world_environment is None:
             self.__generate_real_world_environments()
 
-        if self._model.current_state is State.WORKING:
-            try:
-                msg = self.__network.check_robot_feedback()
-            except MessageNotReceivedYet:
-                return
+        if self._model.current_state is State.WORKING and self.msg is not None:
             # input('Press enter to continue execution.')  # TODO
-            if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
+            if self.msg['command'] == Command.EXECUTED_ALL_REQUESTS:
+                self._model.frame = self.__camera.get_frame()
+                self._model.robot = self.__robot_detector.detect(self._model.frame)
                 self.__update_path()
                 self.__send_next_actions_commands()
                 if self._model.current_state is State.WORKING:
                     return
 
-            elif msg['command'] == Command.INFRARED_SIGNAL:
-                self._model.country_code = msg['country_code']
+            elif self.msg['command'] == Command.INFRARED_SIGNAL:
+                self._model.country_code = self.msg['country_code']
                 self.__logger.info("Infrared signal received! {code}".format(code=self._model.country_code))
                 self.__find_country()
                 self.__select_next_cube_color()
                 return
-            elif msg['command'] == Command.GRAB_CUBE_FAILURE:
+
+            elif self.msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
                 self.__todo_when_arrived_at_destination = None
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
@@ -168,10 +172,10 @@ class StationController(object):
                 return
 
             else:
-                self.__logger.warning('Received strange message from robot: {}'.format(str(msg)))
+                self.__logger.warning('Received strange message from robot: {}'.format(str(self.msg)))
                 return
-
-        self.__logger.info("ENTERING NEW STATE: {}.".format(self._model.current_state))
+        if self._model.current_state is not State.WORKING:
+            self.__logger.info("ENTERING NEW STATE: {}.".format(self._model.current_state))
 
         if self._model.current_state is State.GETTING_COUNTRY_CODE:
             self.__move_to_infra_red_station()
@@ -246,6 +250,10 @@ class StationController(object):
 
         elif self._model.current_state == State.FINISHED:
             return
+
+        elif self._model.current_state == State.WORKING:
+            return
+
         else:
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
 
