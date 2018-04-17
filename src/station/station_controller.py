@@ -491,9 +491,10 @@ class StationController(object):
     def __send_next_actions_commands(self) -> None:
         if self.__movements_to_destination:
             actions_to_be_send: [Action] = [self.__movements_to_destination.pop(0)]
-            if actions_to_be_send[0].command == Command.MOVE_ROTATE:
-                if self.__movements_to_destination:
-                    actions_to_be_send.append(self.__movements_to_destination.pop(0))
+            if actions_to_be_send[0].command == Command.MOVE_ROTATE and \
+                    self.__movements_to_destination and \
+                    self.__movements_to_destination[0].command != Command.MOVE_ROTATE:
+                actions_to_be_send.append(self.__movements_to_destination.pop(0))
 
         elif self.__todo_when_arrived_at_destination:
             actions_to_be_send, self.__todo_when_arrived_at_destination = self.__todo_when_arrived_at_destination, []
