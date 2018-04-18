@@ -19,7 +19,7 @@ from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, 
     CanIGrab, Movement
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.path_calculator import PathCalculator
-from src.domain.path_calculator.path_converter import PathConverter, create_rotate, get_rotation_angle
+from src.domain.path_calculator.path_converter import PathConverter, get_rotation_angle
 from src.domain.path_calculator.path_simplifier import PathSimplifier
 from src.vision.camera import Camera
 from src.vision.robot_detector import RobotDetector
@@ -517,6 +517,7 @@ class StationController(object):
         else:
             if self._model.next_state is not None:
                 self._model.current_state, self._model.next_state = self._model.next_state, None
+                self._model.original_planned_path = self._model.revised_planned_path = None
             return
 
         self.__network.send_actions(actions_to_be_send)
@@ -534,13 +535,20 @@ class StationController(object):
         return target_position
 
     def __move_to_infra_red_station(self):
-        robot_position = (self._model.robot.center[0], self._model.robot.center[1])
-        in_front_of_ir_position = (0, -23)
-        angle = degrees(sin((robot_position[1] - in_front_of_ir_position[1]) /
-                            (robot_position[0] - in_front_of_ir_position[0]))) + 180
-        self.__destination = None, angle
-        self.__todo_when_arrived_at_destination = [IR()]
+        x_robot_position, y_robot_position = self._model.robot.center[0], self._model.robot.center[1]
+        x_ir_position, y_ir_position = 0, -23
+        angle = degrees(sin((y_robot_position - y_ir_position) /
+                            (x_robot_position - x_ir_position))) + 180
+        if x_robot_position > 90:
+            targets = [(90, 30), (90, 5), (90, 55)]
+            for target in targets:
+                if not self.__navigation_environment.get_grid().is_obstacle(target):
+                    self.__destination = target, angle
+                    break
+        else:
+            self.__destination = None, angle
 
+        self.__todo_when_arrived_at_destination = [IR()]
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
@@ -688,9 +696,14 @@ class StationController(object):
         if self.__destination is not None:
             end_position, end_orientation = self.__destination
 
-            movements, self._model.planned_path = self.__find_path(end_position, end_orientation)
+            movements, path = self.__find_path(end_position, end_orientation)
+            if self._model.original_planned_path is None:
+                self._model.original_planned_path = path
+            else:
+                self._model.revised_planned_path = path
+
             if movements is None:
-                if self.__navigation_environment.get_grid().is_obstacle(self._model.robot):
+                if self.__navigation_environment.get_grid().is_obstacle(self._model.robot.center):
                     self.__move_out_of_obstacles()
                 return
         else:
@@ -732,10 +745,10 @@ class StationController(object):
 
         distance_to_move = self.__navigation_environment.BIGGEST_ROBOT_RADIUS + \
                            self.__navigation_environment.OBSTACLE_RADIUS - \
-                           distance_between(obstacle.center, self._model.robot.center) + 1
+                           distance_between(obstacle.center, self._model.robot.center) + 3
 
         self.__logger.info('Moving away from obstacle {} of {} cm.'.format(obstacle, distance_to_move))
 
         self.__movements_to_destination.insert(0, Forward(distance_to_move))
-        self.__movements_to_destination.insert(0, create_rotate(get_rotation_angle(self._model.robot.orientation,
+        self.__movements_to_destination.insert(0, Rotate(get_rotation_angle(self._model.robot.orientation,
                                                                                    dodge_angle)))

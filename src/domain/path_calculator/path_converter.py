@@ -1,6 +1,5 @@
 from itertools import cycle
 from logging import Logger
-from math import pi, atan
 
 import numpy as np
 
@@ -24,7 +23,7 @@ class PathConverter(object):
 
         if len(path) <= 1:
             if final_angle_desired is not None:
-                self.__movements.append(create_rotate(get_rotation_angle(robot.orientation, final_angle_desired)))
+                self.__movements.append(Rotate(get_rotation_angle(robot.orientation, final_angle_desired)))
             return self.__movements, self.__segments
 
         path_cycle = cycle(path)
@@ -46,7 +45,7 @@ class PathConverter(object):
             current_angle = new_angle
             if current_node == path[-2]:
                 if final_angle_desired is not None:
-                    self.__movements.append(create_rotate(get_rotation_angle(current_angle, final_angle_desired)))
+                    self.__movements.append(Rotate(get_rotation_angle(current_angle, final_angle_desired)))
                 break
 
         if iteration == self.MAX_ITERATION:
@@ -61,7 +60,7 @@ class PathConverter(object):
         if new_angle is not None:
             rotation_angle = get_rotation_angle(current_angle, new_angle)
             if rotation_angle != 0:
-                self.__movements.append(create_rotate(rotation_angle))
+                self.__movements.append(Rotate(rotation_angle))
         while length >= self.MAX_FORWARD_DISTANCE:  # cm
             self.__movements.append(Forward(self.MAX_FORWARD_DISTANCE))
             length -= self.MAX_FORWARD_DISTANCE
@@ -78,10 +77,3 @@ def get_rotation_angle(old_angle, new_angle) -> float:
         return delta_angle - 360
     elif delta_angle < -180:
         return delta_angle + 360
-
-
-def create_rotate(angle) -> Rotate:
-    if abs(angle) > 100:
-        return Rotate(angle * 0.90)
-    else:
-        return Rotate(angle)

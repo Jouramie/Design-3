@@ -111,8 +111,11 @@ class StationView(QMainWindow):
         if self.model.real_path is not None and self.model.real_path:
             self.frame_drawer.draw_real_path(frame, self.model.real_path)
 
-        if self.model.planned_path is not None and self.model.planned_path:
-            self.frame_drawer.draw_planned_path(frame, self.model.planned_path)
+        if self.model.original_planned_path is not None and self.model.original_planned_path:
+            self.frame_drawer.draw_original_planned_path(frame, self.model.original_planned_path)
+
+        if self.model.revised_planned_path is not None and self.model.revised_planned_path:
+            self.frame_drawer.draw_revised_planned_path(frame, self.model.revised_planned_path)
 
         if self.model.robot is not None:
             self.frame_drawer.draw_robot(frame, self.model.robot)
