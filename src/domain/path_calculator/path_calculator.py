@@ -28,8 +28,10 @@ class PathCalculator(object):
             return self.__find_gluttonous_path(starting_point, ending_point)
         except PathCalculatorNoPathError as path_err:
             self.logger.info(str(path_err))
+            return False
         except PathCalculatorError as grid_err:
             self.logger.info(str(grid_err))
+            return False
 
     def __reset_neighbor_step_value(self, ending_point):
         if not self.__grid.is_destination(ending_point):
@@ -104,9 +106,10 @@ class PathCalculator(object):
         self.__grid = grid
 
     def __validate_path_exist(self, starting_point):
-        if self.__grid.get_vertex(starting_point).get_step_value() == Grid.UNASSIGNED_VALUE or \
-                self.__grid.get_vertex(starting_point).get_step_value() == Grid.OBSTACLE_VALUE:
-            raise PathCalculatorNoPathError("PathCalculator could not connect start and end point")
+        if self.__grid.get_vertex(starting_point).get_step_value() == Grid.UNASSIGNED_VALUE:
+            raise PathCalculatorNoPathError("Starting point is not in the grid.")
+        elif self.__grid.get_vertex(starting_point).get_step_value() == Grid.OBSTACLE_VALUE:
+            raise PathCalculatorNoPathError("Starting point is in an obstacle.")
 
     def get_calculated_path(self):
         return self.__path

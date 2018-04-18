@@ -17,6 +17,7 @@ class NavigationEnvironment(object):
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 10
     BIGGEST_ROBOT_RADIUS = 17
+    HALF_OCTOBSTACLE_LONG_SIDE = int(2 * (10 + 17) / 3)
 
     __width = 0
     __height = 0
@@ -49,7 +50,6 @@ class NavigationEnvironment(object):
     def add_obstacles(self, obstacles: [Obstacle]):
         minor_y_offset = self.BIGGEST_ROBOT_RADIUS - 2
         major_y_offset = self.BIGGEST_ROBOT_RADIUS - 2
-        half_octobstacle_long_side = 13
 
         for obstacle in obstacles:
             point = (int(obstacle.center[0]), int(obstacle.center[1]))
@@ -57,19 +57,19 @@ class NavigationEnvironment(object):
             # A nice octobstacle shape
             for x in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
                            self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
-                if x < -half_octobstacle_long_side:
+                if x < -self.HALF_OCTOBSTACLE_LONG_SIDE:
                     minor_y_offset = minor_y_offset - 1
                     for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS + minor_y_offset,
                                    self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS - minor_y_offset + 1):
                             self.__set_obstacle_point(x, y, point)
-                elif x < half_octobstacle_long_side:
+                elif x < self.HALF_OCTOBSTACLE_LONG_SIDE:
                     for y in range(-self.OBSTACLE_RADIUS - self.BIGGEST_ROBOT_RADIUS,
                                    self.OBSTACLE_RADIUS + self.BIGGEST_ROBOT_RADIUS + 1):
                             self.__set_obstacle_point(x, y, point)
                 else:
                     major_y_offset = major_y_offset - 1
-                    for y in range(-half_octobstacle_long_side - major_y_offset,
-                                   half_octobstacle_long_side + major_y_offset + 1):
+                    for y in range(-self.HALF_OCTOBSTACLE_LONG_SIDE - major_y_offset,
+                                   self.HALF_OCTOBSTACLE_LONG_SIDE + major_y_offset + 1):
                             self.__set_obstacle_point(x, y, point)
 
     def __add_walls(self):

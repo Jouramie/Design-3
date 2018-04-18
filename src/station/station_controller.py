@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import ceil, sin, degrees, atan
+from math import ceil, sin, degrees
 
 import numpy as np
 
@@ -12,7 +12,7 @@ from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment_factory import RealWorldEnvironmentFactory
-from src.domain.math_helper import distance_between, get_normalized_direction ,get_angle
+from src.domain.math_helper import distance_between, get_normalized_direction, get_angle
 from src.domain.objects.color import Color
 from src.domain.objects.wall import Wall
 from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, Left, Grab, Drop, LightItUp, IR, Action, \
@@ -703,15 +703,17 @@ class StationController(object):
         self.__send_next_actions_commands()
 
     def __move_out_of_obstacles(self):
-        obstacles = self._model.real_world_environment.find_two_closest_obstacles(self._model.robot)
-        dodge_direction = np.array((0, 0), 'float32')
-        for obstacle in obstacles:
-            dodge_direction += get_normalized_direction(obstacle.center, self._model.robot.center)
+        obstacle = self._model.real_world_environment.find_closest_obstacle(self._model.robot)
+        dodge_direction = get_normalized_direction(obstacle.center, self._model.robot.center)
 
         dodge_angle = get_angle(dodge_direction)
 
-        print(dodge_direction)
-        print(dodge_angle)
-        self.__movements_to_destination.insert(0, Forward(self.__navigation_environment.BIGGEST_ROBOT_RADIUS))
+        distance_to_move = self.__navigation_environment.BIGGEST_ROBOT_RADIUS + \
+                           self.__navigation_environment.OBSTACLE_RADIUS - \
+                           distance_between(obstacle.center, self._model.robot.center) + 1
+
+        self.__logger.info('Moving away from obstacle {} of {} cm.'.format(obstacle, distance_to_move))
+
+        self.__movements_to_destination.insert(0, Forward(distance_to_move))
         self.__movements_to_destination.insert(0, create_rotate(get_rotation_angle(self._model.robot.orientation,
                                                                                    dodge_angle)))

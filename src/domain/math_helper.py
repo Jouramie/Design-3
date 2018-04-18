@@ -1,6 +1,6 @@
 import numpy as np
 
-from math import atan, pi
+from math import atan, degrees
 from typing import Union
 
 
@@ -27,7 +27,7 @@ def get_angle(vector: Union[tuple, np.ndarray]) -> float:
         else:
             return 0
 
-    angle = float(atan(vector[1] / vector[0]) / 2 / pi * 360)
+    angle = degrees(float(atan(vector[1] / vector[0])))
     if vector[0] < 0:
         angle -= 180
     return angle
