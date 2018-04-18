@@ -87,6 +87,6 @@ class PathConverter(object):
 
     def __append_rotation(self, angle):
         if abs(angle) > 100:
-            self.__movements.append(Rotate(angle * 0.90))
+            self.__movements.append(Rotate(angle * 0.95))
         else:
             self.__movements.append(Rotate(angle))
