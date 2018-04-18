@@ -36,7 +36,7 @@ station:
   camera:
     use_mocked_camera: false
     mocked_camera_image_path: "fig/saved_images/table2/00h02m31s.jpg"
-    camera_id: 0
+    camera_id: 1
     image_width: 1600
     image_height: 1200
     image_save_dir: "fig/{date}"
@@ -106,20 +106,20 @@ station:
           y: -18
           pixel_x: 1350
           pixel_y: 960
-      t2:
+      t5:
         cube0:
           x: 166.5
           y: 84.5
           pixel_x: 1360
           pixel_y: 240
         cube1:
-          x: 180.5
+          x: 181.1
           y: 84.5
           pixel_x: 1424
           pixel_y: 240
         cube2:
-          x: 203.5
-          y: 60.5
+          x: 204.2
+          y: 61.5
           pixel_x: 1575
           pixel_y: 402
         cube3:
@@ -138,13 +138,13 @@ station:
           pixel_x: 1575
           pixel_y: 700
         cube6:
-          x: 203.5
-          y: 4.5
+          x: 204.2
+          y: 5.0
           pixel_x: 1575
           pixel_y: 800
         cube7:
-          x: 180.5
-          y: -19.5
+          x: 181
+          y: -18.5
           pixel_x: 1424
           pixel_y: 960
         cube8:
