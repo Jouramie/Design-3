@@ -136,9 +136,12 @@ class StationController(object):
         self._model.frame = self.__camera.get_frame()
         self._model.robot = self.__robot_detector.detect(self._model.frame)
 
-        if self._model.robot is not None:
-            robot_center_3d = self._model.robot.get_center_3d()
-            self._model.real_path.append(np.float32(robot_center_3d))
+        if self._model.robot is None:
+            self.__logger.info('Waiting to detect robot')
+            return
+
+        robot_center_3d = self._model.robot.get_center_3d()
+        self._model.real_path.append(np.float32(robot_center_3d))
 
         if self._model.current_state is State.NOT_STARTED:
             return
@@ -743,12 +746,17 @@ class StationController(object):
 
         dodge_angle = get_angle(dodge_direction)
 
-        distance_to_move = self.__navigation_environment.BIGGEST_ROBOT_RADIUS + \
+        distance_to_move = abs(self.__navigation_environment.BIGGEST_ROBOT_RADIUS + \
                            self.__navigation_environment.OBSTACLE_RADIUS - \
-                           distance_between(obstacle.center, self._model.robot.center) + 3
+                           distance_between(obstacle.center, self._model.robot.center) + 3)
 
+        if distance_to_move < 1:
+            distance_to_move = 1
         self.__logger.info('Moving away from obstacle {} of {} cm.'.format(obstacle, distance_to_move))
 
+        if self.__movements_to_destination is None:
+            self.__movements_to_destination = []
         self.__movements_to_destination.insert(0, Forward(distance_to_move))
         self.__movements_to_destination.insert(0, Rotate(get_rotation_angle(self._model.robot.orientation,
                                                                                    dodge_angle)))
+        self.__movements_to_destination.append(Forward(0))
