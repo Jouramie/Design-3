@@ -17,7 +17,7 @@ class NavigationEnvironment(object):
     CUBE_HALF_SIZE = 4
     OBSTACLE_RADIUS = 10
     BIGGEST_ROBOT_RADIUS = 17
-    HALF_OCTOBSTACLE_LONG_SIDE = int(2 * (10 + 17) / 3)
+    HALF_OCTOBSTACLE_LONG_SIDE = int(2 * (OBSTACLE_RADIUS + BIGGEST_ROBOT_RADIUS) / 3)
 
     __width = 0
     __height = 0
