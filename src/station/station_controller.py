@@ -55,8 +55,8 @@ class StationController(object):
         self._model.world_camera_is_on = True
 
         self.__destination = None
-        self.__movements_to_destination: [Movement] = []
-        self.__todo_when_arrived_at_destination: [Action] = []
+        self.__movements_to_destination: [Movement] = None
+        self.__todo_when_arrived_at_destination: [Action] = None
 
         def start_robot_thread():
             self.__logger.info('Updating robot.')
@@ -165,6 +165,7 @@ class StationController(object):
 
             elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
+                self.__movements_to_destination = None
                 self.__todo_when_arrived_at_destination = None
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
                 self._model.next_state = None
@@ -181,7 +182,10 @@ class StationController(object):
             self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state is State.TRAVELING_TO_CUBE_REPOSITORY:
-            self.__move_to_cube_area()
+            successfully_found_path = self.__move_to_cube_area()
+            if not successfully_found_path:
+                return
+
             self._model.next_state = State.ADJUSTING_IN_CUBE_REPOSITORY
 
         elif self._model.current_state is State.ADJUSTING_IN_CUBE_REPOSITORY:
@@ -216,7 +220,10 @@ class StationController(object):
                 self._model.next_state = State.TRAVELLING_TO_CUBE_DEPOT
 
         elif self._model.current_state == State.TRAVELLING_TO_CUBE_DEPOT:
-            self.__travel_to_cube_depot()
+            successfully_found_path = self.__travel_to_cube_depot()
+            if not successfully_found_path:
+                return
+
             self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
 
         elif self._model.current_state == State.ADJUSTING_IN_CUBE_DEPOT:
@@ -243,7 +250,9 @@ class StationController(object):
                 self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state == State.EXITING_TARGET_ZONE_AND_LIGHT:
-            self.__travel_out_of_target_zone_and_light_led()
+            successfully_found_path = self.__travel_out_of_target_zone_and_light_led()
+            if not successfully_found_path:
+                return
 
             self._model.next_state = State.FINISHED
 
@@ -561,7 +570,7 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __move_to_cube_area(self):
+    def __move_to_cube_area(self) -> bool:
 
         self._model.target_cube = self._model.real_world_environment.find_cube(
             self._model.next_cube.color,
@@ -569,13 +578,17 @@ class StationController(object):
              self.__config['cube_positions']['tables']['cube_area1']['y']))
         if self._model.target_cube is None:
             self.__logger.warning("The target cube is None. Cannot continue, exiting.")
-            return
+            return False
 
         self.__destination = self.__find_safe_position_in_cube_area()
         self.__todo_when_arrived_at_destination = None
 
         self.__update_path(force=True)
+        if self.__movements_to_destination is None:
+            return False
+
         self.__send_next_actions_commands()
+        return True
 
     def __move_robot_to_grab_cube(self):
         if self._model.target_cube.wall == Wall.UP:
@@ -634,12 +647,16 @@ class StationController(object):
             self.__logger.info("Target position is not valid")
         return target_position, None
 
-    def __travel_to_cube_depot(self):
+    def __travel_to_cube_depot(self) -> bool:
         self.__destination = self.__find_safe_position_to_place_cube()
         self.__todo_when_arrived_at_destination = None
 
         self.__update_path(force=True)
+        if self.__movements_to_destination is None:
+            return False
+
         self.__send_next_actions_commands()
+        return True
 
     def __drop_cube(self):
         self.__destination = None
@@ -673,7 +690,8 @@ class StationController(object):
 
             movements, self._model.planned_path = self.__find_path(end_position, end_orientation)
             if movements is None:
-                self.__move_out_of_obstacles()
+                if self.__navigation_environment.get_grid().is_obstacle(self._model.robot):
+                    self.__move_out_of_obstacles()
                 return
         else:
             movements = []
@@ -686,7 +704,7 @@ class StationController(object):
                             self.__config['distance_between_robot_center_and_cube_center']
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
-    def __travel_out_of_target_zone_and_light_led(self):
+    def __travel_out_of_target_zone_and_light_led(self) -> bool:
         target_left = (90, 55)
         target_center = (90, 30)
         target_right = (90, 5)
@@ -700,7 +718,11 @@ class StationController(object):
         self.__todo_when_arrived_at_destination = [LightItUp()]
 
         self.__update_path(force=True)
+        if self.__movements_to_destination is None:
+            return False
+
         self.__send_next_actions_commands()
+        return True
 
     def __move_out_of_obstacles(self):
         obstacle = self._model.real_world_environment.find_closest_obstacle(self._model.robot)
