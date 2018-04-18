@@ -536,7 +536,6 @@ class StationController(object):
                     break
         else:
             self.__destination = None, angle
-            self.__todo_when_arrived_at_destination = [IR()]
 
         self.__todo_when_arrived_at_destination = [IR()]
         self.__update_path(force=True)
