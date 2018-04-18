@@ -1,10 +1,14 @@
+from math import sqrt
+
+from src.domain.math_helper import distance_between
+from src.domain.objects.robot import Robot
 from src.domain.objects.wall import Wall
 from ..objects.color import Color
 from ..objects.flag_cube import FlagCube
 from ..objects.obstacle import Obstacle
 from ..objects.target_zone import TargetZone
 
-from math import sqrt
+INFINITY = 9999
 
 
 class RealWorldEnvironment(object):
@@ -46,3 +50,10 @@ class RealWorldEnvironment(object):
         else:
             return None
 
+    def find_two_closest_obstacles(self, robot: Robot) -> [Obstacle]:
+        if len(self.obstacles) <= 2:
+            return self.obstacles
+        else:
+            sorted_obstacles = sorted(self.obstacles,
+                                      key=lambda obstacle: distance_between(obstacle.center, robot.center))
+            return sorted_obstacles[:2]

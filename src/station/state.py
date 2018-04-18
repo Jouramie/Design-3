@@ -15,3 +15,4 @@ class State(Enum):
     EXITING_TARGET_ZONE_AND_LIGHT = 12
     FINISHED = -1
     WORKING = -2
+    RECOVERY = -3

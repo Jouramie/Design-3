@@ -148,7 +148,7 @@ class StationController(object):
             self.__generate_real_world_environments()
 
         if self._model.current_state is State.WORKING and msg is not None:
-            # input('Press enter to continue execution.')  # TODO
+            input('Press enter to continue execution.')  # TODO
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
                 self.__send_next_actions_commands()
@@ -251,6 +251,8 @@ class StationController(object):
 
         elif self._model.current_state == State.WORKING:
             return
+        elif self._model.current_state == State.RECOVERY:
+            self.__move_out_of_obstacles()
 
         else:
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
@@ -611,7 +613,8 @@ class StationController(object):
         self._model.target_cube = None
 
         self.__destination = None
-        self.__todo_when_arrived_at_destination = [Backward(0.5), Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
+        self.__todo_when_arrived_at_destination = [Backward(0.5), Grab(),
+                                                   Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -671,6 +674,7 @@ class StationController(object):
 
             movements, self._model.planned_path = self.__find_path(end_position, end_orientation)
             if movements is None:
+                self._model.current_state = State.RECOVERY
                 return
         else:
             movements = []
@@ -698,6 +702,11 @@ class StationController(object):
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
+
+    def __move_out_of_obstacles(self):
+        obstacles = self._model.real_world_environment.find_two_closest_obstacles(self._model.robot)
+        print('Moving out of obstacles')
+        pass
 
 
 def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
