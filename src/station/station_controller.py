@@ -508,7 +508,6 @@ class StationController(object):
             if self._model.next_state is not None:
                 self._model.current_state, self._model.next_state = self._model.next_state, None
                 self._model.original_planned_path = self._model.revised_planned_path = None
-                self._model.real_path = []
             return
 
         self.__network.send_actions(actions_to_be_send)
