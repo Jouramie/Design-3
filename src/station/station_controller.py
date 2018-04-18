@@ -25,6 +25,7 @@ from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
 from .state import State
 from .station_model import StationModel
+from src.domain.math_helper import distance_between
 
 
 class StationController(object):
@@ -148,7 +149,7 @@ class StationController(object):
             self.__generate_real_world_environments()
 
         if self._model.current_state is State.WORKING and msg is not None:
-            input('Press enter to continue execution.')  # TODO
+            # input('Press enter to continue execution.')  # TODO
             if msg['command'] == Command.EXECUTED_ALL_REQUESTS:
                 self.__update_path()
                 self.__send_next_actions_commands()
@@ -441,7 +442,7 @@ class StationController(object):
                            + self.__config['distance_between_robot_center_and_cube_center'],
                            self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
 
-        distance_to_travel = calculate_distance_between_two_points(robot_pos, target_position)
+        distance_to_travel = distance_between(robot_pos, target_position)
         self.__logger.info("Moving to drop target : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
@@ -708,9 +709,3 @@ class StationController(object):
         print('Moving out of obstacles')
         pass
 
-
-def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
-    distance_between_two_points = sqrt((point2[1] - point1[1]) ** 2 + (point2[0] - point1[0]) ** 2)
-    ceil_distance_between_two_points = distance_between_two_points
-
-    return int(ceil_distance_between_two_points)
