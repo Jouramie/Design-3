@@ -717,10 +717,10 @@ class StationController(object):
                             self.__config['distance_between_robot_center_and_cube_center']
         return (target_position_x - 1) < robot_pos_x < (target_position_x + 1)
 
-    def __travel_out_of_target_zone_and_light_led(self) -> bool:
-        target_left = (90, 55)
-        target_center = (90, 30)
-        target_right = (90, 5)
+    def __travel_out_of_target_zone_and_light_led(self):
+        target_left = (93, 55)
+        target_center = (93, 30)
+        target_right = (93, 5)
         if not self.__navigation_environment.get_grid().is_obstacle(target_center):
             self.__destination = target_center, None
         elif not self.__navigation_environment.get_grid().is_obstacle(target_left):

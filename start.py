@@ -97,7 +97,7 @@ def start_station(config: dict, logger: logging.Logger) -> None:
     if config['table_number'] == 1:
         cube_dict = config['cube_positions']['tables']['t1']
     else:
-        cube_dict = config['cube_positions']['tables']['t2']
+        cube_dict = config['cube_positions']['tables']['t5']
 
     coordinate_converter = CoordinateConverter(table_camera_config, cube_dict)
     if config['robot']['use_mocked_robot_detector']:
