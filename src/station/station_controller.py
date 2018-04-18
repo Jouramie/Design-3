@@ -524,13 +524,21 @@ class StationController(object):
         return target_position
 
     def __move_to_infra_red_station(self):
-        robot_position = (self._model.robot.center[0], self._model.robot.center[1])
-        in_front_of_ir_position = (0, -23)
-        angle = degrees(sin((robot_position[1] - in_front_of_ir_position[1]) /
-                            (robot_position[0] - in_front_of_ir_position[0]))) + 180
-        self.__destination = None, angle
-        self.__todo_when_arrived_at_destination = [IR()]
+        x_robot_position, y_robot_position = self._model.robot.center[0], self._model.robot.center[1]
+        x_ir_position, y_ir_position = 0, -23
+        angle = degrees(sin((y_robot_position - y_ir_position) /
+                            (x_robot_position - x_ir_position))) + 180
+        if x_robot_position > 90:
+            targets = [(95, 30), (95, 5), (95, 55)]
+            for target in targets:
+                if not self.__navigation_environment.get_grid().is_obstacle(target):
+                    self.__destination = target, angle
+                    break
+        else:
+            self.__destination = None, angle
+            self.__todo_when_arrived_at_destination = [IR()]
 
+        self.__todo_when_arrived_at_destination = [IR()]
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
