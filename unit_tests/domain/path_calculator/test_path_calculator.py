@@ -69,29 +69,6 @@ class TestPathCalculator(TestCase):
 
         self.assertEqual(expected, path_calculator.get_calculated_path())
 
-    def test_when_calculating_then_recommend_forward(self):
-        environment = NavigationEnvironment(MagicMock())
-        environment.create_grid()
-        environment.add_obstacles([Obstacle(SPECIFIC_OBSTACLE_1_VALUE, NavigationEnvironment.OBSTACLE_RADIUS),
-                                   Obstacle(SPECIFIC_OBSTACLE_2_VALUE, NavigationEnvironment.OBSTACLE_RADIUS)])
-
-        starting_point = SPECIFIC_STARTING_POINT
-        ending_point = SPECIFIC_ENDING_POINT
-
-        path_calculator = PathCalculator(MagicMock())
-
-        path_calculator.calculate_path(starting_point, ending_point, environment.get_grid())
-        expected_square = [(50, 15), (50, 16), (50, 17), (50, 18), (50, 19), (50, 20), (50, 21), (50, 22), (50, 23),
-                           (50, 24), (50, 25), (50, 26), (51, 26), (52, 26), (53, 26), (54, 26), (55, 26), (56, 26),
-                           (57, 26), (58, 26), (59, 26), (60, 26), (61, 26), (62, 26), (63, 26), (64, 26), (65, 26),
-                           (66, 26), (67, 26), (68, 26), (69, 26), (70, 26), (71, 26), (72, 26), (73, 26), (74, 26),
-                           (75, 26), (76, 26), (77, 26), (78, 26), (79, 26), (80, 26), (81, 26), (82, 26), (83, 26),
-                           (84, 26), (85, 26), (86, 26), (87, 26), (88, 26), (89, 26), (89, 27), (89, 28), (89, 29),
-                           (89, 30), (89, 31), (89, 32), (89, 33), (90, 33), (91, 33), (92, 33), (93, 33), (94, 33),
-                           (95, 33), (96, 33), (97, 33), (98, 33), (99, 33), (100, 33), (101, 33), (102, 33)]
-
-        self.assertEqual(expected_square, path_calculator.get_calculated_path())
-
     def test_when_straight_line_then_does_not_zigzag(self):
         environment = NavigationEnvironment(MagicMock())
         environment.create_grid()
