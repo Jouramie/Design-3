@@ -69,7 +69,10 @@ class Movement(Action):
 
 class Rotate(Movement):
     def __init__(self, amplitude):
-        super().__init__(Command.MOVE_ROTATE, amplitude)
+        if abs(amplitude) > 100:
+            super().__init__(Command.MOVE_ROTATE, amplitude * 0.95)
+        else:
+            super().__init__(Command.MOVE_ROTATE, amplitude)
 
 
 class Forward(Movement):
