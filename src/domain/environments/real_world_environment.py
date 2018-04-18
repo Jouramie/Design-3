@@ -57,3 +57,11 @@ class RealWorldEnvironment(object):
             sorted_obstacles = sorted(self.obstacles,
                                       key=lambda obstacle: distance_between(obstacle.center, robot.center))
             return sorted_obstacles[:2]
+
+    def find_closest_obstacle(self, robot, Robot) -> Obstacle:
+        if len(self.obstacles) == 0:
+            return
+
+        sorted_obstacles = sorted(self.obstacles,
+                                  key=lambda obstacle: distance_between(obstacle.center, robot.center))
+        return sorted_obstacles[0]

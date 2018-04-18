@@ -6,6 +6,7 @@ import numpy as np
 
 from .action import Rotate, Forward
 from ..objects.robot import Robot
+from ..math_helper import get_angle
 
 
 class PathConverter(object):
@@ -22,7 +23,8 @@ class PathConverter(object):
         self.__segments = []
 
         if len(path) <= 1:
-            self.__add_rotation(robot.orientation, final_angle_desired)
+            if final_angle_desired is not None:
+                self.__movements.append(create_rotate(get_rotation_angle(robot.orientation, final_angle_desired)))
             return self.__movements, self.__segments
 
         path_cycle = cycle(path)
@@ -36,24 +38,15 @@ class PathConverter(object):
             current_node, next_node = next_node, next(path_cycle)
             movement = tuple(np.subtract(next_node, current_node))
             amplitude = round(np.linalg.norm(movement), 1)
-            if movement[0] == 0:
-                if movement[1] > 0:
-                    new_angle = 90
-                elif movement[1] < 0:
-                    new_angle = -90
-                else:
-                    self.logger.warning('Moving of {} ?'.format(str(movement)))
-                    continue
-            else:
-                new_angle = int(atan(movement[1] / movement[0]) / 2 / pi * 360)
-                if movement[0] < 0:
-                    new_angle -= 180
+
+            new_angle = get_angle(movement)
 
             self.__add_movements(amplitude, current_angle, new_angle)
             self.__add_segments(current_node, next_node)
             current_angle = new_angle
             if current_node == path[-2]:
-                self.__add_rotation(current_angle, final_angle_desired)
+                if final_angle_desired is not None:
+                    self.__movements.append(create_rotate(get_rotation_angle(current_angle, final_angle_desired)))
                 break
 
         if iteration == self.MAX_ITERATION:
@@ -66,27 +59,29 @@ class PathConverter(object):
 
     def __add_movements(self, length, current_angle, new_angle):
         if new_angle is not None:
-            self.__add_rotation(current_angle, new_angle)
+            rotation_angle = get_rotation_angle(current_angle, new_angle)
+            if rotation_angle != 0:
+                self.__movements.append(create_rotate(rotation_angle))
         while length >= self.MAX_FORWARD_DISTANCE:  # cm
             self.__movements.append(Forward(self.MAX_FORWARD_DISTANCE))
             length -= self.MAX_FORWARD_DISTANCE
         self.__movements.append(Forward(length))
 
-    def __add_rotation(self, old_angle, new_angle):
-        if new_angle is None:
-            return
-        delta_angle = new_angle - old_angle
-        if (180 >= delta_angle > 0) or (-180 <= delta_angle < 0):
-            self.__append_rotation(delta_angle)
-        elif delta_angle % 360 == 0:
-            pass
-        elif delta_angle > 180:
-            self.__append_rotation(delta_angle - 360)
-        elif delta_angle < -180:
-            self.__append_rotation(delta_angle + 360)
 
-    def __append_rotation(self, angle):
-        if abs(angle) > 100:
-            self.__movements.append(Rotate(angle * 0.90))
-        else:
-            self.__movements.append(Rotate(angle))
+def get_rotation_angle(old_angle, new_angle) -> float:
+    delta_angle = new_angle - old_angle
+    if (180 >= delta_angle > 0) or (-180 <= delta_angle < 0):
+        return delta_angle
+    elif delta_angle % 360 == 0:
+        return 0
+    elif delta_angle > 180:
+        return delta_angle - 360
+    elif delta_angle < -180:
+        return delta_angle + 360
+
+
+def create_rotate(angle) -> Rotate:
+    if abs(angle) > 100:
+        return Rotate(angle * 0.90)
+    else:
+        return Rotate(angle)

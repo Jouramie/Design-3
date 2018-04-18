@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import sqrt, ceil, sin, degrees
+from math import ceil, sin, degrees, atan
 
 import numpy as np
 
@@ -12,20 +12,20 @@ from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment_factory import RealWorldEnvironmentFactory
+from src.domain.math_helper import distance_between, get_normalized_direction ,get_angle
 from src.domain.objects.color import Color
 from src.domain.objects.wall import Wall
 from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, Left, Grab, Drop, LightItUp, IR, Action, \
     CanIGrab, Movement
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.path_calculator import PathCalculator
-from src.domain.path_calculator.path_converter import PathConverter
+from src.domain.path_calculator.path_converter import PathConverter, create_rotate, get_rotation_angle
 from src.domain.path_calculator.path_simplifier import PathSimplifier
 from src.vision.camera import Camera
 from src.vision.robot_detector import RobotDetector
 from src.vision.world_vision import WorldVision
 from .state import State
 from .station_model import StationModel
-from src.domain.math_helper import distance_between
 
 
 class StationController(object):
@@ -252,8 +252,6 @@ class StationController(object):
 
         elif self._model.current_state == State.WORKING:
             return
-        elif self._model.current_state == State.RECOVERY:
-            self.__move_out_of_obstacles()
 
         else:
             self.__logger.error('The state {} is not supported.'.format(self._model.current_state))
@@ -675,7 +673,7 @@ class StationController(object):
 
             movements, self._model.planned_path = self.__find_path(end_position, end_orientation)
             if movements is None:
-                self._model.current_state = State.RECOVERY
+                self.__move_out_of_obstacles()
                 return
         else:
             movements = []
@@ -706,6 +704,14 @@ class StationController(object):
 
     def __move_out_of_obstacles(self):
         obstacles = self._model.real_world_environment.find_two_closest_obstacles(self._model.robot)
-        print('Moving out of obstacles')
-        pass
+        dodge_direction = np.array((0, 0), 'float32')
+        for obstacle in obstacles:
+            dodge_direction += get_normalized_direction(obstacle.center, self._model.robot.center)
 
+        dodge_angle = get_angle(dodge_direction)
+
+        print(dodge_direction)
+        print(dodge_angle)
+        self.__movements_to_destination.insert(0, Forward(self.__navigation_environment.BIGGEST_ROBOT_RADIUS))
+        self.__movements_to_destination.insert(0, create_rotate(get_rotation_angle(self._model.robot.orientation,
+                                                                                   dodge_angle)))
