@@ -530,7 +530,7 @@ class StationController(object):
         angle = degrees(sin((y_robot_position - y_ir_position) /
                             (x_robot_position - x_ir_position))) + 180
         if x_robot_position > 90:
-            targets = [(95, 30), (95, 5), (95, 55)]
+            targets = [(90, 30), (90, 5), (90, 55)]
             for target in targets:
                 if not self.__navigation_environment.get_grid().is_obstacle(target):
                     self.__destination = target, angle
