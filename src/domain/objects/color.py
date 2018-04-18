@@ -19,6 +19,7 @@ class Color(Enum):
     PINK2 = ((200, 20, 255), None, None)
     TRANSPARENT = ((230, 240, 250), None, None)
     LIGHT_GREY = ((200, 200, 200), None, None)
+    ORANGE = ((0, 120, 250), None, None)
 
     def __init__(self, bgr: tuple, lower_bound: np.ndarray, upper_bound: np.ndarray):
         self.bgr = bgr

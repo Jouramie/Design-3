@@ -28,7 +28,8 @@ class StationModel(object):
         self.next_state = None
         self.world_camera_is_on = False
 
-        self.planned_path = None
+        self.original_planned_path = None
+        self.revised_planned_path = None
         self.real_path = []
 
         self._update_functions = []
