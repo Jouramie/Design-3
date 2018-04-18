@@ -73,6 +73,6 @@ class TestFrameDrawer(TestCase):
         planned_path = [((0, 0), (10, 10)), ((10, 10), (10, 20)), ((10, 20), (0, 20))]
         frame = MagicMock()
 
-        self.frame_drawer.draw_planned_path(frame, planned_path)
+        self.frame_drawer.draw_original_planned_path(frame, planned_path)
 
         cv2.line.assert_called()

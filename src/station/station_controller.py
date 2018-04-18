@@ -507,6 +507,7 @@ class StationController(object):
         else:
             if self._model.next_state is not None:
                 self._model.current_state, self._model.next_state = self._model.next_state, None
+                self._model.original_planned_path = self._model.revised_planned_path = None
             return
 
         self.__network.send_actions(actions_to_be_send)
@@ -676,7 +677,12 @@ class StationController(object):
         if self.__destination is not None:
             end_position, end_orientation = self.__destination
 
-            movements, self._model.planned_path = self.__find_path(end_position, end_orientation)
+            movements, path = self.__find_path(end_position, end_orientation)
+            if self._model.original_planned_path is None:
+                self._model.original_planned_path = path
+            else:
+                self._model.revised_planned_path = path
+
             if movements is None:
                 return
         else:
