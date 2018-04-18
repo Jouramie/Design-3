@@ -51,12 +51,18 @@ class FrameDrawer(object):
                 cv2.line(frame, tuple(world_points[i][0]), tuple(world_points[i + 1][0]), Color.LIGHT_BLUE.bgr, 3)
                 i = i + 1
 
-    def draw_planned_path(self, frame, points):
+    def draw_revised_planned_path(self, frame, points):
+        self.__draw_path(frame, points, Color.ORANGE)
+
+    def draw_original_planned_path(self, frame, points):
+        self.__draw_path(frame, points, Color.LIGHT_GREEN)
+
+    def __draw_path(self, frame, points, color: Color):
         for point in points:
             np_points = np.array([(point[0][0], point[0][1], 0), (point[1][0], point[1][1], 0)], 'float32')
             projected_points = self.coordinate_converter.project_points_from_real_world_to_pixel(np_points)
 
-            cv2.line(frame, tuple(projected_points[0][0]), tuple(projected_points[1][0]), Color.LIGHT_GREEN.bgr, 3)
+            cv2.line(frame, tuple(projected_points[0][0]), tuple(projected_points[1][0]), color.bgr, 3)
 
     def draw_vision_environment(self, frame, vision_environment: VisionEnvironment):
         for obstacle in vision_environment.obstacles:
