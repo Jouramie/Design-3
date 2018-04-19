@@ -19,7 +19,7 @@ from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, 
     CanIGrab, Movement
 from src.domain.path_calculator.direction import Direction
 from src.domain.path_calculator.path_calculator import PathCalculator
-from src.domain.path_calculator.path_converter import PathConverter, get_rotation_angle
+from src.domain.path_calculator.path_converter import PathConverter
 from src.domain.path_calculator.path_simplifier import PathSimplifier
 from src.vision.camera import Camera
 from src.vision.robot_detector import RobotDetector
@@ -745,6 +745,8 @@ class StationController(object):
         dodge_direction = get_normalized_direction(obstacle.center, self._model.robot.center)
 
         dodge_angle = get_angle(dodge_direction)
+        delta_angle = (dodge_angle - self._model.robot.orientation) % 360
+        cardinal_angle = (round(delta_angle / 90) * 90) % 360
 
         distance_to_move = abs(self.__navigation_environment.BIGGEST_ROBOT_RADIUS + \
                            self.__navigation_environment.OBSTACLE_RADIUS - \
@@ -752,11 +754,17 @@ class StationController(object):
 
         if distance_to_move < 1:
             distance_to_move = 1
+
         self.__logger.info('Moving away from obstacle {} of {} cm.'.format(obstacle, distance_to_move))
 
-        if self.__movements_to_destination is None:
-            self.__movements_to_destination = []
-        self.__movements_to_destination.insert(0, Forward(distance_to_move))
-        self.__movements_to_destination.insert(0, Rotate(get_rotation_angle(self._model.robot.orientation,
-                                                                                   dodge_angle)))
+        if cardinal_angle == 0:
+            self.__movements_to_destination.insert(0, Forward(distance_to_move))
+        elif cardinal_angle == 90:
+            self.__movements_to_destination.insert(0, Left(distance_to_move))
+        elif cardinal_angle == 180:
+            self.__movements_to_destination.insert(0, Backward(distance_to_move))
+        elif cardinal_angle == 270:
+            self.__movements_to_destination.insert(0, Right(distance_to_move))
+        else:
+            self.__logger.warning('Supposed to move at {} degree...'.format(cardinal_angle))
         self.__movements_to_destination.append(Forward(0))
