@@ -42,7 +42,7 @@ station:
     image_save_dir: "fig/{date}"
   network:
     use_mocked_network: false
-    mocked_country_code: 95
+    mocked_country_code: 34
     port: *port
   robot:
     use_mocked_robot_detector: false

@@ -2,7 +2,7 @@ import subprocess
 import threading
 import time
 from logging import Logger
-from math import sqrt, ceil, sin, degrees
+from math import ceil, sin, degrees
 
 import numpy as np
 
@@ -12,6 +12,7 @@ from src.d3_network.server_network_controller import ServerNetworkController
 from src.domain.country_loader import CountryLoader
 from src.domain.environments.navigation_environment import NavigationEnvironment
 from src.domain.environments.real_world_environment_factory import RealWorldEnvironmentFactory
+from src.domain.math_helper import distance_between, get_normalized_direction, get_angle
 from src.domain.objects.color import Color
 from src.domain.objects.wall import Wall
 from src.domain.path_calculator.action import Forward, Backward, Rotate, Right, Left, Grab, Drop, LightItUp, IR, Action, \
@@ -54,8 +55,8 @@ class StationController(object):
         self._model.world_camera_is_on = True
 
         self.__destination = None
-        self.__movements_to_destination: [Movement] = []
-        self.__todo_when_arrived_at_destination: [Action] = []
+        self.__movements_to_destination: [Movement] = None
+        self.__todo_when_arrived_at_destination: [Action] = None
 
         def start_robot_thread():
             self.__logger.info('Updating robot.')
@@ -135,9 +136,12 @@ class StationController(object):
         self._model.frame = self.__camera.get_frame()
         self._model.robot = self.__robot_detector.detect(self._model.frame)
 
-        if self._model.robot is not None:
-            robot_center_3d = self._model.robot.get_center_3d()
-            self._model.real_path.append(np.float32(robot_center_3d))
+        if self._model.robot is None:
+            self.__logger.info('Waiting to detect robot')
+            return
+
+        robot_center_3d = self._model.robot.get_center_3d()
+        self._model.real_path.append(np.float32(robot_center_3d))
 
         if self._model.current_state is State.NOT_STARTED:
             return
@@ -164,6 +168,7 @@ class StationController(object):
 
             elif msg['command'] == Command.GRAB_CUBE_FAILURE:
                 self.__destination = None
+                self.__movements_to_destination = None
                 self.__todo_when_arrived_at_destination = None
                 self._model.current_state = State.MOVING_TO_GRAB_CUBE
                 self._model.next_state = None
@@ -180,7 +185,10 @@ class StationController(object):
             self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state is State.TRAVELING_TO_CUBE_REPOSITORY:
-            self.__move_to_cube_area()
+            successfully_found_path = self.__move_to_cube_area()
+            if not successfully_found_path:
+                return
+
             self._model.next_state = State.ADJUSTING_IN_CUBE_REPOSITORY
 
         elif self._model.current_state is State.ADJUSTING_IN_CUBE_REPOSITORY:
@@ -215,7 +223,10 @@ class StationController(object):
                 self._model.next_state = State.TRAVELLING_TO_CUBE_DEPOT
 
         elif self._model.current_state == State.TRAVELLING_TO_CUBE_DEPOT:
-            self.__travel_to_cube_depot()
+            successfully_found_path = self.__travel_to_cube_depot()
+            if not successfully_found_path:
+                return
+
             self._model.next_state = State.ADJUSTING_IN_CUBE_DEPOT
 
         elif self._model.current_state == State.ADJUSTING_IN_CUBE_DEPOT:
@@ -242,7 +253,9 @@ class StationController(object):
                 self._model.next_state = State.TRAVELING_TO_CUBE_REPOSITORY
 
         elif self._model.current_state == State.EXITING_TARGET_ZONE_AND_LIGHT:
-            self.__travel_out_of_target_zone_and_light_led()
+            successfully_found_path = self.__travel_out_of_target_zone_and_light_led()
+            if not successfully_found_path:
+                return
 
             self._model.next_state = State.FINISHED
 
@@ -439,7 +452,7 @@ class StationController(object):
                            + self.__config['distance_between_robot_center_and_cube_center'],
                            self._model.country.stylized_flag.flag_cubes[self._model.current_cube_index - 1].center[1])
 
-        distance_to_travel = calculate_distance_between_two_points(robot_pos, target_position)
+        distance_to_travel = distance_between(robot_pos, target_position)
         self.__logger.info("Moving to drop target : {} cm".format(str(distance_to_travel)))
 
         self.__destination = None
@@ -568,7 +581,7 @@ class StationController(object):
         self.__update_path(force=True)
         self.__send_next_actions_commands()
 
-    def __move_to_cube_area(self):
+    def __move_to_cube_area(self) -> bool:
 
         self._model.target_cube = self._model.real_world_environment.find_cube(
             self._model.next_cube.color,
@@ -576,13 +589,17 @@ class StationController(object):
              self.__config['cube_positions']['tables']['cube_area1']['y']))
         if self._model.target_cube is None:
             self.__logger.warning("The target cube is None. Cannot continue, exiting.")
-            return
+            return False
 
         self.__destination = self.__find_safe_position_in_cube_area()
         self.__todo_when_arrived_at_destination = None
 
         self.__update_path(force=True)
+        if self.__movements_to_destination is None:
+            return False
+
         self.__send_next_actions_commands()
+        return True
 
     def __move_robot_to_grab_cube(self):
         if self._model.target_cube.wall == Wall.UP:
@@ -619,7 +636,8 @@ class StationController(object):
         self._model.target_cube = None
 
         self.__destination = None
-        self.__todo_when_arrived_at_destination = [Backward(0.5), Grab(), Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
+        self.__todo_when_arrived_at_destination = [Backward(0.5), Grab(),
+                                                   Backward(NavigationEnvironment.BIGGEST_ROBOT_RADIUS)]
 
         self.__update_path(force=True)
         self.__send_next_actions_commands()
@@ -640,12 +658,16 @@ class StationController(object):
             self.__logger.info("Target position is not valid")
         return target_position, None
 
-    def __travel_to_cube_depot(self):
+    def __travel_to_cube_depot(self) -> bool:
         self.__destination = self.__find_safe_position_to_place_cube()
         self.__todo_when_arrived_at_destination = None
 
         self.__update_path(force=True)
+        if self.__movements_to_destination is None:
+            return False
+
         self.__send_next_actions_commands()
+        return True
 
     def __drop_cube(self):
         self.__destination = None
@@ -684,6 +706,8 @@ class StationController(object):
                 self._model.revised_planned_path = path
 
             if movements is None:
+                if self.__navigation_environment.get_grid().is_obstacle(self._model.robot.center):
+                    self.__move_out_of_obstacles()
                 return
         else:
             movements = []
@@ -710,11 +734,37 @@ class StationController(object):
         self.__todo_when_arrived_at_destination = [LightItUp()]
 
         self.__update_path(force=True)
+        if self.__movements_to_destination is None:
+            return False
+
         self.__send_next_actions_commands()
+        return True
 
+    def __move_out_of_obstacles(self):
+        obstacle = self._model.real_world_environment.find_closest_obstacle(self._model.robot)
+        dodge_direction = get_normalized_direction(obstacle.center, self._model.robot.center)
 
-def calculate_distance_between_two_points(point1: tuple, point2: tuple) -> int:
-    distance_between_two_points = sqrt((point2[1] - point1[1]) ** 2 + (point2[0] - point1[0]) ** 2)
-    ceil_distance_between_two_points = distance_between_two_points
+        dodge_angle = get_angle(dodge_direction)
+        delta_angle = (dodge_angle - self._model.robot.orientation) % 360
+        cardinal_angle = (round(delta_angle / 90) * 90) % 360
 
-    return int(ceil_distance_between_two_points)
+        distance_to_move = abs(self.__navigation_environment.BIGGEST_ROBOT_RADIUS + \
+                           self.__navigation_environment.OBSTACLE_RADIUS - \
+                           distance_between(obstacle.center, self._model.robot.center) + 3)
+
+        if distance_to_move < 1:
+            distance_to_move = 1
+
+        self.__logger.info('Moving away from obstacle {} of {} cm.'.format(obstacle, distance_to_move))
+
+        if cardinal_angle == 0:
+            self.__movements_to_destination.insert(0, Forward(distance_to_move))
+        elif cardinal_angle == 90:
+            self.__movements_to_destination.insert(0, Left(distance_to_move))
+        elif cardinal_angle == 180:
+            self.__movements_to_destination.insert(0, Backward(distance_to_move))
+        elif cardinal_angle == 270:
+            self.__movements_to_destination.insert(0, Right(distance_to_move))
+        else:
+            self.__logger.warning('Supposed to move at {} degree...'.format(cardinal_angle))
+        self.__movements_to_destination.append(Forward(0))
